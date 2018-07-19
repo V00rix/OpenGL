@@ -24,11 +24,16 @@ add_subdirectory(external/glfw)
 
 # util
 # vector
-set(vector src/util/Vector.cpp src/util/Vector.h)
+set(vectors src/util/vec4.h)
+
+#matrices
+set(matrices src/util/mat4.h)
 
 set(util
-        ${vector})
+        ${matrices}
+        ${vectors})
 
+# Executable
 add_executable(OpenGL src/main.cpp ${util})
 target_link_libraries(OpenGL ${OPENGL_LIBRARY} glew glfw)
 

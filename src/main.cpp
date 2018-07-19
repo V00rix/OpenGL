@@ -4,13 +4,18 @@
 // other stuff
 #include <iostream>
 #include <fstream>
+#include <cmath>
 #include <sstream>
 #include <vector>
-#include "util/Vector.h"
+#include "util/mat4.h"
+#include "util/vec4.h"
 
 #define _DEBUG 1
 
 //region Helpers
+/**
+ * Main window
+ */
 static GLFWwindow *window;
 
 /**
@@ -213,6 +218,22 @@ int main() {
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
+    mat4<int> mat = {
+            vec4<int>({1, 0, 0, 0}),
+            0, 1, 0, 0,
+            0, 0, 5, 0,
+            0, 0, 0, 1
+    };
+
+    std::cout << mat << std::endl;
+    std::cout << "hello?" << std::endl;
+
+    vec4<int> v1 = {1, 3, 4, 1};
+
+    std::cout << mat * v1 << std::endl;
+    std::cout << "hello?" << std::endl;
+
+
     const float vertices[] = {
             -1.0f, -1.0f, 0.0f,     // 0
             1.0f, -1.0f, 0.0f,      // 1
@@ -241,12 +262,13 @@ int main() {
 
 
     auto shader = loadShaders("shaders/vertex.glsl",
-                              "shaders/fragment.glsl"); // this is relative to target binary location
+                              "shaders/fragment.glsl"); // this is relative to target binary u_color
     glUseProgram(shader);
 
-    int location = glGetUniformLocation(shader, "u_color");
+    int u_color_location = glGetUniformLocation(shader, "u_color");
+    int u_scale_location = glGetUniformLocation(shader, "u_scale");
 
-    float r = .5f, delta = 0.05f, increment = delta;
+    float r = .5f, increment = 0.05f;
 
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -256,12 +278,9 @@ int main() {
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-        glUniform4f(location, r, 1.f, .8f, 1.0f);
+        glUniform4f(u_color_location, sin(r), 1.f, .8f, 1.0f);
+        glUniform3f(u_scale_location, sin(r) / 2.f, sin(r / 2.f) / 2.f, 1.f);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-
-        if (r > 1.f) increment = -delta;
-        if (r < 0.f) increment = delta;
 
         r += increment;
 
