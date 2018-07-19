@@ -218,7 +218,7 @@ int main() {
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    mat4<int> mat = {
+    mat::mat4<int> mat = {
             vec4<int>({1, 0, 0, 0}),
             0, 1, 0, 0,
             0, 0, 5, 0,
@@ -229,8 +229,10 @@ int main() {
     std::cout << "hello?" << std::endl;
 
     vec4<int> v1 = {1, 3, 4, 1};
+    vec4<float> v2 = {1, 3, 4, 1};
 
     std::cout << mat * v1 << std::endl;
+    std::cout << mat::scale(1,1,5) * v2 << std::endl;
     std::cout << "hello?" << std::endl;
 
 
