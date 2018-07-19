@@ -31,3 +31,6 @@ set(util
 
 add_executable(OpenGL src/main.cpp ${util})
 target_link_libraries(OpenGL ${OPENGL_LIBRARY} glew glfw)
+
+#copy shaders
+file(COPY src/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
