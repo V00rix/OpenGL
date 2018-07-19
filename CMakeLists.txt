@@ -21,17 +21,9 @@ target_link_libraries(glew ${OPENGL_LIBRARY})
 # GLFW
 include_directories(external/glfw/include/GLFW)
 add_subdirectory(external/glfw)
+# GLM
+include_directories(external/glm)
 
-# util
-# vector
-set(vectors src/util/vec4.h)
-
-#matrices
-set(matrices src/util/mat4.h)
-
-set(util
-        ${matrices}
-        ${vectors})
 
 # Executable
 add_executable(OpenGL src/main.cpp ${util})

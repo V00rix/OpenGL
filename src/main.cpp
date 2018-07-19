@@ -7,8 +7,12 @@
 #include <cmath>
 #include <sstream>
 #include <vector>
-#include "util/mat4.h"
-#include "util/vec4.h"
+
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #define _DEBUG 1
 
@@ -196,6 +200,26 @@ static void APIENTRY openglCallbackFunction(
     }
 }
 
+/**
+ * Calculate model-view-projection matrix
+ * @return
+ */
+glm::mat4 calculateMVP() {
+    // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+
+    // Camera matrix
+    glm::mat4 view = glm::lookAt(
+            glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
+            glm::vec3(0, 0, 0), // and looks at the origin
+            glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+    );
+
+    // model matrix : an identity matrix (model will be at the origin)
+    glm::mat4 model = glm::mat4(1.0f);
+
+    return projection * view * model;
+}
 //endregion
 
 int main() {
@@ -216,36 +240,20 @@ int main() {
     glDebugMessageCallback(openglCallbackFunction, nullptr);
 #endif
 
-    std::cout << glGetString(GL_VERSION) << std::endl;
-
-    mat::mat4<int> mat = {
-            vec4<int>({1, 0, 0, 0}),
-            0, 1, 0, 0,
-            0, 0, 5, 0,
-            0, 0, 0, 1
-    };
-
-    std::cout << mat << std::endl;
-    std::cout << "hello?" << std::endl;
-
-    vec4<int> v1 = {1, 3, 4, 1};
-    vec4<float> v2 = {1, 3, 4, 1};
-
-    std::cout << mat * v1 << std::endl;
-    std::cout << mat::scale(1,1,5) * v2 << std::endl;
-    std::cout << "hello?" << std::endl;
-
-
     const float vertices[] = {
             -1.0f, -1.0f, 0.0f,     // 0
             1.0f, -1.0f, 0.0f,      // 1
             1.0f, 1.0f, 0.0f,       // 2
-            -1.0f, 1.0f, 0.0f       // 3
+            -1.0f, 1.0f, 0.0f,       // 3
+            1.0f, 1.0f, -1.0f,      // 4
+            1.0f, -1.0f, -1.0f       // 5
     };
 
     unsigned int indices[]{
             0, 1, 2,
-            2, 3, 0
+            2, 3, 0,
+            1, 4, 2,
+            1, 5, 4
     };
 
     GLuint vertexArrayID;
@@ -262,27 +270,41 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-
     auto shader = loadShaders("shaders/vertex.glsl",
                               "shaders/fragment.glsl"); // this is relative to target binary u_color
     glUseProgram(shader);
 
-    int u_color_location = glGetUniformLocation(shader, "u_color");
-    int u_scale_location = glGetUniformLocation(shader, "u_scale");
+    int MVP_id = glGetUniformLocation(shader, "MVP");
 
+    glm::mat4 MVP = calculateMVP();
+
+    int color_id = glGetUniformLocation(shader, "u_color");
+    int scale_id = glGetUniformLocation(shader, "u_scale");
+    int translation_id = glGetUniformLocation(shader, "u_translate");
+
+    // animation
     float r = .5f, increment = 0.05f;
 
+    glUniformMatrix4fv(MVP_id, 1, GL_FALSE, &MVP[0][0]);
+
     do {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         //region Main loop
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-        glUniform4f(u_color_location, sin(r), 1.f, .8f, 1.0f);
-        glUniform3f(u_scale_location, sin(r) / 2.f, sin(r / 2.f) / 2.f, 1.f);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glUniform4f(color_id, std::sin(r), 1.f, .8f, 1.0f);
+
+        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(std::sin(r*.3f), std::sin(r*1.2f), 2.f*std::sin(r)));
+        glm::mat4 rotate = glm::rotate(scale, std::cos(r*4.f), glm::vec3(1.f, 1.0f, .0f));
+        glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(-std::sin(r) -1.f, .0f, -std::cos(r)));
+
+        glUniformMatrix4fv(scale_id, 1, GL_FALSE, &rotate[0][0]);
+        glUniformMatrix4fv(translation_id, 1, GL_FALSE, &translate[0][0]);
+
+        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
 
         r += increment;
 

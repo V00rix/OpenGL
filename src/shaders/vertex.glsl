@@ -1,9 +1,11 @@
-#version 330 core
+#version 400 core
 
 layout(location = 0) in vec3 position;
 
-uniform vec3 u_scale = vec3(.5, .5, .5);
+uniform mat4 MVP;
+uniform mat4 u_scale;
+uniform mat4 u_translate;
 
 void main() {
-    gl_Position = vec4(u_scale.x * position.x, u_scale.y * position.y, u_scale.z * position.z, 1.0);
+    gl_Position = MVP * u_scale * u_translate * vec4(position,1) ;
 }
