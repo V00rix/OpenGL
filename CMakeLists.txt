@@ -22,5 +22,5 @@ target_link_libraries(glew ${OPENGL_LIBRARY})
 include_directories(external/glfw/include/GLFW)
 add_subdirectory(external/glfw)
 
-add_executable(OpenGL main.cpp)
+add_executable(OpenGL src/main.cpp)
 target_link_libraries(OpenGL ${OPENGL_LIBRARY} glew glfw)
