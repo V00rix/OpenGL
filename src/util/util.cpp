@@ -7,34 +7,6 @@
 #include <GL/glew.h>
 #include "util.h"
 
-/*
-    unsigned myValAsInt = 827611204;
-
-    char asChars[4] = {
-            toChar(toInt(FOURCC_DXT1)),
-            toChar(toInt(FOURCC_DXT1), 1),
-            toChar(toInt(FOURCC_DXT1), 2),
-            toChar(toInt(FOURCC_DXT1), 3)
-    };
-
-    std::cout << asChars[0] << " "
-              << asChars[1] << " "
-              << asChars[2] << " "
-              << asChars[3] << " "
-              << " as int: " << *(int *) &asChars << std::endl;
-
-
-char toChar(int v, int offset = 0) {
-    return *((char *) &v + offset);
-}
-
-int toInt(const char* data) {
-    return *(unsigned *) data;
-}
-
-              */
-
-
 /**
  *
  * @param imagePath
@@ -71,11 +43,11 @@ unsigned util::loadDDS(const char *imagePath) {
     unsigned int fourCC = *(unsigned int *) &(header[80]);
 
     unsigned char *buffer;
-    unsigned int bufsize;
+    unsigned int buffSize;
     /* how big is it going to be including all mipmaps? */
-    bufsize = mipMapCount > 1 ? linearSize * 2 : linearSize;
-    buffer = (unsigned char *) malloc(bufsize * sizeof(unsigned char));
-    fread(buffer, 1, bufsize, fp);
+    buffSize = mipMapCount > 1 ? linearSize * 2 : linearSize;
+    buffer = (unsigned char *) malloc(buffSize * sizeof(unsigned char));
+    fread(buffer, 1, buffSize, fp);
     /* close the file pointer */
     fclose(fp);
 
@@ -93,7 +65,7 @@ unsigned util::loadDDS(const char *imagePath) {
             break;
         default:
             free(buffer);
-            fprintf(stdout, "Not a vali DXT1 format.");
+            fprintf(stdout, "Not a valid DXT1 format.");
             return 0;
     }
 
@@ -104,11 +76,12 @@ unsigned util::loadDDS(const char *imagePath) {
     // "Bind" the newly created texture : all future texture functions will modify this texture
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    // Give the image to OpenGL
-//    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // Trilinear filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
     unsigned int offset = 0;
@@ -155,10 +128,10 @@ unsigned util::loadBMP(const char *imagePath) {
     }
 
     // Read ints from the byte array
-    dataPos = *(int *) &(header[0x0A]);
-    imageSize = *(int *) &(header[0x22]);
-    width = *(int *) &(header[0x12]);
-    height = *(int *) &(header[0x16]);
+    dataPos = *(unsigned *) &(header[0x0A]);
+    imageSize = *(unsigned *) &(header[0x22]);
+    width = *(unsigned *) &(header[0x12]);
+    height = *(unsigned *) &(header[0x16]);
 
     // Some BMP files are misformatted, guess missing information
     if (imageSize == 0) imageSize = width * height * 3; // 3 : one byte for each Red, Green and Blue component

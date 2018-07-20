@@ -263,7 +263,7 @@ int main() {
     glDepthFunc(GL_LESS);
 
     // load textures
-    GLuint textureId = util::loadBMP("resources/textures/ascensionLogo.bmp");
+    GLuint textureId = util::loadDDS("resources/textures/ascensionLogo.dds");
     if (!textureId) {
         fprintf(stdout, "Couldn't load texture.");
         return -1;
@@ -309,19 +309,44 @@ int main() {
         // animation
         float r = .5f, increment = 0.005f;
 
+        float yoff, xoff = yoff = 0.0f;
+
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+            // Get mouse position
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+
+            // Move forward
+            if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+                yoff += 0.1f;
+            }
+            // Move backward
+            if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+                yoff -= 0.1f;
+            }
+            // Strafe right
+            if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+                xoff += 0.1f;
+            }
+            // Strafe left
+            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+                xoff -= 0.1f;
+            }
 
             //region Main loop
             glm::mat4 scale = glm::scale(glm::mat4(1.f),
                                          glm::vec3(1.f, 1.f, 1.f));
             glm::mat4 rotate = glm::rotate(scale, (r - .5f), glm::vec3(1.f, 1.f, 1.f));
-            glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(-std::sin(r) - 1.f, .0f, -std::cos(r)));
+            glm::mat4 translate = glm::translate(glm::mat4(),
+                                                 glm::vec3(-std::sin(r) - 1.f + xpos / 1000 + xoff, ypos / 1000 + yoff,
+                                                           -std::cos(r)));
 
             glUniformMatrix4fv(scale_id, 1, GL_FALSE, &rotate[0][0]);
             glUniformMatrix4fv(translation_id, 1, GL_FALSE, &translate[0][0]);
 
-//
             myCube.draw();
             myCube2.draw();
 
@@ -339,7 +364,6 @@ int main() {
             glDisableVertexAttribArray(0);
             glDisableVertexAttribArray(1);
             glDisableVertexAttribArray(2);
-//
 
             r += increment;
             //endregion
