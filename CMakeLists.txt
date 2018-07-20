@@ -28,12 +28,15 @@ include_directories(external/glm)
 set(elements
         src/elements/Cube.cpp
         src/elements/Cube.h)
+set(util
+        src/util/util.cpp
+        src/util/util.h)
 
 # Executable
-add_executable(OpenGL src/main.cpp ${elements})
+add_executable(OpenGL src/main.cpp ${elements} ${util})
 target_link_libraries(OpenGL ${OPENGL_LIBRARY} glew glfw)
 
-#copy shaders
+#copy resources
+file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/resources)
+file(COPY resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/shaders)
-file(COPY src/shaders DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

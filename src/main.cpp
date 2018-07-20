@@ -14,6 +14,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include "elements/Cube.h"
+#include "util/util.h"
 
 #define _DEBUG 1
 
@@ -219,6 +220,7 @@ glm::mat4 calculateMVP() {
 //endregion
 
 int main() {
+
     //region Initialization
     if (!initGLFW()) { return -1; }
     if (!createWindow()) { return -1; }
@@ -237,8 +239,8 @@ int main() {
     //endregion
 
     // shader
-    auto shader = loadShaders("shaders/vertex.glsl",
-                              "shaders/fragment.glsl"); // this is relative to target binary u_color
+    auto shader = loadShaders("resources/shaders/vertex.glsl",
+                              "resources/shaders/fragment.glsl"); // this is relative to target binary u_color
     glUseProgram(shader);
 
     // uniforms
@@ -259,6 +261,13 @@ int main() {
 
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
+
+    // load textures
+    unsigned textureId = util::loadDDS("resources/textures/ascensionLogo.dds");
+
+    if (!textureId) {
+        return -1;
+    }
 
     {
         elements::Cube myCube({.0f, .0f, .0f}, .5f);
@@ -283,7 +292,6 @@ int main() {
 
         // animation
         float r = .5f, increment = 0.005f;
-
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -310,8 +318,8 @@ int main() {
 
         } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
                  glfwWindowShouldClose(window) == 0);
-
     }
+
     //region Termination
     glDeleteProgram(shader);
     glfwTerminate();
