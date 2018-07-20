@@ -235,6 +235,7 @@ int main() {
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     //endregion
 
+    //region Vertex data
     const float positions[] = {
             -1.0f, -1.0f, 0.0f,     // 0
             1.0f, -1.0f, 0.0f,      // 1
@@ -248,13 +249,12 @@ int main() {
 
     const float colors[] = {
             1.0f, 0.0f, 0.0f,   // 0
-            1.0f, 0.0f, 0.0f,   // 1
+            .6f, .3f, 0.0f,   // 1
             1.0f, 0.0f, 0.0f,   // 2
-            0.0f, 1.0f, 0.0f,   // 3
-            0.0f, 1.0f, 0.0f,   // 4
+            0.0f, 0.0f, 1.0f,   // 3
+            1.0f, 1.0f, 0.0f,   // 4
             0.0f, 1.0f, 0.0f,   // 5
     };
-
 
     const unsigned int indices[]{
             0, 1, 2,
@@ -262,7 +262,9 @@ int main() {
             1, 4, 2,
             1, 5, 4
     };
+    //endregion
 
+    // buffers
     GLuint vertexArrayID;
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
@@ -282,14 +284,13 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+    // shader
     auto shader = loadShaders("shaders/vertex.glsl",
                               "shaders/fragment.glsl"); // this is relative to target binary u_color
     glUseProgram(shader);
 
+    // uniforms
     int MVP_id = glGetUniformLocation(shader, "MVP");
-
-    glm::mat4 MVP = calculateMVP();
-
     int color_id = glGetUniformLocation(shader, "u_color");
     int scale_id = glGetUniformLocation(shader, "u_scale");
     int translation_id = glGetUniformLocation(shader, "u_translate");
@@ -297,10 +298,14 @@ int main() {
     // animation
     float r = .5f, increment = 0.005f;
 
+    // MVP
+    glm::mat4 MVP = calculateMVP();
     glUniformMatrix4fv(MVP_id, 1, GL_FALSE, &MVP[0][0]);
 
+    // Clear color
     glClearColor(0.176f, 0.313f, 0.325f, 1.0f);
 
+    // enabling attributes
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -309,8 +314,14 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);
+
+    // Accept fragment if it closer to the camera than the former one
+    glDepthFunc(GL_LESS);
+
     do {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //region Main loop
 
