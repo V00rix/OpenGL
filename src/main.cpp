@@ -179,14 +179,9 @@ static unsigned int loadShaders(const char *vs, const char *fs) {
  * @param message
  * @param userParam
  */
-static void APIENTRY openglCallbackFunction(
-        GLenum source,
-        GLenum type,
-        GLuint id,
-        GLenum severity,
-        GLsizei length,
-        const GLchar *message,
-        const void *userParam) {
+static void APIENTRY
+openglCallbackFunction(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message,
+                       const void *userParam) {
     (void) source;
     (void) type;
     (void) id;
@@ -228,10 +223,6 @@ int main() {
     if (!createWindow()) { return -1; }
     if (!initGLEW()) { return -1; }
 
-    // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    //endregion
-
 #if _DEBUG
     // Request a debug context.
     std::cout << "Debug output enabled!" << std::endl;
@@ -240,7 +231,11 @@ int main() {
     glDebugMessageCallback(openglCallbackFunction, nullptr);
 #endif
 
-    const float vertices[] = {
+    // Ensure we can capture the escape key being pressed below
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    //endregion
+
+    const float positions[] = {
             -1.0f, -1.0f, 0.0f,     // 0
             1.0f, -1.0f, 0.0f,      // 1
             1.0f, 1.0f, 0.0f,       // 2
@@ -249,7 +244,19 @@ int main() {
             1.0f, -1.0f, -1.0f       // 5
     };
 
-    unsigned int indices[]{
+    const auto red = {1.0f, 0.0f, 0.0f};
+
+    const float colors[] = {
+            1.0f, 0.0f, 0.0f,   // 0
+            1.0f, 0.0f, 0.0f,   // 1
+            1.0f, 0.0f, 0.0f,   // 2
+            0.0f, 1.0f, 0.0f,   // 3
+            0.0f, 1.0f, 0.0f,   // 4
+            0.0f, 1.0f, 0.0f,   // 5
+    };
+
+
+    const unsigned int indices[]{
             0, 1, 2,
             2, 3, 0,
             1, 4, 2,
@@ -263,7 +270,12 @@ int main() {
     GLuint vertexBuffer;
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+
+    GLuint colorBuffer;
+    glGenBuffers(1, &colorBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
 
     GLuint indexBuffer;
     glGenBuffers(1, &indexBuffer);
@@ -283,23 +295,31 @@ int main() {
     int translation_id = glGetUniformLocation(shader, "u_translate");
 
     // animation
-    float r = .5f, increment = 0.05f;
+    float r = .5f, increment = 0.005f;
 
     glUniformMatrix4fv(MVP_id, 1, GL_FALSE, &MVP[0][0]);
+
+    glClearColor(0.176f, 0.313f, 0.325f, 1.0f);
+
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
     do {
         glClear(GL_COLOR_BUFFER_BIT);
 
         //region Main loop
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
         glUniform4f(color_id, std::sin(r), 1.f, .8f, 1.0f);
 
-        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(std::sin(r*.3f), std::sin(r*1.2f), 2.f*std::sin(r)));
-        glm::mat4 rotate = glm::rotate(scale, std::cos(r*4.f), glm::vec3(1.f, 1.0f, .0f));
-        glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(-std::sin(r) -1.f, .0f, -std::cos(r)));
+        glm::mat4 scale = glm::scale(glm::mat4(1.0f),
+                                     glm::vec3(std::sin(r * .3f), std::sin(r * 1.2f), 2.f * std::sin(r)));
+        glm::mat4 rotate = glm::rotate(scale, std::cos(r * 4.f), glm::vec3(1.f, 1.0f, .0f));
+        glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(-std::sin(r) - 1.f, .0f, -std::cos(r)));
 
         glUniformMatrix4fv(scale_id, 1, GL_FALSE, &rotate[0][0]);
         glUniformMatrix4fv(translation_id, 1, GL_FALSE, &translate[0][0]);
@@ -307,8 +327,6 @@ int main() {
         glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
 
         r += increment;
-
-        glDisableVertexArrayAttrib(vertexBuffer, 0);
         //endregion
 
         glfwSwapBuffers(window);
@@ -317,7 +335,14 @@ int main() {
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
              glfwWindowShouldClose(window) == 0);
 
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+
     //region Termination
+    glDeleteBuffers(1, &vertexBuffer);
+    glDeleteBuffers(1, &colorBuffer );
+    glDeleteBuffers(1, &indexBuffer);
+    glDeleteProgram(shader);
     glfwTerminate();
     //endregion
 
