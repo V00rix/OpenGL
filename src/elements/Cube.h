@@ -9,17 +9,21 @@ namespace elements {
 
     class Cube {
     private:
-        struct point_f {
+        struct point_3f {
             float x, y, z;
         };
-
-        point_f *positions;
-        point_f *colors;
+        struct point_2f {
+            float x, y;
+        };
+        point_3f *positions;
+        point_3f *colors;
+        point_3f *uv;
         const unsigned *indices;
 
         mutable unsigned vertexArray;
         mutable unsigned vertexBuffer;
         mutable unsigned colorBuffer;
+        mutable unsigned uvBuffer;
         mutable unsigned indexBuffer;
 
         const unsigned char vertexCount = 8;
@@ -28,17 +32,17 @@ namespace elements {
         const unsigned char indexSize = indexCount * 3 * sizeof(unsigned);
 
     public:
-        Cube(const point_f &at, float edge_length);
+        Cube(const point_3f &at, float edge_length);
 
         virtual ~Cube();
 
-        void setColors(const point_f *colors);
+        void setColors(const point_3f *colors);
 
         inline void setColors(const float *colors) {
-            setColors((point_f *) colors);
+            setColors((point_3f *) colors);
         }
 
-        void setColors(const point_f &color);
+        void setColors(const point_3f &color);
 
         void init() const;
 

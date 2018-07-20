@@ -6,8 +6,8 @@
 #include <gl/glew.h>
 #include <iostream>
 
-elements::Cube::Cube(const elements::Cube::point_f &at, float edge_length) {
-    positions = new point_f[vertexCount]{
+elements::Cube::Cube(const elements::Cube::point_3f &at, float edge_length) {
+    positions = new point_3f[vertexCount]{
             // lower square
             {at.x,               at.y,               at.z},                 // 0
             {at.x + edge_length, at.y,               at.z},                 // 1
@@ -48,7 +48,7 @@ elements::Cube::Cube(const elements::Cube::point_f &at, float edge_length) {
             2, 7, 6
     };
 
-    colors = new point_f[8];
+    colors = new point_3f[8];
     setColors({.5f, .0f, .0f});
 }
 
@@ -63,13 +63,13 @@ elements::Cube::~Cube() {
     delete[] this->indices;
 }
 
-void elements::Cube::setColors(const point_f *colors) {
+void elements::Cube::setColors(const point_3f *colors) {
     for (int i = 0; i < 8; ++i) {
         this->colors[i] = colors[i];
     }
 }
 
-void elements::Cube::setColors(const point_f &color) {
+void elements::Cube::setColors(const point_3f &color) {
     for (int i = 0; i < 8; ++i) {
         this->colors[i] = color;
     }
@@ -87,6 +87,10 @@ void elements::Cube::init() const {
     glGenBuffers(1, &colorBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
     glBufferData(GL_ARRAY_BUFFER, vertexSize, colors, GL_STATIC_DRAW);
+
+//    glGenBuffers(1, &uvBuffer);
+//    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+//    glBufferData(GL_ARRAY_BUFFER, uvSize, uv, GL_STATIC_DRAW);
 
     glGenBuffers(1, &indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
