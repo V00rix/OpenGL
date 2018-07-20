@@ -7,8 +7,6 @@
 #include <iostream>
 
 elements::Cube::Cube(const elements::Cube::point_f &at, float edge_length) {
-    std::cout << "Constructing cube\n";
-
     positions = new point_f[vertexCount]{
             // lower square
             {at.x,               at.y,               at.z},                 // 0

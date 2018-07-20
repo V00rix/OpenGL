@@ -236,27 +236,6 @@ int main() {
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     //endregion
 
-    elements::Cube myCube({.0f, .0f, .0f}, .5f);
-    elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
-
-    float colors[] =  {
-            1.0f, 0.0f, 0.0f,   // 0
-            .6f, .3f, 0.0f,   // 1
-            1.0f, 0.0f, 0.0f,   // 2
-            0.0f, 0.0f, 1.0f,   // 3
-            0.0f, 0.0f, 1.0f,   // 4
-            .6f, .3f, 0.0f,   // 5
-            1.0f, 1.0f, 0.0f,   // 6
-            0.0f, 1.0f, 0.0f,   // 7
-    };
-
-    myCube.setColors(colors);
-    myCube2.setColors(colors);
-
-    myCube.init();
-    myCube2.init();
-
-
     // shader
     auto shader = loadShaders("shaders/vertex.glsl",
                               "shaders/fragment.glsl"); // this is relative to target binary u_color
@@ -267,9 +246,6 @@ int main() {
     int color_id = glGetUniformLocation(shader, "u_color");
     int scale_id = glGetUniformLocation(shader, "u_scale");
     int translation_id = glGetUniformLocation(shader, "u_translate");
-
-    // animation
-    float r = .5f, increment = 0.005f;
 
     // MVP
     glm::mat4 MVP = calculateMVP();
@@ -284,33 +260,58 @@ int main() {
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
-    do {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    {
+        elements::Cube myCube({.0f, .0f, .0f}, .5f);
+        elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
 
-        //region Main loop
-        glUniform4f(color_id, std::sin(r), 1.f, .8f, 1.f);
+        float colors[] = {
+                1.0f, 0.0f, 0.0f,   // 0
+                .6f, .3f, 0.0f,   // 1
+                1.0f, 0.0f, 0.0f,   // 2
+                0.0f, 0.0f, 1.0f,   // 3
+                0.0f, 0.0f, 1.0f,   // 4
+                .6f, .3f, 0.0f,   // 5
+                1.0f, 1.0f, 0.0f,   // 6
+                0.0f, 1.0f, 0.0f,   // 7
+        };
 
-        glm::mat4 scale = glm::scale(glm::mat4(1.f),
-                                     glm::vec3(1.f, 1.f, 1.f));
-        glm::mat4 rotate = glm::rotate(scale, (r -.5f), glm::vec3(1.f, 1.f, 1.f));
-        glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(-std::sin(r) - 1.f, .0f, -std::cos(r)));
+        myCube.setColors(colors);
+        myCube2.setColors(colors);
 
-        glUniformMatrix4fv(scale_id, 1, GL_FALSE, &rotate[0][0]);
-        glUniformMatrix4fv(translation_id, 1, GL_FALSE, &translate[0][0]);
+        myCube.init();
+        myCube2.init();
 
-        myCube.draw();
-        myCube2.draw();
-
-        r += increment;
-        //endregion
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-
-    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
-             glfwWindowShouldClose(window) == 0);
+        // animation
+        float r = .5f, increment = 0.005f;
 
 
+        do {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            //region Main loop
+            glUniform4f(color_id, std::sin(r), 1.f, .8f, 1.f);
+
+            glm::mat4 scale = glm::scale(glm::mat4(1.f),
+                                         glm::vec3(1.f, 1.f, 1.f));
+            glm::mat4 rotate = glm::rotate(scale, (r - .5f), glm::vec3(1.f, 1.f, 1.f));
+            glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(-std::sin(r) - 1.f, .0f, -std::cos(r)));
+
+            glUniformMatrix4fv(scale_id, 1, GL_FALSE, &rotate[0][0]);
+            glUniformMatrix4fv(translation_id, 1, GL_FALSE, &translate[0][0]);
+
+            myCube.draw();
+            myCube2.draw();
+
+            r += increment;
+            //endregion
+
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+
+        } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+                 glfwWindowShouldClose(window) == 0);
+
+    }
     //region Termination
     glDeleteProgram(shader);
     glfwTerminate();
