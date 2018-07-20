@@ -262,6 +262,9 @@ int main() {
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
+    // Cull triangles which normal is not towards the camera
+    glEnable(GL_CULL_FACE);
+
     // load textures
     GLuint textureId = util::loadDDS("resources/textures/ascensionLogo.dds");
     if (!textureId) {
@@ -310,6 +313,7 @@ int main() {
         float r = .5f, increment = 0.005f;
 
         float yoff, xoff = yoff = 0.0f;
+
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
