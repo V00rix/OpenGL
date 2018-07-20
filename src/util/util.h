@@ -25,13 +25,24 @@ namespace util {
 
 
     struct Vertex {
+        explicit Vertex(const glm::vec3 &pos) : m_pos(pos), m_col(0.f), m_uv(0.f) {
+        }
+
+        Vertex(const glm::vec3 &pos, const glm::vec2 &uv) : Vertex(pos) {
+            m_uv = uv;
+        }
+
+        static const unsigned size = sizeof(glm::vec3) + sizeof(glm::vec3) + sizeof(glm::vec2);
+        static const unsigned color_offset = sizeof(glm::vec3);
+        static const unsigned uv_offset = sizeof(glm::vec3) + sizeof(glm::vec3);
+
         glm::vec3 m_pos;
         glm::vec3 m_col;
-        glm::vec2 m_tex;
+        glm::vec2 m_uv;
 
         Vertex() = default;
 
-        Vertex(glm::vec3 pos, glm::vec3 col, glm::vec2 tex) : m_pos(pos), m_col(col), m_tex(tex) {}
+        Vertex(const glm::vec3 pos, const glm::vec3 col, const glm::vec2 tex) : m_pos(pos), m_col(col), m_uv(tex) {}
     };
 
 }

@@ -6,20 +6,60 @@
 #include <gl/glew.h>
 #include <iostream>
 
-elements::Cube::Cube(const elements::Cube::point_3f &at, float edge_length) {
-    positions = new point_3f[vertexCount]{
-            // lower square
-            {at.x,               at.y,               at.z},                 // 0
-            {at.x + edge_length, at.y,               at.z},                 // 1
-            {at.x + edge_length, at.y,               at.z + edge_length},   // 2
-            {at.x,               at.y,               at.z + edge_length},   // 3
+elements::Cube::Cube(const glm::vec3 &at, float edge_length) {
 
-            // higher square
-            {at.x,               at.y + edge_length, at.z},                 // 4
-            {at.x + edge_length, at.y + edge_length, at.z},                 // 5
-            {at.x + edge_length, at.y + edge_length, at.z + edge_length},   // 6
-            {at.x,               at.y + edge_length, at.z + edge_length},   // 7
+    glm::vec3 positions[8] = {
+            // bottom square
+            (glm::vec3(at.x, at.y, at.z)),                                              // 0
+            (glm::vec3(at.x + edge_length, at.y, at.z)),                                // 1
+            (glm::vec3(at.x + edge_length, at.y, at.z + edge_length)),                  // 2
+            (glm::vec3(at.x, at.y, at.z + edge_length)),                                // 3
 
+            // top square
+            (glm::vec3(at.x, at.y + edge_length, at.z)),                                // 4
+            (glm::vec3(at.x + edge_length, at.y + edge_length, at.z)),                  // 5
+            (glm::vec3(at.x + edge_length, at.y + edge_length, at.z + edge_length)),    // 6
+            (glm::vec3(at.x, at.y + edge_length, at.z + edge_length)),                  // 7
+    };
+
+    glm::vec2 uv[4]{
+            glm::vec2(0.f, 0.f),
+            glm::vec2(1.f, 0.f),
+            glm::vec2(1.f, 1.f),
+            glm::vec2(0.f, 1.f),
+    };
+
+    vertices = new util::Vertex[vertexCount]{
+            // bottom square
+            util::Vertex(positions[0], uv[3]),     // 0
+            util::Vertex(positions[1], uv[2]),     // 1
+            util::Vertex(positions[2], uv[1]),     // 2
+            util::Vertex(positions[3], uv[0]),     // 3
+            // top square
+            util::Vertex(positions[4], uv[0]),     // 4
+            util::Vertex(positions[5], uv[1]),     // 5
+            util::Vertex(positions[6], uv[2]),     // 6
+            util::Vertex(positions[7], uv[3]),     // 7
+            // front square
+            util::Vertex(positions[0], uv[0]),     // 8
+            util::Vertex(positions[1], uv[1]),     // 9
+            util::Vertex(positions[5], uv[2]),     // 10
+            util::Vertex(positions[4], uv[3]),     // 11
+            // back square
+            util::Vertex(positions[2], uv[0]),     // 12
+            util::Vertex(positions[6], uv[3]),     // 13
+            util::Vertex(positions[7], uv[2]),     // 14
+            util::Vertex(positions[3], uv[1]),     // 15
+            // left square
+            util::Vertex(positions[0], uv[1]),     // 16
+            util::Vertex(positions[4], uv[2]),     // 17
+            util::Vertex(positions[7], uv[3]),     // 18
+            util::Vertex(positions[3], uv[0]),     // 19
+            // right square
+            util::Vertex(positions[1], uv[0]),     // 20
+            util::Vertex(positions[5], uv[3]),     // 21
+            util::Vertex(positions[6], uv[2]),     // 22
+            util::Vertex(positions[2], uv[1]),     // 23
     };
 
     indices = new unsigned[indexCount]{
@@ -32,83 +72,70 @@ elements::Cube::Cube(const elements::Cube::point_3f &at, float edge_length) {
             4, 6, 7,
 
             // right
-            1, 2, 6,
-            1, 5, 6,
+            20, 21, 22,
+            20, 22, 23,
 
             // left
-            0, 3, 4,
-            4, 3, 7,
+            16, 17, 18,
+            16, 18, 19,
 
             // front
-            0, 1, 5,
-            0, 4, 5,
+            8, 9, 10,
+            8, 10, 11,
 
             // back
-            2, 3, 7,
-            2, 7, 6
+            12, 13, 14,
+            12, 14, 15,
     };
 
-    colors = new point_3f[8];
-    setColors({.5f, .0f, .0f});
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertexSize, vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &IBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, indices, GL_STATIC_DRAW);
 }
 
 elements::Cube::~Cube() {
-    glDeleteBuffers(1, &vertexBuffer);
-    glDeleteBuffers(1, &colorBuffer);
-    glDeleteBuffers(1, &indexBuffer);
-    glDeleteVertexArrays(1, &vertexArray);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &IBO);
+    glDeleteVertexArrays(1, &VAO);
 
-    delete[] this->positions;
-    delete[] this->colors;
+    delete[] this->vertices;
     delete[] this->indices;
 }
 
-void elements::Cube::setColors(const point_3f *colors) {
-    for (int i = 0; i < 8; ++i) {
-        this->colors[i] = colors[i];
+void elements::Cube::setColors(const glm::vec3 *colors) {
+    for (int i = 0; i < vertexCount; ++i) {
+        this->vertices[i].m_col = colors[i];
     }
 }
 
-void elements::Cube::setColors(const point_3f &color) {
-    for (int i = 0; i < 8; ++i) {
-        this->colors[i] = color;
+void elements::Cube::setColors(const glm::vec3 &color) {
+    for (int i = 0; i < vertexCount; ++i) {
+        this->vertices[i].m_col = color;
     }
 }
 
-void elements::Cube::init() const {
-    // buffers
-    glGenVertexArrays(1, &vertexArray);
-    glBindVertexArray(vertexArray);
+void elements::Cube::draw() const {
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glGenBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, vertexSize, positions, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &colorBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, vertexSize, colors, GL_STATIC_DRAW);
-
-//    glGenBuffers(1, &uvBuffer);
-//    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-//    glBufferData(GL_ARRAY_BUFFER, uvSize, uv, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &indexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, indices, GL_STATIC_DRAW);
-
-}
-
-void elements::Cube::draw() {
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(2);
 
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void *) 0);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }

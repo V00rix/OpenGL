@@ -277,34 +277,11 @@ int main() {
     glUniform1i(texture_sampler_id, 0);
 
     {
-//        elements::Cube myCube({.0f, .0f, .0f}, .5f);
-//        elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
-
-//        GLuint VBO;
-//        util::Vertex vertices[4] = {util::Vertex(glm::vec3(-1.0f, -1.0f, 0.5773f), glm::vec2(0.0f, 0.0f)),
-//                                    util::Vertex(glm::vec3(0.0f, -1.0f, -1.15475f), glm::vec2(0.5f, 0.0f)),
-//                                    util::Vertex(glm::vec3(1.0f, -1.0f, 0.5773f), glm::vec2(1.0f, 0.0f)),
-//                                    util::Vertex(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.5f, 1.0f))};
-//
-//        glGenBuffers(1, &VBO);
-//        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-//
-//        GLuint IBO;
-//        unsigned int Indices[] = { 0, 3, 1,
-//                                   1, 3, 2,
-//                                   2, 3, 0,
-//                                   0, 1, 2 };
-//
-//        glGenBuffers(1, &IBO);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-//        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-
         util::Vertex vertices[4] = {
-                util::Vertex(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec2(0.f, 0.f)), // 0
-                util::Vertex(glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec2(1.f, 0.f)), // 1
-                util::Vertex(glm::vec3(1.f, 0.f, 1.f), glm::vec3(1.f, 0.f, 1.f), glm::vec2(1.f, 1.f)), // 2
-                util::Vertex(glm::vec3(0.f, 0.f, 1.f), glm::vec3(1.f, 0.f, 1.f), glm::vec2(0.f, 1.f)), // 3
+                util::Vertex(glm::vec3(0.f, -1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec2(0.f, 0.f)), // 0
+                util::Vertex(glm::vec3(1.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec2(1.f, 0.f)), // 1
+                util::Vertex(glm::vec3(1.f, -1.f, 1.f), glm::vec3(1.f, 0.f, 1.f), glm::vec2(1.f, 1.f)), // 2
+                util::Vertex(glm::vec3(0.f, -1.f, 1.f), glm::vec3(1.f, 0.f, 1.f), glm::vec2(0.f, 1.f)), // 3
         };
 
         unsigned indices[6]{
@@ -326,22 +303,8 @@ int main() {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-//        float colors[] = {
-//                1.0f, 0.0f, 0.0f,   // 0
-//                .6f, .3f, 0.0f,   // 1
-//                1.0f, 0.0f, 0.0f,   // 2
-//                0.0f, 0.0f, 1.0f,   // 3
-//                0.0f, 0.0f, 1.0f,   // 4
-//                .6f, .3f, 0.0f,   // 5
-//                1.0f, 1.0f, 0.0f,   // 6
-//                0.0f, 1.0f, 0.0f,   // 7
-//        };
-
-//        myCube.setColors(colors);
-//        myCube2.setColors(colors);
-
-//        myCube.init();
-//        myCube2.init();
+        elements::Cube myCube(glm::vec3(.0f, .0f, .0f), .5f);
+        elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
 
         // animation
         float r = .5f, increment = 0.005f;
@@ -358,22 +321,25 @@ int main() {
             glUniformMatrix4fv(scale_id, 1, GL_FALSE, &rotate[0][0]);
             glUniformMatrix4fv(translation_id, 1, GL_FALSE, &translate[0][0]);
 
+//
+            myCube.draw();
+            myCube2.draw();
 
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(util::Vertex), (void *) 0);
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(util::Vertex), (void *) sizeof(glm::vec3));
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(util::Vertex), (void *) (2 * sizeof(glm::vec3)));
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
             glEnableVertexAttribArray(2);
 
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-//            myCube.draw();
-//            myCube2.draw();
+
             glDisableVertexAttribArray(0);
             glDisableVertexAttribArray(1);
             glDisableVertexAttribArray(2);
+//
 
             r += increment;
             //endregion

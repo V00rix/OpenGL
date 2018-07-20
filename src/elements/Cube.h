@@ -5,48 +5,38 @@
 #ifndef OPENGL_CUBE_H
 #define OPENGL_CUBE_H
 
+#include "../util/util.h"
+
 namespace elements {
 
     class Cube {
     private:
-        struct point_3f {
-            float x, y, z;
-        };
-        struct point_2f {
-            float x, y;
-        };
-        point_3f *positions;
-        point_3f *colors;
-        point_3f *uv;
+        static const unsigned vertexCount = 4 * 6;    // 4 vertices per square
+        static const unsigned vertexSize = vertexCount * util::Vertex::size;
+        static const unsigned indexCount = 3 * 2 * 6;  // 3 indices per triangle
+        static const unsigned indexSize = indexCount * sizeof(unsigned);
+
+        util::Vertex *vertices;
         const unsigned *indices;
 
-        mutable unsigned vertexArray;
-        mutable unsigned vertexBuffer;
-        mutable unsigned colorBuffer;
-        mutable unsigned uvBuffer;
-        mutable unsigned indexBuffer;
-
-        const unsigned char vertexCount = 8;
-        const unsigned char vertexSize = vertexCount * 3 * sizeof(float);
-        const unsigned char indexCount = 36;
-        const unsigned char indexSize = indexCount * 3 * sizeof(unsigned);
+        mutable unsigned VAO;
+        mutable unsigned VBO;
+        mutable unsigned IBO;
 
     public:
-        Cube(const point_3f &at, float edge_length);
+        Cube(const glm::vec3 &at, float edge_length);
 
         virtual ~Cube();
 
-        void setColors(const point_3f *colors);
+        void setColors(const glm::vec3 *colors);
 
         inline void setColors(const float *colors) {
-            setColors((point_3f *) colors);
+            setColors((glm::vec3 *) colors);
         }
 
-        void setColors(const point_3f &color);
+        void setColors(const glm::vec3 &color);
 
-        void init() const;
-
-        void draw();
+        void draw() const;
     };
 }
 
