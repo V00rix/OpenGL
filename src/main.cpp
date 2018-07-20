@@ -13,6 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include "elements/Cube.h"
 
 #define _DEBUG 1
 
@@ -235,54 +236,26 @@ int main() {
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     //endregion
 
-    //region Vertex data
-    const float positions[] = {
-            -1.0f, -1.0f, 0.0f,     // 0
-            1.0f, -1.0f, 0.0f,      // 1
-            1.0f, 1.0f, 0.0f,       // 2
-            -1.0f, 1.0f, 0.0f,       // 3
-            1.0f, 1.0f, -1.0f,      // 4
-            1.0f, -1.0f, -1.0f       // 5
-    };
+    elements::Cube myCube({.0f, .0f, .0f}, .5f);
+    elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
 
-    const auto red = {1.0f, 0.0f, 0.0f};
-
-    const float colors[] = {
+    float colors[] =  {
             1.0f, 0.0f, 0.0f,   // 0
             .6f, .3f, 0.0f,   // 1
             1.0f, 0.0f, 0.0f,   // 2
             0.0f, 0.0f, 1.0f,   // 3
-            1.0f, 1.0f, 0.0f,   // 4
-            0.0f, 1.0f, 0.0f,   // 5
+            0.0f, 0.0f, 1.0f,   // 4
+            .6f, .3f, 0.0f,   // 5
+            1.0f, 1.0f, 0.0f,   // 6
+            0.0f, 1.0f, 0.0f,   // 7
     };
 
-    const unsigned int indices[]{
-            0, 1, 2,
-            2, 3, 0,
-            1, 4, 2,
-            1, 5, 4
-    };
-    //endregion
+    myCube.setColors(colors);
+    myCube2.setColors(colors);
 
-    // buffers
-    GLuint vertexArrayID;
-    glGenVertexArrays(1, &vertexArrayID);
-    glBindVertexArray(vertexArrayID);
+    myCube.init();
+    myCube2.init();
 
-    GLuint vertexBuffer;
-    glGenBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-
-    GLuint colorBuffer;
-    glGenBuffers(1, &colorBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-
-    GLuint indexBuffer;
-    glGenBuffers(1, &indexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // shader
     auto shader = loadShaders("shaders/vertex.glsl",
@@ -305,15 +278,6 @@ int main() {
     // Clear color
     glClearColor(0.176f, 0.313f, 0.325f, 1.0f);
 
-    // enabling attributes
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
 
@@ -324,18 +288,18 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //region Main loop
+        glUniform4f(color_id, std::sin(r), 1.f, .8f, 1.f);
 
-        glUniform4f(color_id, std::sin(r), 1.f, .8f, 1.0f);
-
-        glm::mat4 scale = glm::scale(glm::mat4(1.0f),
-                                     glm::vec3(std::sin(r * .3f), std::sin(r * 1.2f), 2.f * std::sin(r)));
-        glm::mat4 rotate = glm::rotate(scale, std::cos(r * 4.f), glm::vec3(1.f, 1.0f, .0f));
+        glm::mat4 scale = glm::scale(glm::mat4(1.f),
+                                     glm::vec3(1.f, 1.f, 1.f));
+        glm::mat4 rotate = glm::rotate(scale, (r -.5f), glm::vec3(1.f, 1.f, 1.f));
         glm::mat4 translate = glm::translate(glm::mat4(), glm::vec3(-std::sin(r) - 1.f, .0f, -std::cos(r)));
 
         glUniformMatrix4fv(scale_id, 1, GL_FALSE, &rotate[0][0]);
         glUniformMatrix4fv(translation_id, 1, GL_FALSE, &translate[0][0]);
 
-        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
+        myCube.draw();
+        myCube2.draw();
 
         r += increment;
         //endregion
@@ -346,13 +310,8 @@ int main() {
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
              glfwWindowShouldClose(window) == 0);
 
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
 
     //region Termination
-    glDeleteBuffers(1, &vertexBuffer);
-    glDeleteBuffers(1, &colorBuffer );
-    glDeleteBuffers(1, &indexBuffer);
     glDeleteProgram(shader);
     glfwTerminate();
     //endregion

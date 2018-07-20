@@ -24,9 +24,13 @@ add_subdirectory(external/glfw)
 # GLM
 include_directories(external/glm)
 
+#elements
+set(elements
+        src/elements/Cube.cpp
+        src/elements/Cube.h)
 
 # Executable
-add_executable(OpenGL src/main.cpp ${util})
+add_executable(OpenGL src/main.cpp ${elements})
 target_link_libraries(OpenGL ${OPENGL_LIBRARY} glew glfw)
 
 #copy shaders
