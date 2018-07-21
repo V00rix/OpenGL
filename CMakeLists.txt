@@ -27,7 +27,7 @@ include_directories(external/glm)
 #elements
 set(elements
         src/elements/Cube.cpp
-        src/elements/Cube.h)
+        src/elements/Cube.h src/elements/Square.cpp src/elements/Square.h src/elements/ElementBase.h src/elements/ElementBase.cpp)
 set(util
         src/util/util.cpp
         src/util/util.h)

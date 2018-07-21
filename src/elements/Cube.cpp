@@ -3,11 +3,19 @@
 //
 
 #include "Cube.h"
-#include <gl/glew.h>
 #include <iostream>
 
-elements::Cube::Cube(const glm::vec3 &at, float edge_length) {
+elements::Cube::Cube(const glm::vec3 &at, float edge_length) : at(at), edge_length(edge_length) {
+    initVertices();
+    initBuffers();
+}
 
+elements::Cube::~Cube() {
+    delete[] vertices;
+    delete[] indices;
+}
+
+void elements::Cube::initVertices() {
     glm::vec3 positions[8] = {
             // bottom square
             (glm::vec3(at.x, at.y, at.z)),                                              // 0
@@ -20,13 +28,6 @@ elements::Cube::Cube(const glm::vec3 &at, float edge_length) {
             (glm::vec3(at.x + edge_length, at.y + edge_length, at.z)),                  // 5
             (glm::vec3(at.x + edge_length, at.y + edge_length, at.z + edge_length)),    // 6
             (glm::vec3(at.x, at.y + edge_length, at.z + edge_length)),                  // 7
-    };
-
-    glm::vec2 uv[4]{
-            glm::vec2(0.f, 0.f),
-            glm::vec2(1.f, 0.f),
-            glm::vec2(1.f, 1.f),
-            glm::vec2(0.f, 1.f),
     };
 
     vertices = new util::Vertex[vertexCount]{
@@ -88,54 +89,7 @@ elements::Cube::Cube(const glm::vec3 &at, float edge_length) {
             12, 14, 15,
     };
 
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertexSize, vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, indices, GL_STATIC_DRAW);
-}
-
-elements::Cube::~Cube() {
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &IBO);
-    glDeleteVertexArrays(1, &VAO);
-
-    delete[] this->vertices;
-    delete[] this->indices;
-}
-
-void elements::Cube::setColors(const glm::vec3 *colors) {
-    for (int i = 0; i < vertexCount; ++i) {
-        this->vertices[i].m_col = colors[i];
-    }
-}
-
-void elements::Cube::setColors(const glm::vec3 &color) {
-    for (int i = 0; i < vertexCount; ++i) {
-        this->vertices[i].m_col = color;
-    }
-}
-
-void elements::Cube::draw() const {
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void *) 0);
-
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
+    ElementBase::indexCount = Cube::indexCount;
+    ElementBase::indexSize = Cube::indexSize;
+    ElementBase::vertexSize = Cube::vertexSize;
 }

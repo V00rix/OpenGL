@@ -263,7 +263,7 @@ int main() {
     glDepthFunc(GL_LESS);
 
     // Cull triangles which normal is not towards the camera
-    glEnable(GL_CULL_FACE);
+//    glEnable(GL_CULL_FACE);
 
     // load textures
     GLuint textureId = util::loadDDS("resources/textures/ascensionLogo.dds");
@@ -291,10 +291,10 @@ int main() {
                 0, 1, 2,
                 0, 3, 2
         };
-
-        GLuint vertexArrayID;
-        glGenVertexArrays(1, &vertexArrayID);
-        glBindVertexArray(vertexArrayID);
+//
+        GLuint VAO;
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
 
         GLuint VBO;
         glGenBuffers(1, &VBO);
@@ -354,20 +354,20 @@ int main() {
             myCube.draw();
             myCube2.draw();
 
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
-            glEnableVertexAttribArray(0);
-            glEnableVertexAttribArray(1);
-            glEnableVertexAttribArray(2);
-
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-            glDisableVertexAttribArray(0);
-            glDisableVertexAttribArray(1);
-            glDisableVertexAttribArray(2);
+//            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
+//            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
+//            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
+//            glEnableVertexAttribArray(0);
+//            glEnableVertexAttribArray(1);
+//            glEnableVertexAttribArray(2);
+//
+//            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+//            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+//
+//            glDisableVertexAttribArray(0);
+//            glDisableVertexAttribArray(1);
+//            glDisableVertexAttribArray(2);
 
             r += increment;
             //endregion

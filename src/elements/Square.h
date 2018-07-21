@@ -1,15 +1,16 @@
 //
-// Created by vlado on 20-Jul-18.
+// Created by vlado on 21-Jul-18.
 //
 
-#ifndef OPENGL_CUBE_H
-#define OPENGL_CUBE_H
+#ifndef OPENGL_SQUARE_H
+#define OPENGL_SQUARE_H
 
 #include "ElementBase.h"
 
 namespace elements {
 
-    class Cube : public ElementBase {
+    class Square : ElementBase {
+
     private:
         static const unsigned vertexCount = 4 * 6;    // 4 vertices per square
         static const unsigned vertexSize = vertexCount * util::Vertex::size;
@@ -19,14 +20,16 @@ namespace elements {
         const glm::vec3 at;
         const float edge_length;
 
-        void initVertices() override;
+        void initVertices(util::Vertex *vertices, unsigned *indices, unsigned *vertexSize, unsigned *indexSize);
 
     public:
-        Cube(const glm::vec3 &at, float edge_length);
+//        Square(const glm::vec3 &at, float edge_length) : ElementBase(initVertices), at(at), edge_length(edge_length) {}
 
-        ~Cube() override;
+        Square();
+
+        void draw() const override;
     };
+
 }
 
-
-#endif //OPENGL_CUBE_H
+#endif //OPENGL_SQUARE_H
