@@ -4,12 +4,7 @@
 
 #include "Square.h"
 
-void elements::Square::draw() const {
-
-}
-
-void elements::Square::initVertices(util::Vertex *vertices, unsigned *indices,
-                                    unsigned *vertexSize, unsigned *indexSize) {
+void elements::Square::initVertices() {
     glm::vec3 positions[4] = {
             (glm::vec3(at.x, at.y, at.z)),                                              // 0
             (glm::vec3(at.x + edge_length, at.y, at.z)),                                // 1
@@ -29,9 +24,12 @@ void elements::Square::initVertices(util::Vertex *vertices, unsigned *indices,
             0, 2, 3,
     };
 
-    *indexSize = Square::indexSize;
-    *vertexSize = Square::vertexSize;
+    ElementBase::indexCount = Square::indexCount;
+    ElementBase::indexSize = Square::indexSize;
+    ElementBase::vertexSize = Square::vertexSize;
 }
 
-elements::Square::Square()
-        : ElementBase(), edge_length(0.f) {}
+elements::Square::Square(const glm::vec3 &at, float edge_length) : at(at), edge_length(edge_length) {
+    initVertices();
+    initBuffers();
+}

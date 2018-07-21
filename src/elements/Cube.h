@@ -23,8 +23,6 @@ namespace elements {
 
     public:
         Cube(const glm::vec3 &at, float edge_length);
-
-        ~Cube() override;
     };
 }
 

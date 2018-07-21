@@ -15,6 +15,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include "elements/Cube.h"
 #include "util/util.h"
+#include "elements/Square.h"
 
 #define _DEBUG 1
 
@@ -272,10 +273,10 @@ int main() {
         return -1;
     }
 
-
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);
+
     // Set our "myTextureSampler" sampler to use Texture Unit 0
     glUniform1i(texture_sampler_id, 0);
 
@@ -287,27 +288,9 @@ int main() {
                 util::Vertex(glm::vec3(0.f, -1.f, 1.f), glm::vec3(1.f, 0.f, 1.f), glm::vec2(0.f, 1.f)), // 3
         };
 
-        unsigned indices[6]{
-                0, 1, 2,
-                0, 3, 2
-        };
-//
-        GLuint VAO;
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-
-        GLuint VBO;
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        GLuint IBO;
-        glGenBuffers(1, &IBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-        elements::Cube myCube(glm::vec3(.0f, .0f, .0f), .5f);
+        elements::Cube myCube({.0f, .0f, .0f}, .5f);
         elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
+        elements::Square mySquare({0.f, -1.f, 0.f}, 1.f);
 
         // animation
         float r = .5f, increment = 0.005f;
@@ -353,21 +336,7 @@ int main() {
 
             myCube.draw();
             myCube2.draw();
-
-//            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
-//            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
-//            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
-//            glEnableVertexAttribArray(0);
-//            glEnableVertexAttribArray(1);
-//            glEnableVertexAttribArray(2);
-//
-//            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-//            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-//
-//            glDisableVertexAttribArray(0);
-//            glDisableVertexAttribArray(1);
-//            glDisableVertexAttribArray(2);
+            mySquare.draw();
 
             r += increment;
             //endregion

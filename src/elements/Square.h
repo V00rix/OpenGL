@@ -9,7 +9,7 @@
 
 namespace elements {
 
-    class Square : ElementBase {
+    class Square : public ElementBase {
 
     private:
         static const unsigned vertexCount = 4 * 6;    // 4 vertices per square
@@ -20,14 +20,10 @@ namespace elements {
         const glm::vec3 at;
         const float edge_length;
 
-        void initVertices(util::Vertex *vertices, unsigned *indices, unsigned *vertexSize, unsigned *indexSize);
+        void initVertices() override;
 
     public:
-//        Square(const glm::vec3 &at, float edge_length) : ElementBase(initVertices), at(at), edge_length(edge_length) {}
-
-        Square();
-
-        void draw() const override;
+        Square(const glm::vec3 &at, float edge_length);
     };
 
 }

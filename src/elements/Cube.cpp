@@ -10,11 +10,6 @@ elements::Cube::Cube(const glm::vec3 &at, float edge_length) : at(at), edge_leng
     initBuffers();
 }
 
-elements::Cube::~Cube() {
-    delete[] vertices;
-    delete[] indices;
-}
-
 void elements::Cube::initVertices() {
     glm::vec3 positions[8] = {
             // bottom square
