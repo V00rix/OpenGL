@@ -24,9 +24,7 @@ add_subdirectory(external/glfw)
 # GLM
 include_directories(external/glm)
 #ASSIMP
-include_directories(external/assimp/include)
-#link_directories(external/assimp/lib)
-add_subdirectory(external/assimp)
+
 #elements
 set(elements
         src/elements/Cube.cpp
@@ -40,8 +38,7 @@ add_executable(OpenGL src/main.cpp ${elements} ${util})
 target_link_libraries(OpenGL
         ${OPENGL_LIBRARY}
         glew
-        glfw
-        assimp)
+        glfw)
 
 #copy resources
 file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/resources)

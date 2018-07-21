@@ -1,6 +1,5 @@
 // OpenGL
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 // other stuff
 #include <iostream>
 #include <fstream>
@@ -17,6 +16,7 @@
 #include "elements/Cube.h"
 #include "util/util.h"
 #include "elements/Square.h"
+#include "glfw3.h"
 
 #define _DEBUG 1
 
@@ -268,7 +268,7 @@ int main() {
 //    glEnable(GL_CULL_FACE);
 
     // load textures
-    GLuint ascensionTexture = util::loadDDS("resources/textures/uvmap.dds");
+    GLuint ascensionTexture = util::loadDDS("resources/textures/ascensionLogo.dds");
     if (!ascensionTexture) {
         fprintf(stdout, "Couldn't load texture.");
         return -1;
@@ -283,9 +283,7 @@ int main() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ascensionTexture);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp);
-
-    Assimp::Importer Importer;
+    glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp)
 
     {
         elements::Cube myCube({.0f, .0f, .0f}, .5f);
