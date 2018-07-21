@@ -11,8 +11,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
+
+#include <assimp/Importer.hpp>      // C++ importer interface
+
 #include "elements/Cube.h"
 #include "util/util.h"
 #include "elements/Square.h"
@@ -267,7 +268,7 @@ int main() {
 //    glEnable(GL_CULL_FACE);
 
     // load textures
-    GLuint ascensionTexture = util::loadDDS("resources/textures/ascensionLogo.dds");
+    GLuint ascensionTexture = util::loadDDS("resources/textures/uvmap.dds");
     if (!ascensionTexture) {
         fprintf(stdout, "Couldn't load texture.");
         return -1;
@@ -284,6 +285,7 @@ int main() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp);
 
+    Assimp::Importer Importer;
 
     {
         elements::Cube myCube({.0f, .0f, .0f}, .5f);
@@ -294,7 +296,6 @@ int main() {
         float r = .5f, increment = 0.005f;
 
         float yoff, xoff = yoff = 0.0f;
-
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

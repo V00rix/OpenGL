@@ -140,7 +140,6 @@ StyleCopReport.xml
 *_i.h
 *.ilk
 *.meta
-*.obj
 *.iobj
 *.pch
 *.pdb
@@ -447,13 +446,10 @@ Temporary Items
 *.gch
 
 # Libraries
-*.lib
-*.a
 *.la
 *.lo
 
 # Shared objects (inc. Windows DLLs)
-*.dll
 *.so
 *.so.*
 *.dylib
@@ -494,3 +490,4 @@ dkms.conf
 
 # Compiled Static libraries
 *.lai
+!/resources/lib/assimb32.dll
