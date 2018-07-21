@@ -7,18 +7,13 @@
 #include <GL/glew.h>
 #include "util.h"
 
-/**
- *
- * @param imagePath
- * @return
- */
-unsigned util::loadDDS(const char *imagePath) {
+unsigned util::loadDDS(const char *filePath) {
     unsigned char header[124];
 
     FILE *fp;
 
     /* try to open the file */
-    fp = fopen(imagePath, "rb");
+    fp = fopen(filePath, "rb");
     if (fp == nullptr) {
         fprintf(stdout, "Couldn't open file.");
         return 0;
@@ -101,7 +96,7 @@ unsigned util::loadDDS(const char *imagePath) {
     return textureID;
 }
 
-unsigned util::loadBMP(const char *imagePath) {
+unsigned util::loadBMP(const char *filePath) {
     // Data read from the header of the BMP file
     unsigned char header[54]; // Each BMP file begins by a 54-bytes header
     unsigned int dataPos;     // Position in the file where the actual data begins
@@ -111,7 +106,7 @@ unsigned util::loadBMP(const char *imagePath) {
     unsigned char *data;
 
     // Open the file
-    FILE *file = fopen(imagePath, "rb");
+    FILE *file = fopen(filePath, "rb");
     if (!file) {
         printf("Image could not be opened\n");
         return 0;
@@ -160,5 +155,60 @@ unsigned util::loadBMP(const char *imagePath) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     return textureID;
+}
+
+bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices) {
+//    std::vector<unsigned int> positionIndices, uvIndices, normalIndices;
+    std::vector<glm::vec3> temp_positions;
+    std::vector<glm::vec2> temp_uvs;
+    std::vector<glm::vec3> temp_normals;
+
+    FILE *file = fopen(filePath, "r");
+    if (file == nullptr) {
+        printf("Couldn't open '%s'!\n", filePath);
+        return false;
+    }
+
+    while (true) {
+        char lineHeader[128];
+
+        int res = fscanf(file, "%s", lineHeader);
+        if (res == EOF) break;
+
+        if (strcmp(lineHeader, "v") == 0) {
+            glm::vec3 vertex;
+            fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+            temp_positions.push_back(vertex);
+        } else if (strcmp(lineHeader, "vn") == 0) {
+            glm::vec3 normal;
+            fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+            temp_normals.push_back(normal);
+        } else if (strcmp(lineHeader, "vt") == 0) {
+            glm::vec2 uv;
+            fscanf(file, "%f %f", &uv.x, &uv.y);
+            temp_uvs.push_back(uv);
+        } else if (strcmp(lineHeader, "f") == 0) {
+            std::string vertex1, vertex2, vertex3;
+            unsigned int positionIndex[3], uvIndex[3], normalIndex[3];
+            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &positionIndex[0], &uvIndex[0], &normalIndex[0],
+                                 &positionIndex[1], &uvIndex[1], &normalIndex[1], &positionIndex[2], &uvIndex[2],
+                                 &normalIndex[2]);
+            if (matches != 9) {
+                printf("Couldn't parse %s\n", filePath);
+                return false;
+            }
+
+            out_vertices.emplace_back(Vertex(temp_positions[positionIndex[0] - 1], temp_normals[normalIndex[0] - 1],
+                                             temp_uvs[uvIndex[0] - 1]));
+            out_vertices.emplace_back(Vertex(temp_positions[positionIndex[1] - 1], temp_normals[normalIndex[1] - 1],
+                                             temp_uvs[uvIndex[1] - 1]));
+            out_vertices.emplace_back(Vertex(temp_positions[positionIndex[2] - 1], temp_normals[normalIndex[2] - 1],
+                                             temp_uvs[uvIndex[2] - 1]));
+        }
+    }
+
+    fclose(file);
+
+    return true;
 }
 

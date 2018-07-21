@@ -11,7 +11,6 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <assimp/Importer.hpp>      // C++ importer interface
 
 #include "elements/Cube.h"
 #include "util/util.h"
@@ -267,6 +266,38 @@ int main() {
     // Cull triangles which normal is not towards the camera
 //    glEnable(GL_CULL_FACE);
 
+    // load mesh
+
+    std::vector<util::Vertex> vertices;
+    util::loadOBJ("resources/meshes/spaceship.obj", vertices);
+    unsigned vertexCount = vertices.size();
+
+    GLuint VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    GLuint VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(util::Vertex) * vertexCount, &vertices[0], GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
+
+//    GLuint IBO;
+//    glGenBuffers(1, &IBO);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, indices, GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+
     // load textures
     GLuint ascensionTexture = util::loadDDS("resources/textures/ascensionLogo.dds");
     if (!ascensionTexture) {
@@ -283,7 +314,7 @@ int main() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ascensionTexture);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp)
+    glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp);
 
     {
         elements::Cube myCube({.0f, .0f, .0f}, .5f);
@@ -298,7 +329,7 @@ int main() {
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+            //region Get input
             // Get mouse position
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
@@ -319,6 +350,7 @@ int main() {
             if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
                 xoff -= 0.1f;
             }
+            //endregion
 
             //region Main loop
             glm::mat4 scale = glm::scale(glm::mat4(1.f),
@@ -338,6 +370,11 @@ int main() {
             glUniform1i(texture_sampler_id, 1);
             myCube2.render();
             mySquare.render();
+
+
+            glBindVertexArray(VAO);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 
             r += increment;
             //endregion

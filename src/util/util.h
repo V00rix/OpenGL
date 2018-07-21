@@ -7,6 +7,8 @@
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include <vector>
+#include <iostream>
 
 #define FOURCC_DXT1 827611204 // 'D' 'X' 'T' '1'
 #define FOURCC_DXT3 861165636 // 'D' 'X' 'T' '3'
@@ -14,36 +16,33 @@
 
 namespace util {
 
-    /**
-     * Load DDS texture into memory
-     * @param imagePath
-     * @return
-     */
-    unsigned loadDDS(const char *imagePath);
+    unsigned loadDDS(const char *filePath);
 
-    unsigned loadBMP(const char *imagePath);
-
+    unsigned loadBMP(const char *filePath);
 
     struct Vertex {
-        explicit Vertex(const glm::vec3 &pos) : m_pos(pos), m_col(0.f), m_uv(0.f) {
+        explicit Vertex(const glm::vec3 &pos) : position(pos), normal(0.f), uv(0.f) {
         }
 
         Vertex(const glm::vec3 &pos, const glm::vec2 &uv) : Vertex(pos) {
-            m_uv = uv;
+            this->uv = uv;
         }
 
         static const unsigned size = sizeof(glm::vec3) + sizeof(glm::vec3) + sizeof(glm::vec2);
         static const unsigned color_offset = sizeof(glm::vec3);
         static const unsigned uv_offset = sizeof(glm::vec3) + sizeof(glm::vec3);
 
-        glm::vec3 m_pos;
-        glm::vec3 m_col;
-        glm::vec2 m_uv;
+        glm::vec3 position;
+        glm::vec3 normal;
+        glm::vec2 uv;
 
         Vertex() = default;
 
-        Vertex(const glm::vec3 pos, const glm::vec3 col, const glm::vec2 tex) : m_pos(pos), m_col(col), m_uv(tex) {}
+        Vertex(const glm::vec3 pos, const glm::vec3 col, const glm::vec2 tex) : position(pos), normal(col), uv(tex) {}
     };
+
+    bool loadOBJ(const char *filePath,
+                 std::vector<Vertex> &out_vertices);
 
 }
 #endif //OPENGL_UTIL_H
