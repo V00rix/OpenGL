@@ -31,7 +31,7 @@ namespace elements {
     public:
         virtual ~ElementBase();
 
-        virtual void draw() const {
+        virtual void render() const {
             glBindVertexArray(VAO);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
             glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, (void *) 0);

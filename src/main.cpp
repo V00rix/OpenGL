@@ -267,27 +267,25 @@ int main() {
 //    glEnable(GL_CULL_FACE);
 
     // load textures
-    GLuint textureId = util::loadDDS("resources/textures/ascensionLogo.dds");
-    if (!textureId) {
+    GLuint ascensionTexture = util::loadDDS("resources/textures/ascensionLogo.dds");
+    if (!ascensionTexture) {
+        fprintf(stdout, "Couldn't load texture.");
+        return -1;
+    }
+    GLuint ascensionTexture_bmp = util::loadBMP("resources/textures/ascensionLogo.bmp");
+    if (!ascensionTexture_bmp) {
         fprintf(stdout, "Couldn't load texture.");
         return -1;
     }
 
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureId);
+    glBindTexture(GL_TEXTURE_2D, ascensionTexture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp);
 
-    // Set our "myTextureSampler" sampler to use Texture Unit 0
-    glUniform1i(texture_sampler_id, 0);
 
     {
-        util::Vertex vertices[4] = {
-                util::Vertex(glm::vec3(0.f, -1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), glm::vec2(0.f, 0.f)), // 0
-                util::Vertex(glm::vec3(1.f, -1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec2(1.f, 0.f)), // 1
-                util::Vertex(glm::vec3(1.f, -1.f, 1.f), glm::vec3(1.f, 0.f, 1.f), glm::vec2(1.f, 1.f)), // 2
-                util::Vertex(glm::vec3(0.f, -1.f, 1.f), glm::vec3(1.f, 0.f, 1.f), glm::vec2(0.f, 1.f)), // 3
-        };
-
         elements::Cube myCube({.0f, .0f, .0f}, .5f);
         elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
         elements::Square mySquare({0.f, -1.f, 0.f}, 1.f);
@@ -334,9 +332,13 @@ int main() {
             glUniformMatrix4fv(scale_id, 1, GL_FALSE, &rotate[0][0]);
             glUniformMatrix4fv(translation_id, 1, GL_FALSE, &translate[0][0]);
 
-            myCube.draw();
-            myCube2.draw();
-            mySquare.draw();
+            // Set our "myTextureSampler" sampler to use Texture Unit 0
+            glUniform1i(texture_sampler_id, 0);
+            myCube.render();
+            // Set our "myTextureSampler" sampler to use Texture Unit 0
+            glUniform1i(texture_sampler_id, 1);
+            myCube2.render();
+            mySquare.render();
 
             r += increment;
             //endregion
