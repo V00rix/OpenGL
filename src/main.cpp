@@ -16,8 +16,11 @@
 #include "util/util.h"
 #include "elements/Square.h"
 #include "glfw3.h"
+#include "light/light.h"
 
 #define _DEBUG 1
+
+using namespace light::type;
 
 //region Helpers
 /**
@@ -198,26 +201,6 @@ openglCallbackFunction(GLenum source, GLenum type, GLuint id, GLenum severity, G
     }
 }
 
-/**
- * Calculate model-view-projection matrix
- * @return
- */
-glm::mat4 calculateMVP() {
-    // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-
-    // Camera matrix
-    glm::mat4 view = glm::lookAt(
-            glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
-            glm::vec3(0, 0, 0), // and looks at the origin
-            glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
-    );
-
-    // model matrix : an identity matrix (model will be at the origin)
-    glm::mat4 model = glm::mat4(1.0f);
-
-    return projection * view * model;
-}
 //endregion
 
 int main() {
@@ -245,14 +228,19 @@ int main() {
     glUseProgram(shader);
 
     // uniforms
-    int MVP_id = glGetUniformLocation(shader, "MVP");
-    int scale_id = glGetUniformLocation(shader, "u_scale");
-    int translation_id = glGetUniformLocation(shader, "u_translate");
-    int texture_sampler_id = glGetUniformLocation(shader, "texture_sampler");
+    int u_model = glGetUniformLocation(shader, "model");
+    int u_view = glGetUniformLocation(shader, "view");
+    int u_projection = glGetUniformLocation(shader, "projection");
 
-    // MVP
-    glm::mat4 MVP = calculateMVP();
-    glUniformMatrix4fv(MVP_id, 1, GL_FALSE, &MVP[0][0]);
+//    int u_light_position = glGetUniformLocation(shader, "light_position");
+
+    int u_texture_sampler = glGetUniformLocation(shader, "texture_sampler");
+    int u_directional_ambient = glGetUniformLocation(shader, "directional_ambient");
+    int u_directional_diffuse = glGetUniformLocation(shader, "directional_diffuse");
+
+    int u_camera_position = glGetUniformLocation(shader, "camera_position");
+    int u_specular_intensity = glGetUniformLocation(shader, "specular_intensity");
+    int u_specular_power = glGetUniformLocation(shader, "specular_power");
 
     // Clear color
     glClearColor(0.176f, 0.313f, 0.325f, 1.0f);
@@ -264,10 +252,9 @@ int main() {
     glDepthFunc(GL_LESS);
 
     // Cull triangles which normal is not towards the camera
-//    glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
-    // load mesh
-
+    // region load mesh
     std::vector<util::Vertex> vertices;
     util::loadOBJ("resources/meshes/spaceship.obj", vertices);
     unsigned vertexCount = vertices.size();
@@ -288,15 +275,9 @@ int main() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
 
-//    GLuint IBO;
-//    glGenBuffers(1, &IBO);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, indices, GL_STATIC_DRAW);
-
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
+    //endregion
 
     // load textures
     GLuint ascensionTexture = util::loadDDS("resources/textures/ascensionLogo.dds");
@@ -315,6 +296,7 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, ascensionTexture);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp);
+    glUniform1i(u_texture_sampler, 1);
 
     {
         elements::Cube myCube({.0f, .0f, .0f}, .5f);
@@ -325,6 +307,7 @@ int main() {
         float r = .5f, increment = 0.005f;
 
         float yoff, xoff = yoff = 0.0f;
+        float yrot, xrot = yrot = 0.0f;
 
         do {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -344,33 +327,63 @@ int main() {
             }
             // Strafe right
             if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                xoff += 0.1f;
+                xoff -= 0.1f;
             }
             // Strafe left
             if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                xoff -= 0.1f;
+                xoff += 0.1f;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+                yrot += 0.1f;
+            }
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+                yrot-= 0.1f;
+            }
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+                xrot += 0.1f;
+            }
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+                xrot -= 0.1f;
             }
             //endregion
 
+            glm::vec3 cameraPosition(4, 3, 3); // Camera is at (4,3,3), in World Space
+
+            // MVP
+            // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+            glm::mat4 projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+
+            // Camera matrix
+            glm::mat4 view = glm::lookAt(
+                    cameraPosition,
+                    glm::vec3(0, 0, 0), // and looks at the origin
+                    glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+            );
+
+            // model matrix : an identity matrix (model will be at the origin)
+            glm::mat4 model = glm::mat4(1.0f);
+
+            glm::mat4 translated = glm::translate(projection, glm::vec3(xoff, .0f, yoff));
+            glm::mat4 rotated = glm::rotate(glm::rotate(model, xrot, {1.0f, .0f, .0f}),
+                                            yrot, {0.0f, 1.0f, 0.f});
+
+            glUniformMatrix4fv(u_model, 1, GL_FALSE, &rotated[0][0]);
+            glUniformMatrix4fv(u_view, 1, GL_FALSE, &view[0][0]);
+            glUniformMatrix4fv(u_projection, 1, GL_FALSE, &translated[0][0]);
+
+            glUniform3f(u_camera_position, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+            glUniform1f(u_specular_intensity, 5.0f);
+            glUniform1f(u_specular_power, 32);
+
             //region Main loop
-            glm::mat4 scale = glm::scale(glm::mat4(1.f),
-                                         glm::vec3(1.f, 1.f, 1.f));
-            glm::mat4 rotate = glm::rotate(scale, (r - .5f), glm::vec3(1.f, 1.f, 1.f));
-            glm::mat4 translate = glm::translate(glm::mat4(),
-                                                 glm::vec3(-std::sin(r) - 1.f + xpos / 1000 + xoff, ypos / 1000 + yoff,
-                                                           -std::cos(r)));
+            float ambientIntensity = (1.f) / 4.f + .5f;
+            glm::vec3 direction(-1.f + std::sin(r), -.5f + std::cos(r), std::cos(2 * r));
+            light::Direction sun(glm::vec3(1.f), Ambient(ambientIntensity), Diffuse(direction, 1.f), Specular(1.f));
 
-            glUniformMatrix4fv(scale_id, 1, GL_FALSE, &rotate[0][0]);
-            glUniformMatrix4fv(translation_id, 1, GL_FALSE, &translate[0][0]);
-
-            // Set our "myTextureSampler" sampler to use Texture Unit 0
-            glUniform1i(texture_sampler_id, 0);
-            myCube.render();
-            // Set our "myTextureSampler" sampler to use Texture Unit 0
-            glUniform1i(texture_sampler_id, 1);
-            myCube2.render();
-            mySquare.render();
-
+            light::renderAmbient(u_directional_ambient, sun);
+            glm::vec3 &dir = sun.diffuse.direction;
+            glUniform4f(u_directional_diffuse, dir.x, dir.y, dir.z, sun.diffuse.intensity);
 
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);

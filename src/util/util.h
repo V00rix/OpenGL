@@ -16,10 +16,6 @@
 
 namespace util {
 
-    unsigned loadDDS(const char *filePath);
-
-    unsigned loadBMP(const char *filePath);
-
     struct Vertex {
         explicit Vertex(const glm::vec3 &pos) : position(pos), normal(0.f), uv(0.f) {
         }
@@ -41,8 +37,14 @@ namespace util {
         Vertex(const glm::vec3 pos, const glm::vec3 col, const glm::vec2 tex) : position(pos), normal(col), uv(tex) {}
     };
 
+    unsigned loadDDS(const char *filePath);
+
+    unsigned loadBMP(const char *filePath);
+
     bool loadOBJ(const char *filePath,
                  std::vector<Vertex> &out_vertices);
+
+
 
 }
 #endif //OPENGL_UTIL_H

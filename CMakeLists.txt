@@ -32,9 +32,12 @@ set(elements
 set(util
         src/util/util.cpp
         src/util/util.h)
+set(light
+        src/light/light.cpp
+        src/light/light.h)
 
 # Executable
-add_executable(OpenGL src/main.cpp ${elements} ${util})
+add_executable(OpenGL src/main.cpp ${elements} ${util} ${light})
 target_link_libraries(OpenGL
         ${OPENGL_LIBRARY}
         glew
