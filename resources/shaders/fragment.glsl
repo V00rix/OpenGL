@@ -6,7 +6,7 @@ in vec2 UV;
 in vec3 model_normal;
 in vec3 model_position;
 
-out vec3 color;
+out vec4 color;
 
 struct Attenuation {
         float constant;
@@ -42,6 +42,8 @@ uniform sampler2D texture_sampler;
 uniform vec3 camera_position;
 uniform float specular_intensity;
 uniform float specular_power;
+
+uniform bool draw_ui;
 
 vec3 calculateDirectionalLight(BaseLight light, vec3 direction, vec3 normal) {
     // calculate ambient property
@@ -82,13 +84,19 @@ vec3 calculatePointLight(Point light, vec3 normal) {
 }
 
 void main(){
-    vec3 normal = normalize(model_normal);
+    if (draw_ui) {
+        color = texture2D(texture_sampler, UV.xy);
 
-    vec3 totalLight = calculateDirectionalLight(directional_light.base, directional_light.direction, normal);
 
-    for (int i = 0; i < point_lights_count; i++) {
-        totalLight += calculatePointLight(point_lights[i], normal);
+    } else {
+        vec3 normal = normalize(model_normal);
+
+        vec3 totalLight = calculateDirectionalLight(directional_light.base, directional_light.direction, normal);
+
+        for (int i = 0; i < point_lights_count; i++) {
+            totalLight += calculatePointLight(point_lights[i], normal);
+        }
+
+        color = texture2D(texture_sampler, UV.xy) * vec4(totalLight, 1.f);
     }
-
-    color = texture2D(texture_sampler, UV.xy).rgb * totalLight;
 }

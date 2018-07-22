@@ -11,14 +11,23 @@ out vec3 model_position; // position relative to world transformations
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform bool draw_ui;
 
 void main() {
-    mat4 MVP = projection * view * model;
+    if (draw_ui) {
+        gl_Position = vec4(position, 1.f);
 
-    gl_Position = MVP * vec4(position, 1);
+        model_normal = normal;
+        model_position = position;
+    } else {
+        mat4 MVP = projection * view * model;
 
-    model_normal = (model * vec4(normal, 0.0)).xyz;
-    model_position = (model * vec4(position, 0.0)).xyz;
+        gl_Position = MVP * vec4(position, 1.f);
+
+        model_normal = (model * vec4(normal, 0.0)).xyz;
+        model_position = (model * vec4(position, 0.0)).xyz;
+    }
+
 
     UV = vertexUV;
 }

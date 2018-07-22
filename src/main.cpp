@@ -199,6 +199,16 @@ openglCallbackFunction(GLenum source, GLenum type, GLuint id, GLenum severity, G
     }
 }
 
+static elements::Square generateText(const char *string, GLuint texture) {
+    const glm::vec2 uv[4] = {
+            glm::vec2(.0f, .0f),
+            glm::vec2(1.0f/16.f, .0f),
+            glm::vec2(1.0f/16.f, 1.0f/16.f),
+            glm::vec2(.0f, 1.0f/16.f),
+    };
+
+    return elements::Square(glm::vec3(-.5f, -.5f, .0f), .2f, uv);
+}
 //endregion
 
 int main() {
@@ -244,14 +254,18 @@ int main() {
     int u_specular_intensity = glGetUniformLocation(shader, "specular_intensity");
     int u_specular_power = glGetUniformLocation(shader, "specular_power");
 
+    int u_draw_ui = glGetUniformLocation(shader, "draw_ui");
+
     // Clear color
     glClearColor(0.f, 0.f, 0.f, 0.f);
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
-
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Cull triangles which normal is not towards the camera
     glEnable(GL_CULL_FACE);
@@ -292,18 +306,26 @@ int main() {
         fprintf(stdout, "Couldn't load texture.");
         return -1;
     }
+    GLuint fontTexture = util::loadBMP("resources/fonts/font.bmp");
+    if (!fontTexture) {
+        fprintf(stdout, "Couldn't load texture.");
+        return -1;
+    }
 
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ascensionTexture);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, fontTexture);
+
     glUniform1i(u_texture_sampler, 0);
 
     {
         elements::Cube myCube({.0f, .0f, .0f}, .5f);
         elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
-        elements::Square mySquare({0.f, -1.f, 0.f}, 1.f);
+        elements::Square mySquare({-2.5f, -5.f, 0.f}, 5.f);
 
         // animation
         float r = .5f, increment = 0.005f;
@@ -314,12 +336,14 @@ int main() {
         double lastTime = glfwGetTime();
         int frames = 0;
 
+        auto myText = generateText("Hello, world!", fontTexture);
+
         do {
             double currentTime = glfwGetTime();
             frames++;
 
             if (currentTime - lastTime >= 1.0) {
-                printf("%d fps\n", frames);
+                printf("%fms\n", 1000.f / frames);
                 frames = 0;
                 lastTime = currentTime;
             }
@@ -363,6 +387,9 @@ int main() {
             }
             //endregion
 
+            glUniform1i(u_draw_ui, false);
+
+
             glm::vec3 cameraPosition(4, 3, 3); // Camera is at (4,3,3), in World Space
 
             // MVP
@@ -396,7 +423,7 @@ int main() {
             glm::vec3 direction(-1.f, -.5f, .3f);
 
             light::Directional sun({glm::vec3(1.f, .0f, .0f), ambientIntensity, .2f}, direction);
-            light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(1.5f-xoff, yoff + -.5f, .0f), {1.f, .01f, .015f});
+            light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(1.5f - xoff, yoff + -.5f, .0f), {1.f, .01f, .015f});
             light::Point p2({glm::vec3(.3f, 1.f, .4f), .1f, 2.f}, glm::vec3(-1.f, 3.f, .0f), {1.f, .01f, .015f});
 
             light::uni::setDirectional(u_directional_light, sun);
@@ -405,9 +432,20 @@ int main() {
             light::uni::setPoint(u_point_light[1], p2);
             light::uni::setPoint(u_point_light[0], p1);
 
+            glUniform1i(u_texture_sampler, 0);
+
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+
+            myCube.render();
+            myCube2.render();
+            mySquare.render();
+
+            glUniform1i(u_draw_ui, true);
+//            glDisable(GL_DEPTH_TEST);
+            glUniform1i(u_texture_sampler, 2);
+            myText.render();
 
             r += increment;
             //endregion

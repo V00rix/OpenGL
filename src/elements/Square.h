@@ -17,6 +17,8 @@ namespace elements {
         static const unsigned indexCount = 3 * 2 * 6;  // 3 indices per triangle
         static const unsigned indexSize = indexCount * sizeof(unsigned);
 
+        const glm::vec2 *uv;
+
         const glm::vec3 at;
         const float edge_length;
 
@@ -24,7 +26,8 @@ namespace elements {
 
     public:
         Square(const glm::vec3 &, float);
-        explicit Square(const glm::vec3 [3]);
+
+        Square(const glm::vec3 &, float, const glm::vec2*);
     };
 
 }

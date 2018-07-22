@@ -35,7 +35,8 @@ namespace util {
 
         Vertex() = default;
 
-        Vertex(const glm::vec3 pos, const glm::vec3 col, const glm::vec2 tex) : position(pos), normal(col), uv(tex) {}
+        Vertex(const glm::vec3 pos, const glm::vec3 normal, const glm::vec2 tex) : position(pos), normal(normal),
+                                                                                   uv(tex) {}
     };
 
     unsigned loadDDS(const char *);
@@ -44,6 +45,5 @@ namespace util {
 
     bool loadOBJ(const char *,
                  std::vector<Vertex> &);
-
 }
 #endif //OPENGL_UTIL_H
