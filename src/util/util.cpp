@@ -211,23 +211,3 @@ bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices
 
     return true;
 }
-
-util::uni::u_directional util::uni::getDirectional(GLuint shader, const char *uniform_name) {
-    std::string u_name = std::string(uniform_name);
-
-    return {
-            {
-                    glGetUniformLocation(shader, (u_name + ".base.color").c_str()),
-                    glGetUniformLocation(shader, (u_name + ".base.ambient_intensity").c_str()),
-                    glGetUniformLocation(shader, (u_name + ".base.diffuse_intensity").c_str())
-            },
-            glGetUniformLocation(shader, (u_name + ".direction").c_str())
-    };
-}
-
-void util::uni::setDirectional(const u_directional &uniform, const light::Directional &light) {
-    glUniform3f(uniform.u_direction, light.direction.x, light.direction.y, light.direction.z);
-    glUniform3f(uniform.base.color, light.color.r, light.color.g, light.color.b);
-    glUniform1f(uniform.base.ambient_intensity, light.ambientIntensity);
-    glUniform1f(uniform.base.diffuse_intensity, light.diffuseIntensity);
-}

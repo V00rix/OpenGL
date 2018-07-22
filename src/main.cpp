@@ -233,7 +233,7 @@ int main() {
 //    int u_light_position = glGetUniformLocation(shader, "light_position");
 
     int u_texture_sampler = glGetUniformLocation(shader, "texture_sampler");
-    auto u_directional_light = util::uni::getDirectional(shader, "directional_light");
+    auto u_directional_light = light::uni::getDirectional(shader, "directional_light");
 
     int u_camera_position = glGetUniformLocation(shader, "camera_position");
     int u_specular_intensity = glGetUniformLocation(shader, "specular_intensity");
@@ -391,7 +391,7 @@ int main() {
             glm::vec3 direction(-1.f + std::sin(r), -.5f + std::cos(r), std::cos(2 * r));
             light::Directional sun({glm::vec3(1.f), ambientIntensity, 1.f},
                                    direction);
-            util::uni::setDirectional(u_directional_light, sun);
+            light::uni::setDirectional(u_directional_light, sun);
 
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);

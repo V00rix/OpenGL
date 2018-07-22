@@ -34,39 +34,45 @@ struct Point {
 };
 
 uniform int point_lights_count;
+uniform Point[MAX_POINT_LIGHTS] point_lights;
 uniform Directional directional_light;
 
-//uniform vec4 directional_ambient;
-//uniform vec4 directional_diffuse;
 uniform sampler2D texture_sampler;
 
 uniform vec3 camera_position;
 uniform float specular_intensity;
 uniform float specular_power;
 
-void main(){
-    vec3 ambient_color = vec3(directional_light.base.color * directional_light.base.ambient_intensity);
+vec3 calculateDirectional(BaseLight light, vec3 direction, vec3 normal) {
+    // calculate ambient property
+    vec3 ambientColor = vec3(light.color * light.ambient_intensity);
 
-    vec3 light_direction = -directional_light.direction;
-    vec3 normal = normalize(model_normal);
+    float diffuseFactor = dot(normal, -direction);
 
-    float diffuse_factor = dot(normal, light_direction);
+    vec3 diffuseColor, specularColor = diffuseColor = vec3(0f);
 
-    vec3 diffuse_color = vec3(0, 0, 0);
-    vec3 specular_color = vec3(0, 0, 0);
+    if (diffuseFactor > 0) {
+        // calculate diffuse
+        diffuseColor = light.color * light.diffuse_intensity * diffuseFactor;
 
-    if (diffuse_factor > 0) {
-        diffuse_color = vec3(directional_light.base.color * directional_light.base.diffuse_intensity * diffuse_factor);
+        // calculate specular
+        vec3 vertextToEye = normalize(camera_position - model_position);
+        vec3 lightReflect = normalize(reflect(direction, normal));
+        float specularFactor = dot(vertextToEye, lightReflect);
 
-        vec3 vertex_to_eye = normalize(camera_position - model_position);
-        vec3 light_reflect = normalize(reflect(directional_light.direction, normal));
-        float specular_factor = dot(vertex_to_eye, light_reflect);
-
-        if (specular_factor > 0) {
-            specular_factor = pow(specular_factor, specular_power);
-            specular_color = directional_light.base.color * specular_intensity * specular_factor;
+        if (specularFactor > 0) {
+            specularFactor = pow(specularFactor, specular_power);
+            specularColor = light.color * specular_intensity * specularFactor;
         }
     }
 
-     color = texture2D(texture_sampler, UV.xy).rgb * (ambient_color + diffuse_color + specular_color);
+    return (ambientColor + diffuseColor + specularColor);
+}
+
+void main(){
+    vec3 normal = normalize(model_normal);
+
+    vec3 totalLight = calculateDirectional(directional_light.base, directional_light.direction, normal);
+
+    color = texture2D(texture_sampler, UV.xy).rgb * totalLight;
 }

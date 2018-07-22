@@ -10,32 +10,66 @@
 #include <GL/glew.h>
 
 namespace light {
-    struct BaseLight {
+    struct Base {
         glm::vec3 color;
         float ambientIntensity;
         float diffuseIntensity;
     };
 
-    struct Directional : BaseLight {
+    struct Directional : Base {
         glm::vec3 direction;
 
-        Directional(const BaseLight& b, const glm::vec3 & d): BaseLight(b), direction(d) {}
+        Directional(const Base &b, const glm::vec3 &d) : Base(b), direction(d) {}
     };
 
-    struct Point : BaseLight {
+    struct Point : Base {
         glm::vec3 position;
 
-        struct {
+        struct Attenuation {
             float constant;
             float linear;
             float exponential;
         } attenuation;
     };
 
-    struct Spot : BaseLight {
+    struct Spot : Base {
 
     };
 
-    void SetPointLights(unsigned int count, const Point* lights);
+    namespace uni {
+        struct u_base {
+            int color;
+            int ambient_intensity;
+            int diffuse_intensity;
+        };
+
+        struct u_directional {
+            u_base base;
+
+            int u_direction;
+        };
+
+        struct u_point {
+            u_base base;
+
+            struct Attenuation {
+                int constant;
+                int linear;
+                int exponential;
+            } attenuation;
+
+            int position;
+        };
+
+        u_directional getDirectional(GLuint, const char *);
+
+        void setDirectional(const u_directional &, const light::Directional &);
+
+        u_point getPoint(GLuint, const char *);
+
+        void setPoint(const u_point &, const light::Point &);
+    }
+
+    void SetPointLights(unsigned int count, const Point *lights);
 }
 #endif //OPENGL_LIGHT_H

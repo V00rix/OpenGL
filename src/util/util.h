@@ -45,23 +45,5 @@ namespace util {
     bool loadOBJ(const char *,
                  std::vector<Vertex> &);
 
-    namespace uni {
-        struct u_base {
-            int color;
-            int ambient_intensity;
-            int diffuse_intensity;
-        };
-
-        struct u_directional {
-            u_base base;
-
-            int u_direction;
-        };
-
-        u_directional getDirectional(GLuint, const char *);
-
-        void setDirectional(const u_directional &, const light::Directional &);
-    }
-
 }
 #endif //OPENGL_UTIL_H
