@@ -87,7 +87,7 @@ void main(){
     vec3 totalLight = calculateDirectionalLight(directional_light.base, directional_light.direction, normal);
 
     for (int i = 0; i < point_lights_count; i++) {
-        totalLight += calculatePointLight(point_lights[0], normal);
+        totalLight += calculatePointLight(point_lights[i], normal);
     }
 
     color = texture2D(texture_sampler, UV.xy).rgb * totalLight;

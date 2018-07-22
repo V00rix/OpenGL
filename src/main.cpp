@@ -234,7 +234,10 @@ int main() {
 
     int u_texture_sampler = glGetUniformLocation(shader, "texture_sampler");
     auto u_directional_light = light::uni::getDirectional(shader, "directional_light");
-    auto u_point_light = light::uni::getPoint(shader, "point_lights[0]");
+    light::uni::u_point u_point_light[2] = {
+            light::uni::getPoint(shader, "point_lights[0]"),
+            light::uni::getPoint(shader, "point_lights[1]")
+    };
     auto u_point_lights_count = glGetUniformLocation(shader, "point_lights_count");
 
     int u_camera_position = glGetUniformLocation(shader, "camera_position");
@@ -387,17 +390,20 @@ int main() {
             glUniform3f(u_camera_position, cameraPosition.x, cameraPosition.y, cameraPosition.z);
             glUniform1f(u_specular_intensity, 5.0f);
             glUniform1f(u_specular_power, 32);
-            glUniform1i(u_point_lights_count, 1);
 
             //region Main loop
-            float ambientIntensity = .1f;
+            float ambientIntensity = .05f;
             glm::vec3 direction(-1.f, -.5f, .3f);
 
-            light::Directional sun({glm::vec3(1.f), ambientIntensity, .7f}, direction);
-            light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(-xoff, yoff + 3.f, .0f), {1.f, .01f, .015f});
+            light::Directional sun({glm::vec3(1.f, .0f, .0f), ambientIntensity, .2f}, direction);
+            light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(1.5f-xoff, yoff + -.5f, .0f), {1.f, .01f, .015f});
+            light::Point p2({glm::vec3(.3f, 1.f, .4f), .1f, 2.f}, glm::vec3(-1.f, 3.f, .0f), {1.f, .01f, .015f});
 
             light::uni::setDirectional(u_directional_light, sun);
-            light::uni::setPoint(u_point_light, p1);
+            glUniform1i(u_point_lights_count, 2);
+
+            light::uni::setPoint(u_point_light[1], p2);
+            light::uni::setPoint(u_point_light[0], p1);
 
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
