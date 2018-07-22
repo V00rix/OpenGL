@@ -296,7 +296,7 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, ascensionTexture);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp);
-    glUniform1i(u_texture_sampler, 1);
+    glUniform1i(u_texture_sampler, 0);
 
     {
         elements::Cube myCube({.0f, .0f, .0f}, .5f);
@@ -309,7 +309,20 @@ int main() {
         float yoff, xoff = yoff = 0.0f;
         float yrot, xrot = yrot = 0.0f;
 
+        double lastTime = glfwGetTime();
+        int frames = 0;
+
         do {
+            double currentTime = glfwGetTime();
+            frames++;
+
+            if (currentTime - lastTime >= 1.0) {
+                printf("%d fps\n", frames);
+                frames = 0;
+                lastTime = currentTime;
+            }
+
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             //region Get input
