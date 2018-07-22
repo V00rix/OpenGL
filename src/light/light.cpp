@@ -14,6 +14,14 @@ static light::uni::u_base getBase(GLuint shader, std::string &u_name) {
     };
 }
 
+static light::uni::u_point::Attenuation getAttenuation(GLuint shader, std::string &u_name) {
+    return {
+            glGetUniformLocation(shader, (u_name + ".attenuation.constant").c_str()),
+            glGetUniformLocation(shader, (u_name + ".attenuation.linear").c_str()),
+            glGetUniformLocation(shader, (u_name + ".attenuation.exponential").c_str())
+    };
+}
+
 static void setBase(const light::uni::u_base &uniform, const light::Base &light) {
     glUniform3f(uniform.color, light.color.r, light.color.g, light.color.b);
     glUniform1f(uniform.ambient_intensity, light.ambientIntensity);
@@ -43,11 +51,7 @@ light::uni::u_point light::uni::getPoint(GLuint shader, const char *uniform_name
 
     return {
             getBase(shader, u_name),
-            {
-                    glGetUniformLocation(shader, (u_name + ".attenuation.constant").c_str()),
-                    glGetUniformLocation(shader, (u_name + ".attenuation.linear").c_str()),
-                    glGetUniformLocation(shader, (u_name + ".attenuation.exponential").c_str()),
-            },
+            getAttenuation(shader, u_name),
             glGetUniformLocation(shader, (u_name + ".position").c_str())
     };
 }

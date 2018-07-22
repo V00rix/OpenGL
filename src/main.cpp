@@ -234,13 +234,15 @@ int main() {
 
     int u_texture_sampler = glGetUniformLocation(shader, "texture_sampler");
     auto u_directional_light = light::uni::getDirectional(shader, "directional_light");
+    auto u_point_light = light::uni::getPoint(shader, "point_lights[0]");
+    auto u_point_lights_count = glGetUniformLocation(shader, "point_lights_count");
 
     int u_camera_position = glGetUniformLocation(shader, "camera_position");
     int u_specular_intensity = glGetUniformLocation(shader, "specular_intensity");
     int u_specular_power = glGetUniformLocation(shader, "specular_power");
 
     // Clear color
-    glClearColor(0.176f, 0.313f, 0.325f, 1.0f);
+    glClearColor(0.f, 0.f, 0.f, 0.f);
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -374,7 +376,7 @@ int main() {
             // model matrix : an identity matrix (model will be at the origin)
             glm::mat4 model = glm::mat4(1.0f);
 
-            glm::mat4 translated = glm::translate(projection, glm::vec3(xoff, .0f, yoff));
+            glm::mat4 translated = glm::translate(projection, glm::vec3(.0f, .0f, 0.f));
             glm::mat4 rotated = glm::rotate(glm::rotate(model, xrot, {1.0f, .0f, .0f}),
                                             yrot, {0.0f, 1.0f, 0.f});
 
@@ -385,13 +387,17 @@ int main() {
             glUniform3f(u_camera_position, cameraPosition.x, cameraPosition.y, cameraPosition.z);
             glUniform1f(u_specular_intensity, 5.0f);
             glUniform1f(u_specular_power, 32);
+            glUniform1i(u_point_lights_count, 1);
 
             //region Main loop
-            float ambientIntensity = (1.f) / 4.f + .5f;
-            glm::vec3 direction(-1.f + std::sin(r), -.5f + std::cos(r), std::cos(2 * r));
-            light::Directional sun({glm::vec3(1.f), ambientIntensity, 1.f},
-                                   direction);
+            float ambientIntensity = .1f;
+            glm::vec3 direction(-1.f, -.5f, .3f);
+
+            light::Directional sun({glm::vec3(1.f), ambientIntensity, .7f}, direction);
+            light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(-xoff, yoff + 3.f, .0f), {1.f, .01f, .015f});
+
             light::uni::setDirectional(u_directional_light, sun);
+            light::uni::setPoint(u_point_light, p1);
 
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);

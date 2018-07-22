@@ -19,7 +19,7 @@ namespace light {
     struct Directional : Base {
         glm::vec3 direction;
 
-        Directional(const Base &b, const glm::vec3 &d) : Base(b), direction(d) {}
+        Directional(const Base &base, const glm::vec3 &direction) : Base(base), direction(direction) {}
     };
 
     struct Point : Base {
@@ -30,6 +30,10 @@ namespace light {
             float linear;
             float exponential;
         } attenuation;
+
+        Point(const Base &base, const glm::vec3 &position, const Attenuation &attenuation) : Base(base),
+                                                                                             position(position),
+                                                                                             attenuation(attenuation) {}
     };
 
     struct Spot : Base {

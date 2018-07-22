@@ -43,7 +43,7 @@ uniform vec3 camera_position;
 uniform float specular_intensity;
 uniform float specular_power;
 
-vec3 calculateDirectional(BaseLight light, vec3 direction, vec3 normal) {
+vec3 calculateDirectionalLight(BaseLight light, vec3 direction, vec3 normal) {
     // calculate ambient property
     vec3 ambientColor = vec3(light.color * light.ambient_intensity);
 
@@ -69,10 +69,26 @@ vec3 calculateDirectional(BaseLight light, vec3 direction, vec3 normal) {
     return (ambientColor + diffuseColor + specularColor);
 }
 
+vec3 calculatePointLight(Point light, vec3 normal) {
+    vec3 direction = model_position - light.position;
+    float distance = length(direction);
+
+    direction = normalize(direction);
+    float attenuation = light.attenuation.constant
+                     + light.attenuation.linear * distance
+                     + light.attenuation.exponential * distance * distance;
+
+    return calculateDirectionalLight(light.base, direction, normal) / attenuation;
+}
+
 void main(){
     vec3 normal = normalize(model_normal);
 
-    vec3 totalLight = calculateDirectional(directional_light.base, directional_light.direction, normal);
+    vec3 totalLight = calculateDirectionalLight(directional_light.base, directional_light.direction, normal);
+
+    for (int i = 0; i < point_lights_count; i++) {
+        totalLight += calculatePointLight(point_lights[0], normal);
+    }
 
     color = texture2D(texture_sampler, UV.xy).rgb * totalLight;
 }
