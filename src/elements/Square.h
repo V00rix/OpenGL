@@ -23,7 +23,8 @@ namespace elements {
         void initVertices() override;
 
     public:
-        Square(const glm::vec3 &at, float edge_length);
+        Square(const glm::vec3 &, float);
+        explicit Square(const glm::vec3 [3]);
     };
 
 }
