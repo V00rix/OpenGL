@@ -2,6 +2,8 @@
 // Created by vlado on 21-Jul-18.
 //
 
-#include <glm/vec3.hpp>
 #include "light.h"
 
+void light::SetPointLights(unsigned int count, const light::Point *lights) {
+
+}

@@ -20,8 +20,6 @@
 
 #define _DEBUG 1
 
-using namespace light::type;
-
 //region Helpers
 /**
  * Main window
@@ -223,8 +221,8 @@ int main() {
     //endregion
 
     // shader
-    auto shader = loadShaders("resources/shaders/vertex.glsl",
-                              "resources/shaders/fragment.glsl"); // this is relative to target binary u_color
+    GLuint shader = loadShaders("resources/shaders/vertex.glsl",
+                                "resources/shaders/fragment.glsl"); // this is relative to target binary u_color
     glUseProgram(shader);
 
     // uniforms
@@ -235,8 +233,7 @@ int main() {
 //    int u_light_position = glGetUniformLocation(shader, "light_position");
 
     int u_texture_sampler = glGetUniformLocation(shader, "texture_sampler");
-    int u_directional_ambient = glGetUniformLocation(shader, "directional_ambient");
-    int u_directional_diffuse = glGetUniformLocation(shader, "directional_diffuse");
+    auto u_directional_light = util::uni::getDirectional(shader, "directional_light");
 
     int u_camera_position = glGetUniformLocation(shader, "camera_position");
     int u_specular_intensity = glGetUniformLocation(shader, "specular_intensity");
@@ -351,7 +348,7 @@ int main() {
                 yrot += 0.1f;
             }
             if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-                yrot-= 0.1f;
+                yrot -= 0.1f;
             }
             if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
                 xrot += 0.1f;
@@ -392,11 +389,9 @@ int main() {
             //region Main loop
             float ambientIntensity = (1.f) / 4.f + .5f;
             glm::vec3 direction(-1.f + std::sin(r), -.5f + std::cos(r), std::cos(2 * r));
-            light::Direction sun(glm::vec3(1.f), Ambient(ambientIntensity), Diffuse(direction, 1.f), Specular(1.f));
-
-            light::renderAmbient(u_directional_ambient, sun);
-            glm::vec3 &dir = sun.diffuse.direction;
-            glUniform4f(u_directional_diffuse, dir.x, dir.y, dir.z, sun.diffuse.intensity);
+            light::Directional sun({glm::vec3(1.f), ambientIntensity, 1.f},
+                                   direction);
+            util::uni::setDirectional(u_directional_light, sun);
 
             glBindVertexArray(VAO);
             glBindBuffer(GL_ARRAY_BUFFER, VBO);

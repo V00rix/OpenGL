@@ -9,6 +9,7 @@
 #include <glm/vec2.hpp>
 #include <vector>
 #include <iostream>
+#include "../light/light.h"
 
 #define FOURCC_DXT1 827611204 // 'D' 'X' 'T' '1'
 #define FOURCC_DXT3 861165636 // 'D' 'X' 'T' '3'
@@ -37,14 +38,30 @@ namespace util {
         Vertex(const glm::vec3 pos, const glm::vec3 col, const glm::vec2 tex) : position(pos), normal(col), uv(tex) {}
     };
 
-    unsigned loadDDS(const char *filePath);
+    unsigned loadDDS(const char *);
 
-    unsigned loadBMP(const char *filePath);
+    unsigned loadBMP(const char *);
 
-    bool loadOBJ(const char *filePath,
-                 std::vector<Vertex> &out_vertices);
+    bool loadOBJ(const char *,
+                 std::vector<Vertex> &);
 
+    namespace uni {
+        struct u_base {
+            int color;
+            int ambient_intensity;
+            int diffuse_intensity;
+        };
 
+        struct u_directional {
+            u_base base;
+
+            int u_direction;
+        };
+
+        u_directional getDirectional(GLuint, const char *);
+
+        void setDirectional(const u_directional &, const light::Directional &);
+    }
 
 }
 #endif //OPENGL_UTIL_H

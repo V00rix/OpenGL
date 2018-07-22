@@ -10,65 +10,32 @@
 #include <GL/glew.h>
 
 namespace light {
-
-    namespace type {
-        struct Type {
-            float intensity;
-
-            explicit Type(const float &intensity) : intensity(intensity) {}
-        };
-
-        struct Ambient : Type {
-            explicit Ambient(const float &intensity) : Type(intensity) {}
-        };
-
-        struct Diffuse : Type {
-            glm::vec3 direction;
-
-            Diffuse(const glm::vec3 &direction, const float &intensity) : Type(intensity) {
-                this->direction = direction;
-            }
-        };
-
-        struct Specular : Type {
-            explicit Specular(const float &intensity) : Type(intensity) {}
-
-        };
-    }
-
-    struct Source {
+    struct BaseLight {
         glm::vec3 color;
-
-        type::Ambient ambient;
-        type::Diffuse diffuse;
-        type::Specular specular;
-
-        explicit Source(const glm::vec3 &color, const type::Ambient &ambient, const type::Diffuse &diffuse,
-                        const type::Specular &specular) : color(color), ambient(ambient), diffuse(diffuse),
-                                                          specular(specular) {}
+        float ambientIntensity;
+        float diffuseIntensity;
     };
 
-//    struct Point : Source {
-//        Point(const glm::vec3 &color, const float &intensity) : Source(color, intensity) {}
+    struct Directional : BaseLight {
+        glm::vec3 direction;
 
-//    };
-
-    struct Direction : Source {
-
-        Direction(const glm::vec3 &color, const light::type::Ambient &ambient,
-                  const light::type::Diffuse &diffuse, const light::type::Specular &specular) : Source(color,
-                                                                                                       ambient,
-                                                                                                       diffuse,
-                                                                                                       specular) {}
+        Directional(const BaseLight& b, const glm::vec3 & d): BaseLight(b), direction(d) {}
     };
 
-//    struct Spot : Source {
-//        Spot(const glm::vec3 &color, const float &intensity) : Source(color, intensity) {}
-//
-//    };
+    struct Point : BaseLight {
+        glm::vec3 position;
 
-    inline void renderAmbient(const int &u_ambient, const Source &source) {
-        glUniform4f(u_ambient, source.color.r, source.color.g, source.color.b, source.ambient.intensity);
-    }
+        struct {
+            float constant;
+            float linear;
+            float exponential;
+        } attenuation;
+    };
+
+    struct Spot : BaseLight {
+
+    };
+
+    void SetPointLights(unsigned int count, const Point* lights);
 }
 #endif //OPENGL_LIGHT_H
