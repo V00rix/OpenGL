@@ -11,11 +11,16 @@
 
 static int infoLogLength;
 
-GLWindow::GLWindow(const GLContext &context) : context(context) {
+GLWindow::GLWindow(const GLContext *context) : context(context), scene(nullptr) {
+    glfwSetInputMode((*context).window.ref, GLFW_STICKY_KEYS, GL_TRUE);
 }
 
 GLWindow::~GLWindow() {
-}
+    printf("deleting WINDOW");
+    for (GLuint program : shaderPrograms) {
+        glDeleteProgram(program);
+    }
+};
 
 unsigned GLWindow::createProgram(const char *vertexFilePath,
                                  const char *geometryFilePath,
@@ -109,6 +114,37 @@ unsigned GLWindow::loadTexture(const char *filePath) {
             textures.push_back(texture);
             return texture;
         default:
+            printf("Unsupported texture format %s", filePath);
             return 0;
     }
+}
+
+void GLWindow::useProgram(unsigned int program) {
+    glUseProgram(program);
+}
+
+const GLScene *GLWindow::getScene() const {
+    return scene;
+}
+
+void GLWindow::setScene(const GLScene *scene) {
+    this->scene = scene;
+}
+
+void GLWindow::render() {
+    while (!breakCondition() && glfwWindowShouldClose((*context).window.ref) == 0) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        processInput();
+        (*scene).render();
+        glfwSwapBuffers((*context).window.ref);
+        glfwPollEvents();
+    }
+}
+
+void GLWindow::processInput() {
+
+}
+
+bool GLWindow::breakCondition() {
+    return false;
 }

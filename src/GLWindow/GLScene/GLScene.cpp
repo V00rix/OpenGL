@@ -3,3 +3,7 @@
 //
 
 #include "GLScene.h"
+
+void GLScene::render() const {
+
+}

@@ -8,6 +8,8 @@
 
 class GLScene {
 
+public:
+    void render() const;
 };
 
 

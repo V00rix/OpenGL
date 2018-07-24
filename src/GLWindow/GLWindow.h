@@ -10,10 +10,12 @@
 #include <vector>
 #include "../GLContext/GLContext.h"
 #include "../Shader/Shader.h"
+#include "GLScene/GLScene.h"
 
 
 class GLWindow {
-    GLContext context;
+    const GLContext *context;
+    const GLScene *scene;
 
     std::vector<GLuint> shaderPrograms;
     std::vector<GLuint> textures;
@@ -31,6 +33,7 @@ class GLWindow {
      * @return Shader index
      */
     GLuint createShader(Shaders type, const char *filePath);
+
 public:
 
     /**
@@ -45,6 +48,12 @@ public:
                            const char *fragmentFilePath);
 
     /**
+     * Use shader program
+     * @param program Program index
+     */
+    void useProgram(unsigned int program);
+
+    /**
      * Loads texture into memory
      * @param filePath Path to the texture file
      * @return Texture index
@@ -55,10 +64,27 @@ public:
      * Create new rendering context
      * @param context Valid window context
      */
-    explicit GLWindow(const GLContext &context);
+    explicit GLWindow(const GLContext *context);
 
     virtual ~GLWindow();
 
+    /**
+     * Set scene
+     * @param scene Scene
+     */
+    void setScene(const GLScene *scene);
+
+    /**
+     * Get scene
+     * @return
+     */
+    const GLScene *getScene() const;
+
+    void render();
+
+    void processInput();
+
+    bool breakCondition();
 };
 
 

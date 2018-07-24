@@ -22,6 +22,7 @@ static void APIENTRY openglCallbackFunction(GLenum source, GLenum type, GLuint i
 GLContext *GLContext::initialized = nullptr;
 
 GLContext::~GLContext() {
+    printf("deleting CONTEXT 0x%x\n", (int) this);
     if (GLContext::initialized == this) {
         close();
     }
@@ -91,4 +92,10 @@ bool GLContext::initGLEW() {
         return false;
     }
     return true;
+}
+
+GLContext::GLContext() {
+    printf("Created CONTEXT 0x%x\n", (int) this);
+
+
 }

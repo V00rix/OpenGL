@@ -36,13 +36,20 @@ static elements::Square generateText(const char *string, GLuint texture) {
 
 int main() {
     GLContext context;
+
+    context.window.height = 768;
+    context.window.width = 1024;
+    context.window.title = "OpenGL";
+
     context.init();
 
-    GLWindow window(context);
+    GLWindow window(&context);
 
     unsigned program = window.createProgram("resources/shaders/vertex.glsl",
                                             nullptr,
                                             "resources/shaders/fragment.glsl");
+
+    window.useProgram(program);
 
     std::vector<unsigned> textures = {
             window.loadTexture("resources/textures/ascensionLogo.dds"),
@@ -50,52 +57,31 @@ int main() {
             window.loadTexture("resources/fonts/font.bmp")
     };
 
-    printf("%u %u %u", textures[0], textures[1], textures[2]);
-
-//    GLuint ascensionTexture = util::loadDDS("resources/textures/ascensionLogo.dds");
-//    if (!ascensionTexture) {
-//        fprintf(stdout, "Couldn't load texture.");
-//        return -1;
-//    }
-//    GLuint ascensionTexture_bmp = util::loadBMP("resources/textures/ascensionLogo.bmp");
-//    if (!ascensionTexture_bmp) {
-//        fprintf(stdout, "Couldn't load texture.");
-//        return -1;
-//    }
-//    GLuint fontTexture = util::loadBMP("resources/fonts/font.bmp");
     /* Scene configuration */
-//    GLScene scene;
-//
+    GLScene scene;
+
+    window.setScene(&scene);
+
 //    int myCube = scene.addObject(Cube(some_point, [...]));
-//
+
 //    scene.beforeRender();
 //    scene.afterRender();
-//
+
 //    scene.get(myCube2).beforeRender = []() {
 //        scene.changeShader();
 //    };
-//
-//    /* Loop configuration */
-//    window.setScene(scene);
-//    window.inputHandler.onWPressed = []() {
-//        scene.objects.get(myCube).rotate([...]);
-//    };
-//
-////    while (!window.shouldClose()) {
-////        auto input = window.getInput();
-////
-////        window.renderScene();
-//    window.beginRender();
-//    }
 
-//
-//    // Ensure we can capture the escape key being pressed below
-//    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-//    //endregion
+    /* Loop configuration */
+//    window.inputHandler.onWPressed = []() {
+//        window.activeScene.objects.get(myCube).rotate([...]);
+//    };
+
+    window.render();
+
 //
 //    // shader
 //    GLuint shader = loadShaders("resources/shaders/vertex.glsl",
-//                                "resources/shaders/fragment.glsl"); // this is relative to target binary u_color
+//                                "resources/shaders/fragment.glsl"); // this is relative to target binary
 //    glUseProgram(shader);
 //
 //    // uniforms

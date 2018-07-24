@@ -110,7 +110,7 @@ public:
         GLFWwindow *ref = nullptr;
     } window;
 
-    GLContext() = default;
+    GLContext();
 
 
     virtual ~GLContext();
