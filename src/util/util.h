@@ -16,6 +16,11 @@
 #define FOURCC_DXT5 894720068 // 'D' 'X' 'T' '5'
 
 namespace util {
+    enum FExtension {
+        bmp,
+        dds,
+        unsupported
+    };
 
     struct Vertex {
         explicit Vertex(const glm::vec3 &pos) : position(pos), normal(0.f), uv(0.f) {
@@ -45,5 +50,7 @@ namespace util {
 
     bool loadOBJ(const char *,
                  std::vector<Vertex> &);
+
+    FExtension getFileExtension(const char *path);
 }
 #endif //OPENGL_UTIL_H

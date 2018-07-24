@@ -7,6 +7,7 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include "../util/util.h"
 
 static int infoLogLength;
 
@@ -89,9 +90,25 @@ GLuint GLWindow::createShader(GLWindow::Shaders type, const char *filePath) {
         printf("%s\n", &shaderErrorMessage[0]);
     }
 
+    printf("Shader '%d' successfully compiled.\n", shaderID);
     return shaderID;
 }
 
 unsigned GLWindow::loadTexture(const char *filePath) {
-    return 0;
+
+    util::FExtension ext = util::getFileExtension(filePath);
+
+    GLuint texture;
+    switch (ext) {
+        case util::bmp:
+            texture = util::loadBMP(filePath);
+            textures.push_back(texture);
+            return texture;
+        case util::dds:
+            texture = util::loadDDS(filePath);
+            textures.push_back(texture);
+            return texture;
+        default:
+            return 0;
+    }
 }

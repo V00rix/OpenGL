@@ -50,6 +50,8 @@ int main() {
             window.loadTexture("resources/fonts/font.bmp")
     };
 
+    printf("%u %u %u", textures[0], textures[1], textures[2]);
+
 //    GLuint ascensionTexture = util::loadDDS("resources/textures/ascensionLogo.dds");
 //    if (!ascensionTexture) {
 //        fprintf(stdout, "Couldn't load texture.");
