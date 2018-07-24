@@ -11,11 +11,17 @@
 #include "../GLWindow/GLWindow.h"
 #include "../Shader/Shader.h"
 #include "GLScene/GLScene.h"
+#include "GLInputHandler/GLInputHandler.h"
 
 
 class GLContext {
     const GLWindow *context;
     const GLScene *scene;
+    const GLInputHandler *inputHandler;
+public:
+    const GLInputHandler *getInputHandler() const;
+
+private:
 
     std::vector<GLuint> shaderPrograms;
     std::vector<GLuint> textures;
@@ -84,9 +90,9 @@ public:
 
     void render();
 
-    void processInput();
-
     void breakLoop();
+
+    void setInputHandler(const GLInputHandler * handler);
 };
 
 

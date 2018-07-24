@@ -16,15 +16,14 @@ GLContext::GLContext(const GLWindow *context) : context(context), scene(nullptr)
 }
 
 GLContext::~GLContext() {
-    printf("deleting WINDOW");
     for (GLuint program : shaderPrograms) {
         glDeleteProgram(program);
     }
 };
 
 unsigned GLContext::createProgram(const char *vertexFilePath,
-                                 const char *geometryFilePath,
-                                 const char *fragmentFilePath) {
+                                  const char *geometryFilePath,
+                                  const char *fragmentFilePath) {
     infoLogLength = 0;
 
     const GLuint shaders[3] = {
@@ -134,17 +133,21 @@ void GLContext::setScene(const GLScene *scene) {
 void GLContext::render() {
     while (!shouldBreak && glfwWindowShouldClose((*context).window.ref) == 0) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        processInput();
+        (*inputHandler).processInput();
         (*scene).render();
         glfwSwapBuffers((*context).window.ref);
         glfwPollEvents();
     }
 }
 
-void GLContext::processInput() {
-
-}
-
 void GLContext::breakLoop() {
     shouldBreak = true;
+}
+
+void GLContext::setInputHandler(const GLInputHandler *handler) {
+    inputHandler = handler;
+}
+
+const GLInputHandler *GLContext::getInputHandler() const {
+    return inputHandler;
 }

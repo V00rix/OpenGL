@@ -110,9 +110,6 @@ public:
         GLFWwindow *ref = nullptr;
     } window;
 
-    GLWindow();
-
-
     virtual ~GLWindow();
 
     /**

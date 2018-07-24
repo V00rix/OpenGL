@@ -42,6 +42,7 @@ add_source(includes
         GLContext
         GLWindow
         GLContext/GLScene
+        GLContext/GLInputHandler
         light
         Shader
         util

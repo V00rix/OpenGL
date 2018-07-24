@@ -20,6 +20,7 @@
 #include "GLWindow/GLWindow.h"
 #include "GLContext/GLContext.h"
 #include "GLContext/GLScene/GLScene.h"
+#include "GLContext/GLInputHandler/GLInputHandler.h"
 
 //region Helpers
 static elements::Square generateText(const char *string, GLuint texture) {
@@ -33,6 +34,9 @@ static elements::Square generateText(const char *string, GLuint texture) {
     return elements::Square(glm::vec3(-.5f, -.5f, .0f), .2f, uv);
 }
 //endregion
+
+
+
 
 int main() {
     /* Create OpenGL window */
@@ -61,8 +65,25 @@ int main() {
     /* Configure scene */
     GLScene scene;
 
+    // config below
+
     window.setScene(&scene);
 
+    /* Configure input */
+    GLInputHandler input(context.window.ref);
+    input.onKey(GLFW_KEY_ESCAPE, GLFW_PRESS, [&]() {
+        window.breakLoop();
+    });
+
+    input.onKey(GLFW_KEY_P, GLFW_PRESS, [&]() {
+        printf("P key is pressed\n");
+    });
+
+    input.onMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, [&]() {
+        printf("Left mouse button is pressed\n");
+    });
+
+    window.setInputHandler(&input);
 
 //    int myCube = scene.addObject(Cube(some_point, [...]));
 
