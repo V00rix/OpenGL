@@ -26,45 +26,33 @@ include_directories(external/glm)
 #ASSIMP
 
 
-# OpenGL Context
-#set(GLContext
-#        src/GLContext/GLContext.cpp
-#        src/GLContext/GLContext.h)
-## OpenGL Main loop
-#set(GLMainLoop
-#        src/GLMainLoop/GLMainLoop.cpp
-#        src/GLMainLoop/GLMainLoop.h)
-
-#elements
-set(elements
-        src/elements/Cube.cpp
-        src/elements/Cube.h src/elements/Square.cpp src/elements/Square.h src/elements/ElementBase.h src/elements/ElementBase.cpp)
-set(util
-        src/util/util.cpp
-        src/util/util.h)
-set(light
-        src/light/light.cpp
-        src/light/light.h)
-
-
-function(add_gl_dependencies)
+function(add_source)
     foreach (arg IN LISTS ARGN)
         if (NOT ${arg} MATCHES ${ARGV0})
-            set(f ${f} src/${arg}/${arg}.cpp
-                    src/${arg}/${arg}.h)
+            get_filename_component(n ${arg} NAME)
+            get_filename_component(p ${arg} PATH)
+            set(f ${f}
+                    src/${p}/${n}/${n}.cpp
+                    src/${p}/${n}/${n}.h)
         endif ()
     endforeach ()
 
     set(${ARGV0} ${f} PARENT_SCOPE)
 endfunction()
 
-add_gl_dependencies(includes GLScene GLContext GLMainLoop)
+add_source(includes
+        GLRenderer/GLScene
+        GLContext
+        GLRenderer
+        light
+        util
+        elements/ElementBase
+        elements/Square
+        elements/Cube)
 
 add_executable(OpenGL src/main.cpp
-        "${includes}"
-        ${elements}
-        ${util}
-        ${light})
+        "${includes}")
+
 target_link_libraries(OpenGL
         ${OPENGL_LIBRARY}
         glew

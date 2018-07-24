@@ -12,14 +12,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
-#include "elements/Cube.h"
+#include "elements/Cube/Cube.h"
 #include "util/util.h"
-#include "elements/Square.h"
+#include "elements/Square/Square.h"
 #include "glfw3.h"
 #include "light/light.h"
 #include "GLContext/GLContext.h"
-#include "GLMainLoop/GLMainLoop.h"
-#include "GLScene/GLScene.h"
+#include "GLRenderer/GLRenderer.h"
+#include "GLRenderer/GLScene/GLScene.h"
 
 //region Helpers
 
@@ -134,20 +134,36 @@ static elements::Square generateText(const char *string, GLuint texture) {
 //endregion
 
 int main() {
-
     GLContext context;
     context.init();
 
-//    GLMainLoop loop(context);
+//    GLRenderer renderer(context);
+
+
+//    renderer.loadShaders({vs, "pathTofile.glsl"}, {vs, "pathTofile.glsl"}, {vs, "pathTofile.glsl"},
+//                         {vs, "pathTofile.glsl"}...);
+//    renderer.loadTexture/lightMap(...);
+
+    /* Scene configuration */
     GLScene scene;
 
-    /* Loop configuration */
-//     loop.changeScene(scene);
+//    int myCube = scene.addObject(Cube(some_point, [...]));
+
+//    scene.get(myCube2).beforeRender = []() {
+//        scene.changeShader();
+//    };
 //
-//    while (!loop.shouldClose()) {
-//        auto input = loop.getInput();
+//    /* Loop configuration */
+//    renderer.setScene(scene);
+//    renderer.inputHandler.onWPressed = []() {
+//        scene.objects.get(myCube).rotate([...]);
+//    };
 //
-//        loop.renderScene();
+//    while (!renderer.shouldClose()) {
+//        auto input = renderer.getInput();
+//
+//        renderer.renderScene();
+//        renderer.rederUI();
 //    }
 
 //
@@ -343,7 +359,7 @@ int main() {
 //            glUniform1f(u_specular_intensity, 5.0f);
 //            glUniform1f(u_specular_power, 32);
 //
-//            //region Main loop
+//            //region Main renderer
 //            float ambientIntensity = .05f;
 //            glm::vec3 direction(-1.f, -.5f, .3f);
 //

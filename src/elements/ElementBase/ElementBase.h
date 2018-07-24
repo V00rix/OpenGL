@@ -6,7 +6,7 @@
 #define OPENGL_ELEMENTBASE_H
 
 #include <GL/glew.h>
-#include "../util/util.h"
+#include "../../util/util.h"
 
 namespace elements {
     class ElementBase {

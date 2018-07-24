@@ -6,7 +6,7 @@
 #include <cstring>
 #include <GL/glew.h>
 #include "util.h"
-#include "../elements/Square.h"
+#include "../elements/Square/Square.h"
 
 unsigned util::loadDDS(const char *filePath) {
     unsigned char header[124];
