@@ -25,6 +25,11 @@ add_subdirectory(external/glfw)
 include_directories(external/glm)
 #ASSIMP
 
+# OpenGL Context
+set(GLContext
+        src/GLContext.cpp
+        src/GLContext.h)
+
 #elements
 set(elements
         src/elements/Cube.cpp
@@ -37,7 +42,11 @@ set(light
         src/light/light.h)
 
 # Executable
-add_executable(OpenGL src/main.cpp ${elements} ${util} ${light})
+add_executable(OpenGL src/main.cpp
+        ${GLContext}
+        ${elements}
+        ${util}
+        ${light})
 target_link_libraries(OpenGL
         ${OPENGL_LIBRARY}
         glew
