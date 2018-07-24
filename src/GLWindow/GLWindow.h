@@ -2,90 +2,138 @@
 // Created by vlado on 24-Jul-18.
 //
 
-#ifndef OPENGL_GLRENDERER_H
-#define OPENGL_GLRENDERER_H
+#ifndef OPENGL_GLCONTEXT_H
+#define OPENGL_GLCONTEXT_H
 
 
-#include <GL/glew.h>
-#include <vector>
-#include "../GLContext/GLContext.h"
-#include "../Shader/Shader.h"
-#include "GLScene/GLScene.h"
+#include <glfw3.h>
 
-
+/**
+ * GLContext abstraction class
+ */
 class GLWindow {
-    const GLContext *context;
-    const GLScene *scene;
-
-    std::vector<GLuint> shaderPrograms;
-    std::vector<GLuint> textures;
-
-    enum Shaders {
-        vertex = GL_VERTEX_SHADER,
-        geometry = GL_GEOMETRY_SHADER,
-        fragment = GL_FRAGMENT_SHADER
-    };
-
     /**
-     * Load shader code from file and compile it
-     * @param type Shader type @see GLWindow::Shaders
-     * @param filePath Path to shader file
-     * @return Shader index
+     *  Pointer to the current OpenGL initialized context
+     *  Only one context can be initialized at runtime
      */
-    GLuint createShader(Shaders type, const char *filePath);
+    static GLWindow *initialized;
+
+    bool initGLFW();
+
+    bool createWindow();
+
+    bool initGLEW();
 
 public:
 
     /**
-     * Create program from shaders
-     * @param vertexFilePath Path to vertex shader file
-     * @param geometryFilePath Path to geometry shader file
-     * @param fragmentFilePath Path to fragment shader file
-     * @return Program index
+     * OpenGL profile to create the context for
      */
-    unsigned createProgram(const char *vertexFilePath,
-                           const char *geometryFilePath,
-                           const char *fragmentFilePath);
+    enum Profile {
+        any = GLFW_OPENGL_ANY_PROFILE,
+        core = GLFW_OPENGL_CORE_PROFILE,
+        compatibility = GLFW_OPENGL_COMPAT_PROFILE
+    } profile = any;
+
 
     /**
-     * Use shader program
-     * @param program Program index
+     *  Anti-aliasing
      */
-    void useProgram(unsigned int program);
+    unsigned antiAliasing = 4;
 
     /**
-     * Loads texture into memory
-     * @param filePath Path to the texture file
-     * @return Texture index
+     * OpenGL version
      */
-    unsigned loadTexture(const char *filePath);
+    struct Version {
+        unsigned major = 4;
+        unsigned minor = 4;
+    } version;
 
     /**
-     * Create new rendering context
-     * @param context Valid window context
+     *  Forward compatibility hint
      */
-    explicit GLWindow(const GLContext *context);
+    bool forwardCompatibility = true;
+
+    /**
+     *  Enable glew experimental
+     *  @note needed for core profile
+     */
+    bool experimental = true;
+
+    /**
+     *  Enable debug mode
+     */
+    bool debug = false;
+
+    /**
+     *  Swap interval for the current OpenGL or OpenGL ES context,
+     *  i.e. the number of screen updates to wait from the time
+     *  glfwSwapBuffers was called before swapping the buffers and returning.
+     *
+     *
+     */
+    union {
+        /**
+         * The minimum number of monitor refreshes between buffers swap
+         */
+        unsigned swapInterval = 1;
+
+        /**
+         * The minimum number of monitor refreshes between buffers swap
+         */
+        unsigned vsync;
+
+        /**
+         * Enable vertical synchronization and set swapInterval to 1
+         * @see vsync
+         */
+        bool vsyncEnabled;
+    };
+
+    /**
+     *  Window data
+     */
+    struct Window {
+        /**
+         *  Window width
+         */
+        unsigned width = 200;
+        /**
+         * Window height
+         */
+        unsigned height = 100;
+        /**
+         * Window title
+         */
+        const char *title = "OpenGL";
+
+        GLFWwindow *ref = nullptr;
+    } window;
+
+    GLWindow();
+
 
     virtual ~GLWindow();
 
     /**
-     * Set scene
-     * @param scene Scene
+     * Close current OpenGL context
      */
-    void setScene(const GLScene *scene);
+    void close();
 
     /**
-     * Get scene
-     * @return
+     * Initialize OpenGL context
+     * @return Pointer to a context
      */
-    const GLScene *getScene() const;
+    GLWindow *init();
 
-    void render();
-
-    void processInput();
-
-    bool breakCondition();
+    /**
+     * Get currently initialized OpenGL context
+     * @return Pointer to a context
+     */
+    inline GLWindow *getInitContext() {
+        return GLWindow::initialized;
+    }
 };
 
 
-#endif //OPENGL_GLRENDERER_H
+#endif //OPENGL_GLCONTEXT_H

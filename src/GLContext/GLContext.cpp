@@ -2,100 +2,149 @@
 // Created by vlado on 24-Jul-18.
 //
 
-#include <iostream>
-#include <GL/glew.h>
 #include "GLContext.h"
+#include <iostream>
+#include <vector>
+#include <sstream>
+#include <fstream>
+#include "../util/util.h"
 
+static int infoLogLength;
 
-/**
- * OpenGL error handler
- */
-static void APIENTRY openglCallbackFunction(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-                                            const GLchar *message, const void *userParam) {
-    printf("%s\n", message);
-    if (severity == GL_DEBUG_SEVERITY_HIGH) {
-        printf("Aborting...\n");
-        exit(3001);
-    }
+GLContext::GLContext(const GLWindow *context) : context(context), scene(nullptr) {
+    glfwSetInputMode((*context).window.ref, GLFW_STICKY_KEYS, GL_TRUE);
 }
-
-GLContext *GLContext::initialized = nullptr;
 
 GLContext::~GLContext() {
-    printf("deleting CONTEXT 0x%x\n", (int) this);
-    if (GLContext::initialized == this) {
-        close();
+    printf("deleting WINDOW");
+    for (GLuint program : shaderPrograms) {
+        glDeleteProgram(program);
+    }
+};
+
+unsigned GLContext::createProgram(const char *vertexFilePath,
+                                 const char *geometryFilePath,
+                                 const char *fragmentFilePath) {
+    infoLogLength = 0;
+
+    const GLuint shaders[3] = {
+            createShader(Shaders::vertex, vertexFilePath),
+            createShader(Shaders::geometry, geometryFilePath),
+            createShader(Shaders::fragment, fragmentFilePath)
+    };
+
+    // Link program
+    printf("Linking program\n");
+    GLuint programID = glCreateProgram();
+
+    for (GLuint shader: shaders) {
+        glAttachShader(programID, shader);
+    }
+    glLinkProgram(programID);
+
+    // Check program
+    glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
+    if (infoLogLength > 0) {
+        std::vector<char> ProgramErrorMessage((unsigned) infoLogLength + 1);
+        glGetProgramInfoLog(programID, infoLogLength, nullptr, &ProgramErrorMessage[0]);
+        printf("%s\n", &ProgramErrorMessage[0]);
+    }
+
+    // Cleanup
+    for (GLuint i: shaders) {
+        glDetachShader(programID, shaders[i]);
+        glDeleteShader(shaders[i]);
+    }
+
+    shaderPrograms.push_back(programID);
+
+    return programID;
+}
+
+GLuint GLContext::createShader(GLContext::Shaders type, const char *filePath) {
+    if (filePath == nullptr) return (GLuint) nullptr;
+
+    // Create shader
+    GLuint shaderID = glCreateShader(type);
+
+    // Read shader code from the file
+    std::string shaderCode;
+    std::ifstream shaderStream(filePath, std::ios::in);
+    if (shaderStream.is_open()) {
+        std::stringstream stringStream;
+        stringStream << shaderStream.rdbuf();
+        shaderCode = stringStream.str();
+        shaderStream.close();
+    } else {
+        printf("Couldn't open shader file: %s.\n", filePath);
+        getchar();
+        return 0;
+    }
+
+    //  Compile shader
+    printf("Compiling shader : %s\n", filePath);
+    char const *sourcePointer = shaderCode.c_str();
+    glShaderSource(shaderID, 1, &sourcePointer, nullptr);
+    glCompileShader(shaderID);
+
+    // Check for errors
+    glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
+    if (infoLogLength > 0) {
+        std::vector<char> shaderErrorMessage((unsigned) infoLogLength + 1);
+        glGetShaderInfoLog(shaderID, infoLogLength, nullptr, &shaderErrorMessage[0]);
+        printf("%s\n", &shaderErrorMessage[0]);
+    }
+
+    printf("Shader '%d' successfully compiled.\n", shaderID);
+    return shaderID;
+}
+
+unsigned GLContext::loadTexture(const char *filePath) {
+
+    util::FExtension ext = util::getFileExtension(filePath);
+
+    GLuint texture;
+    switch (ext) {
+        case util::bmp:
+            texture = util::loadBMP(filePath);
+            textures.push_back(texture);
+            return texture;
+        case util::dds:
+            texture = util::loadDDS(filePath);
+            textures.push_back(texture);
+            return texture;
+        default:
+            printf("Unsupported texture format %s", filePath);
+            return 0;
     }
 }
 
-GLContext *GLContext::init() {
-    if (GLContext::initialized != nullptr) {
-        (*GLContext::initialized).close();
-    }
-    GLContext::initialized = this;
-
-
-    if (!initGLFW())
-        return nullptr;
-
-    if (!createWindow() || !initGLEW()) {
-        close();
-        return nullptr;
-    }
-
-    if (debug) {
-        std::cout << "Debug output enabled" << std::endl;
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(openglCallbackFunction, nullptr);
-    }
-
-    return this;
+void GLContext::useProgram(unsigned int program) {
+    glUseProgram(program);
 }
 
-void GLContext::close() {
-    glfwTerminate();
-    GLContext::initialized = nullptr;
+const GLScene *GLContext::getScene() const {
+    return scene;
 }
 
-bool GLContext::initGLFW() {
-    if (!glfwInit()) {
-        printf("Failed to initialize GLFW\n");
-        return false;
+void GLContext::setScene(const GLScene *scene) {
+    this->scene = scene;
+}
+
+void GLContext::render() {
+    while (shouldBreak && glfwWindowShouldClose((*context).window.ref) == 0) {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        processInput();
+        (*scene).render();
+        glfwSwapBuffers((*context).window.ref);
+        glfwPollEvents();
     }
-
-    glfwWindowHint(GLFW_SAMPLES, antiAliasing);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, version.major);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, version.minor);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, forwardCompatibility);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
-
-    return true;
 }
 
-bool GLContext::createWindow() {
-    window.ref = glfwCreateWindow(window.width, window.height, window.title, nullptr, nullptr);
-    if (window.ref == nullptr) {
-        printf("Failed to create GLFW window.\n");
-        return false;
-    }
+void GLContext::processInput() {
 
-    glfwMakeContextCurrent(window.ref);
-    glfwSwapInterval(vsync);
-    return true;
 }
 
-bool GLContext::initGLEW() {
-    glewExperimental = (GLboolean) experimental;
-    if (glewInit() != GLEW_OK) {
-        printf("Failed to initialize GLEW\n");
-        return false;
-    }
-    return true;
-}
-
-GLContext::GLContext() {
-    printf("Created CONTEXT 0x%x\n", (int) this);
-
-
+void GLContext::breakLoop() {
+    shouldBreak = true;
 }

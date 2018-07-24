@@ -41,7 +41,7 @@ endfunction()
 add_source(includes
         GLContext
         GLWindow
-        GLWindow/GLScene
+        GLContext/GLScene
         light
         Shader
         util

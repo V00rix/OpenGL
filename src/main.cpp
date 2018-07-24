@@ -17,9 +17,9 @@
 #include "elements/Square/Square.h"
 #include "glfw3.h"
 #include "light/light.h"
-#include "GLContext/GLContext.h"
 #include "GLWindow/GLWindow.h"
-#include "GLWindow/GLScene/GLScene.h"
+#include "GLContext/GLContext.h"
+#include "GLContext/GLScene/GLScene.h"
 
 //region Helpers
 static elements::Square generateText(const char *string, GLuint texture) {
@@ -35,32 +35,34 @@ static elements::Square generateText(const char *string, GLuint texture) {
 //endregion
 
 int main() {
-    GLContext context;
-
+    /* Create OpenGL window */
+    GLWindow context;
     context.window.height = 768;
     context.window.width = 1024;
     context.window.title = "OpenGL";
-
     context.init();
 
-    GLWindow window(&context);
+    /* Create rendering context */
+    GLContext window(&context);
 
+    // Set shaders
     unsigned program = window.createProgram("resources/shaders/vertex.glsl",
                                             nullptr,
                                             "resources/shaders/fragment.glsl");
-
     window.useProgram(program);
 
+    // Load textures
     std::vector<unsigned> textures = {
             window.loadTexture("resources/textures/ascensionLogo.dds"),
             window.loadTexture("resources/textures/ascensionLogo.bmp"),
             window.loadTexture("resources/fonts/font.bmp")
     };
 
-    /* Scene configuration */
+    /* Configure scene */
     GLScene scene;
 
     window.setScene(&scene);
+
 
 //    int myCube = scene.addObject(Cube(some_point, [...]));
 
@@ -76,6 +78,7 @@ int main() {
 //        window.activeScene.objects.get(myCube).rotate([...]);
 //    };
 
+    /* Enter rendering loop */
     window.render();
 
 //
@@ -305,11 +308,6 @@ int main() {
 //        } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 //                 glfwWindowShouldClose(window) == 0);
 //    }
-//
-//    //region Termination
-//    glDeleteProgram(shader);
-//    glfwTerminate();
-//    //endregion
 
     return 0;
 }
