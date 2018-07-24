@@ -23,8 +23,6 @@ include_directories(external/glfw/include/GLFW)
 add_subdirectory(external/glfw)
 # GLM
 include_directories(external/glm)
-#ASSIMP
-
 
 function(add_source)
     foreach (arg IN LISTS ARGN)
@@ -41,10 +39,11 @@ function(add_source)
 endfunction()
 
 add_source(includes
-        GLRenderer/GLScene
         GLContext
-        GLRenderer
+        GLWindow
+        GLWindow/GLScene
         light
+        Shader
         util
         elements/ElementBase
         elements/Square

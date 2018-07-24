@@ -18,109 +18,10 @@
 #include "glfw3.h"
 #include "light/light.h"
 #include "GLContext/GLContext.h"
-#include "GLRenderer/GLRenderer.h"
-#include "GLRenderer/GLScene/GLScene.h"
+#include "GLWindow/GLWindow.h"
+#include "GLWindow/GLScene/GLScene.h"
 
 //region Helpers
-
-/**
- * Compile and load shaders
- * @param vs Path to vertex shader file
- * @param fs Path to fragment shader file
- * @return Program id
- */
-static unsigned int loadShaders(const char *vs, const char *fs) {
-
-    // Create the shaders
-    GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-    GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-
-    // Read the Vertex Shader code from the file
-    std::string VertexShaderCode;
-    std::ifstream VertexShaderStream(vs, std::ios::in);
-    if (VertexShaderStream.is_open()) {
-        std::stringstream sstr;
-        sstr << VertexShaderStream.rdbuf();
-        VertexShaderCode = sstr.str();
-        VertexShaderStream.close();
-    } else {
-        printf("Couldn't open shader file: %s.\n", vs);
-        getchar();
-        return 0;
-    }
-
-    // Read the Fragment Shader code from the file
-    std::string FragmentShaderCode;
-    std::ifstream FragmentShaderStream(fs, std::ios::in);
-    if (FragmentShaderStream.is_open()) {
-        std::stringstream sstr;
-        sstr << FragmentShaderStream.rdbuf();
-        FragmentShaderCode = sstr.str();
-        FragmentShaderStream.close();
-    } else {
-        printf("Couldn't open shader file: %s.\n", vs);
-        getchar();
-        return 0;
-    }
-
-    GLint Result = GL_FALSE;
-    int InfoLogLength;
-
-    // Compile Vertex Shader
-    printf("Compiling shader : %s\n", vs);
-    char const *VertexSourcePointer = VertexShaderCode.c_str();
-    glShaderSource(VertexShaderID, 1, &VertexSourcePointer, nullptr);
-    glCompileShader(VertexShaderID);
-
-    // Check Vertex Shader
-    glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
-    glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    if (InfoLogLength > 0) {
-        std::vector<char> VertexShaderErrorMessage((unsigned) InfoLogLength + 1);
-        glGetShaderInfoLog(VertexShaderID, InfoLogLength, nullptr, &VertexShaderErrorMessage[0]);
-        printf("%s\n", &VertexShaderErrorMessage[0]);
-    }
-
-    // Compile Fragment Shader
-    printf("Compiling shader : %s\n", fs);
-    char const *FragmentSourcePointer = FragmentShaderCode.c_str();
-    glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer, nullptr);
-    glCompileShader(FragmentShaderID);
-
-    // Check Fragment Shader
-    glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
-    glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    if (InfoLogLength > 0) {
-        std::vector<char> FragmentShaderErrorMessage((unsigned) InfoLogLength + 1);
-        glGetShaderInfoLog(FragmentShaderID, InfoLogLength, nullptr, &FragmentShaderErrorMessage[0]);
-        printf("%s\n", &FragmentShaderErrorMessage[0]);
-    }
-
-    // Link the program
-    printf("Linking program\n");
-    GLuint ProgramID = glCreateProgram();
-    glAttachShader(ProgramID, VertexShaderID);
-    glAttachShader(ProgramID, FragmentShaderID);
-    glLinkProgram(ProgramID);
-
-    // Check the program
-    glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
-    glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    if (InfoLogLength > 0) {
-        std::vector<char> ProgramErrorMessage((unsigned) InfoLogLength + 1);
-        glGetProgramInfoLog(ProgramID, InfoLogLength, nullptr, &ProgramErrorMessage[0]);
-        printf("%s\n", &ProgramErrorMessage[0]);
-    }
-
-    glDetachShader(ProgramID, VertexShaderID);
-    glDetachShader(ProgramID, FragmentShaderID);
-
-    glDeleteShader(VertexShaderID);
-    glDeleteShader(FragmentShaderID);
-
-    return ProgramID;
-}
-
 static elements::Square generateText(const char *string, GLuint texture) {
     const glm::vec2 uv[4] = {
             glm::vec2(.0f, .0f),
@@ -137,33 +38,52 @@ int main() {
     GLContext context;
     context.init();
 
-//    GLRenderer renderer(context);
+    GLWindow window(context);
 
+    unsigned program = window.createProgram("resources/shaders/vertex.glsl",
+                                            nullptr,
+                                            "resources/shaders/fragment.glsl");
 
-//    renderer.loadShaders({vs, "pathTofile.glsl"}, {vs, "pathTofile.glsl"}, {vs, "pathTofile.glsl"},
-//                         {vs, "pathTofile.glsl"}...);
-//    renderer.loadTexture/lightMap(...);
+    std::vector<unsigned> textures = {
+            window.loadTexture("resources/textures/ascensionLogo.dds"),
+            window.loadTexture("resources/textures/ascensionLogo.bmp"),
+            window.loadTexture("resources/fonts/font.bmp")
+    };
 
+//    GLuint ascensionTexture = util::loadDDS("resources/textures/ascensionLogo.dds");
+//    if (!ascensionTexture) {
+//        fprintf(stdout, "Couldn't load texture.");
+//        return -1;
+//    }
+//    GLuint ascensionTexture_bmp = util::loadBMP("resources/textures/ascensionLogo.bmp");
+//    if (!ascensionTexture_bmp) {
+//        fprintf(stdout, "Couldn't load texture.");
+//        return -1;
+//    }
+//    GLuint fontTexture = util::loadBMP("resources/fonts/font.bmp");
     /* Scene configuration */
-    GLScene scene;
-
+//    GLScene scene;
+//
 //    int myCube = scene.addObject(Cube(some_point, [...]));
-
+//
+//    scene.beforeRender();
+//    scene.afterRender();
+//
 //    scene.get(myCube2).beforeRender = []() {
 //        scene.changeShader();
 //    };
 //
 //    /* Loop configuration */
-//    renderer.setScene(scene);
-//    renderer.inputHandler.onWPressed = []() {
+//    window.setScene(scene);
+//    window.inputHandler.onWPressed = []() {
 //        scene.objects.get(myCube).rotate([...]);
 //    };
 //
-//    while (!renderer.shouldClose()) {
-//        auto input = renderer.getInput();
-//
-//        renderer.renderScene();
-//        renderer.rederUI();
+////    while (!window.shouldClose()) {
+////        auto input = window.getInput();
+////
+////        window.renderScene();
+//    window.beginRender();
 //    }
 
 //
@@ -359,7 +279,7 @@ int main() {
 //            glUniform1f(u_specular_intensity, 5.0f);
 //            glUniform1f(u_specular_power, 32);
 //
-//            //region Main renderer
+//            //region Main window
 //            float ambientIntensity = .05f;
 //            glm::vec3 direction(-1.f, -.5f, .3f);
 //

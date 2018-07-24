@@ -12,7 +12,6 @@
  * GLContext abstraction class
  */
 class GLContext {
-private:
     /**
      *  Pointer to the current OpenGL initialized context
      *  Only one context can be initialized at runtime
