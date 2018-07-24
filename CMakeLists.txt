@@ -25,10 +25,15 @@ add_subdirectory(external/glfw)
 include_directories(external/glm)
 #ASSIMP
 
+
 # OpenGL Context
-set(GLContext
-        src/GLContext.cpp
-        src/GLContext.h)
+#set(GLContext
+#        src/GLContext/GLContext.cpp
+#        src/GLContext/GLContext.h)
+## OpenGL Main loop
+#set(GLMainLoop
+#        src/GLMainLoop/GLMainLoop.cpp
+#        src/GLMainLoop/GLMainLoop.h)
 
 #elements
 set(elements
@@ -41,9 +46,22 @@ set(light
         src/light/light.cpp
         src/light/light.h)
 
-# Executable
+
+function(add_gl_dependencies)
+    foreach (arg IN LISTS ARGN)
+        if (NOT ${arg} MATCHES ${ARGV0})
+            set(f ${f} src/${arg}/${arg}.cpp
+                    src/${arg}/${arg}.h)
+        endif ()
+    endforeach ()
+
+    set(${ARGV0} ${f} PARENT_SCOPE)
+endfunction()
+
+add_gl_dependencies(includes GLScene GLContext GLMainLoop)
+
 add_executable(OpenGL src/main.cpp
-        ${GLContext}
+        "${includes}"
         ${elements}
         ${util}
         ${light})

@@ -17,9 +17,9 @@
 #include "elements/Square.h"
 #include "glfw3.h"
 #include "light/light.h"
-#include "GLContext.h"
-
-#define _DEBUG 1
+#include "GLContext/GLContext.h"
+#include "GLMainLoop/GLMainLoop.h"
+#include "GLScene/GLScene.h"
 
 //region Helpers
 
@@ -57,6 +57,10 @@ static unsigned int loadShaders(const char *vs, const char *fs) {
         sstr << FragmentShaderStream.rdbuf();
         FragmentShaderCode = sstr.str();
         FragmentShaderStream.close();
+    } else {
+        printf("Couldn't open shader file: %s.\n", vs);
+        getchar();
+        return 0;
     }
 
     GLint Result = GL_FALSE;
@@ -131,8 +135,20 @@ static elements::Square generateText(const char *string, GLuint texture) {
 
 int main() {
 
-    GLContext c;
-    c.init();
+    GLContext context;
+    context.init();
+
+//    GLMainLoop loop(context);
+    GLScene scene;
+
+    /* Loop configuration */
+//     loop.changeScene(scene);
+//
+//    while (!loop.shouldClose()) {
+//        auto input = loop.getInput();
+//
+//        loop.renderScene();
+//    }
 
 //
 //    // Ensure we can capture the escape key being pressed below
