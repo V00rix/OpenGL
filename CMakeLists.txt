@@ -45,13 +45,18 @@ add_source(includes
         GLContext/GLInputHandler
         light
         Shader
-        util
         elements/ElementBase
         elements/Square
         elements/Cube)
 
+set(util
+        src/util/util.h
+        src/util/util.cpp
+        src/util/loaders.cpp
+        src/util/Vertex.cpp)
+
 add_executable(OpenGL src/main.cpp
-        "${includes}")
+        "${includes}" ${util})
 
 target_link_libraries(OpenGL
         ${OPENGL_LIBRARY}

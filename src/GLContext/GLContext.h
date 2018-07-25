@@ -93,6 +93,8 @@ public:
     void breakLoop();
 
     void setInputHandler(const GLInputHandler * handler);
+
+    unsigned int program;
 };
 
 

@@ -65,9 +65,29 @@ int main() {
     /* Configure scene */
     GLScene scene;
 
-    // config below
+    // configure scene
+    elements::Cube myCube({0, 0, 0}, .2f);
+    scene.addElement(myCube);
+    elements::Cube myCube2({1, 0, 0}, .2f);
+    scene.addElement(myCube2);
+
+    scene.view.mat = glm::lookAt(
+            glm::vec3(4, 3, 3),
+            glm::vec3(0, 0, 0), // and looks at the origin
+            glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+    );
+    scene.projection.mat = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
+
+    scene.clearColor = glm::vec4(.4f, .3f, .2f, .0f);
+
+    scene.uni = {
+            .matrix_world = "world",
+            .matrix_view = "view",
+            .matrix_projection = "projection"
+    };
 
     window.setScene(&scene);
+
 
     /* Configure input */
     GLInputHandler input(context.window.ref);
@@ -85,33 +105,9 @@ int main() {
 
     window.setInputHandler(&input);
 
-//    int myCube = scene.addObject(Cube(some_point, [...]));
-
-//    scene.beforeRender();
-//    scene.afterRender();
-
-//    scene.get(myCube2).beforeRender = []() {
-//        scene.changeShader();
-//    };
-
-    /* Loop configuration */
-//    window.inputHandler.onWPressed = []() {
-//        window.activeScene.objects.get(myCube).rotate([...]);
-//    };
-
     /* Enter rendering loop */
     window.render();
 
-//
-//    // shader
-//    GLuint shader = loadShaders("resources/shaders/vertex.glsl",
-//                                "resources/shaders/fragment.glsl"); // this is relative to target binary
-//    glUseProgram(shader);
-//
-//    // uniforms
-//    int u_model = glGetUniformLocation(shader, "model");
-//    int u_view = glGetUniformLocation(shader, "view");
-//    int u_projection = glGetUniformLocation(shader, "projection");
 //
 ////    int u_light_position = glGetUniformLocation(shader, "light_position");
 //
@@ -128,20 +124,6 @@ int main() {
 //    int u_specular_power = glGetUniformLocation(shader, "specular_power");
 //
 //    int u_draw_ui = glGetUniformLocation(shader, "draw_ui");
-//
-//    // Clear color
-//    glClearColor(0.f, 0.f, 0.f, 0.f);
-//
-//    // Enable depth test
-//    glEnable(GL_DEPTH_TEST);
-//    // Accept fragment if it closer to the camera than the former one
-//    glDepthFunc(GL_LESS);
-//
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//
-//    // Cull triangles which normal is not towards the camera
-//    glEnable(GL_CULL_FACE);
 //
 //    // region load mesh
 //    std::vector<util::Vertex> vertices;

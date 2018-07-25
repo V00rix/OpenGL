@@ -119,6 +119,7 @@ unsigned GLContext::loadTexture(const char *filePath) {
 }
 
 void GLContext::useProgram(unsigned int program) {
+    this->program = program;
     glUseProgram(program);
 }
 
@@ -128,9 +129,12 @@ const GLScene *GLContext::getScene() const {
 
 void GLContext::setScene(const GLScene *scene) {
     this->scene = scene;
+    scene->program = program;
 }
 
 void GLContext::render() {
+    scene->beforeRender();
+
     while (!shouldBreak && glfwWindowShouldClose((*context).window.ref) == 0) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         (*inputHandler).processInput();
@@ -138,6 +142,8 @@ void GLContext::render() {
         glfwSwapBuffers((*context).window.ref);
         glfwPollEvents();
     }
+
+    scene->afterRender();
 }
 
 void GLContext::breakLoop() {
