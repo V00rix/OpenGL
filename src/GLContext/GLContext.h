@@ -43,6 +43,7 @@ private:
     GLuint createShader(Shaders type, const char *filePath);
 
 public:
+    bool printFps = false;
 
     /**
      * Create program from shaders

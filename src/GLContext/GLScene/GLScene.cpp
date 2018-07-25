@@ -2,6 +2,7 @@
 // Created by vlado on 24-Jul-18.
 //
 
+#include <glm/gtc/matrix_transform.hpp>
 #include "GLScene.h"
 
 void GLScene::render() const {
@@ -67,6 +68,17 @@ void GLScene::beforeRender() const {
     int u_texture_sampler = glGetUniformLocation(program, uniforms.texture_sampler);
     glUniform1i(u_texture_sampler, 0);
 
+    // todo: from material
+    int u_specular_intensity = glGetUniformLocation(program, uniforms.specular_intensity);
+    glUniform1f(u_specular_intensity, 5.0f);
+
+    // todo: from material
+    int u_specular_power = glGetUniformLocation(program, uniforms.specular_power);
+    glUniform1f(u_specular_power, 32);
+
+    int u_camera_position = glGetUniformLocation(program, uniforms.camera_position);
+    glUniform3f(u_camera_position, viewPosition.x, viewPosition.y, viewPosition.z);
+
     for (auto i = 0; i != lights.directional.size(); i++) {
         std::string s = uniforms.lights.directional;
         s += "[";
@@ -83,14 +95,6 @@ void GLScene::beforeRender() const {
         light::uni::setPoint(light::uni::getPoint(program, s.c_str()), lights.point[i]);
     }
 
-//    light::uni::u_point u_point_light[2] = {
-//            light::uni::getPoint(program, "point_lights[0]"),
-//            light::uni::getPoint(program, "point_lights[1]")
-//    };
-
-//    light::uni::setPoint(u_point_light[1], p2);
-//    light::uni::setPoint(u_point_light[0], p1);
-
 }
 
 void GLScene::addLight(const light::Directional &directional) {
@@ -100,4 +104,9 @@ void GLScene::addLight(const light::Directional &directional) {
 void GLScene::addLight(const light::Point &point) {
     this->lights.point.push_back(point);
 
+}
+
+void GLScene::setView(glm::vec3 position, glm::vec3 lookAt, glm::vec3 head) {
+    view.mat = glm::lookAt(position, lookAt, head);
+    viewPosition = position;
 }

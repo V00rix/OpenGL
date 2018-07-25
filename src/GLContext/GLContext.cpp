@@ -139,7 +139,21 @@ void GLContext::attachScene(const GLScene *scene) {
 void GLContext::render() {
     scene->beforeRender();
 
+
+    double lastTime = glfwGetTime();
+    int frames = 0;
+
     while (!shouldBreak && glfwWindowShouldClose((*context).window.ref) == 0) {
+        if (printFps) {
+            double currentTime = glfwGetTime();
+            frames++;
+            if (currentTime - lastTime >= 1.0) {
+                printf("%fms\n", 1000.f / frames);
+                frames = 0;
+                lastTime = currentTime;
+            }
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         (*inputHandler).processInput();
         (*scene).render();

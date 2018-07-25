@@ -80,24 +80,6 @@ public:
 
     void addElement(const elements::ElementBase &);
 
-    //            glm::mat4 projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-//
-//            // Camera matrix
-//            glm::mat4 view = glm::lookAt(
-//                    cameraPosition,
-//                    glm::vec3(0, 0, 0), // and looks at the origin
-//                    glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
-//            );
-//
-//            // model matrix : an identity matrix (model will be at the origin)
-//            glm::mat4 model = glm::mat4(1.0f);
-//
-//            glm::mat4 translated = glm::translate(projection, glm::vec3(.0f, .0f, 0.f));
-
-//            glUniformMatrix4fv(u_model, 1, GL_FALSE, &rotated[0][0]);
-//            glUniformMatrix4fv(u_view, 1, GL_FALSE, &view[0][0]);
-//            glUniformMatrix4fv(u_projection, 1, GL_FALSE, &translated[0][0]);
-
     virtual ~GLScene();
 
     void render() const;
@@ -113,6 +95,10 @@ public:
     void addLight(const light::Point &);
 
 //    void addLight(const light::Spot& spot);
+
+    void setView(glm::vec3 position, glm::vec3 lookAt, glm::vec3 head);
+
+    glm::vec3 viewPosition;
 };
 
 
