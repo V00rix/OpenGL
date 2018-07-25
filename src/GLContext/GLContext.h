@@ -80,7 +80,7 @@ public:
      * Set scene
      * @param scene Scene
      */
-    void setScene(const GLScene *scene);
+    void attachScene(const GLScene *scene);
 
     /**
      * Get scene

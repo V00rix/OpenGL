@@ -41,6 +41,7 @@ static elements::Square generateText(const char *string, GLuint texture) {
 int main() {
     /* Create OpenGL window */
     GLWindow context;
+    context.debug = true;
     context.window.height = 768;
     context.window.width = 1024;
     context.window.title = "OpenGL";
@@ -65,29 +66,44 @@ int main() {
     /* Configure scene */
     GLScene scene;
 
-    // configure scene
+    // Add elements
     elements::Cube myCube({0, 0, 0}, .2f);
-    scene.addElement(myCube);
     elements::Cube myCube2({1, 0, 0}, .2f);
+    scene.addElement(myCube);
     scene.addElement(myCube2);
 
+    // Add lights
+    light::Directional sun({glm::vec3(1.f, .0f, .0f), .1f, .2f}, {-1.f, -.5f, .3f});
+    light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(1.5f, -.5f, .0f), {1.f, .01f, .015f});
+    light::Point p2({glm::vec3(.3f, 1.f, .4f), .1f, 2.f}, glm::vec3(-1.f, 3.f, .0f), {1.f, .01f, .015f});
+    scene.addLight(sun);
+    scene.addLight(p1);
+    scene.addLight(p2);
+
+    // Configure matrices
     scene.view.mat = glm::lookAt(
             glm::vec3(4, 3, 3),
             glm::vec3(0, 0, 0), // and looks at the origin
-            glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+            glm::vec3(0, 1, 0)  // Head is up (set to 0, -1, 0 to look upside-down)
     );
     scene.projection.mat = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 
+    // Set clear color
     scene.clearColor = glm::vec4(.4f, .3f, .2f, .0f);
 
-    scene.uni = {
+    // Set uniform locations
+    scene.uniforms = {
             .matrix_world = "world",
             .matrix_view = "view",
-            .matrix_projection = "projection"
+            .matrix_projection = "projection",
+            .lights = {
+                    .directional = "directional_lights",
+                    .point = "point_lights"
+            }
     };
 
-    window.setScene(&scene);
-
+    // Complete scene configuration
+    window.attachScene(&scene);
 
     /* Configure input */
     GLInputHandler input(context.window.ref);
@@ -112,10 +128,10 @@ int main() {
 ////    int u_light_position = glGetUniformLocation(shader, "light_position");
 //
 //    int u_texture_sampler = glGetUniformLocation(shader, "texture_sampler");
-//    auto u_directional_light = light::uni::getDirectional(shader, "directional_light");
-//    light::uni::u_point u_point_light[2] = {
-//            light::uni::getPoint(shader, "point_lights[0]"),
-//            light::uni::getPoint(shader, "point_lights[1]")
+//    auto u_directional_light = light::uniforms::getDirectional(shader, "directional_light");
+//    light::uniforms::u_point u_point_light[2] = {
+//            light::uniforms::getPoint(shader, "point_lights[0]"),
+//            light::uniforms::getPoint(shader, "point_lights[1]")
 //    };
 //    auto u_point_lights_count = glGetUniformLocation(shader, "point_lights_count");
 //
@@ -281,11 +297,11 @@ int main() {
 //            light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(1.5f - xoff, yoff + -.5f, .0f), {1.f, .01f, .015f});
 //            light::Point p2({glm::vec3(.3f, 1.f, .4f), .1f, 2.f}, glm::vec3(-1.f, 3.f, .0f), {1.f, .01f, .015f});
 //
-//            light::uni::setDirectional(u_directional_light, sun);
+//            light::uniforms::setDirectional(u_directional_light, sun);
 //            glUniform1i(u_point_lights_count, 2);
 //
-//            light::uni::setPoint(u_point_light[1], p2);
-//            light::uni::setPoint(u_point_light[0], p1);
+//            light::uniforms::setPoint(u_point_light[1], p2);
+//            light::uniforms::setPoint(u_point_light[0], p1);
 //
 //            glUniform1i(u_texture_sampler, 0);
 //

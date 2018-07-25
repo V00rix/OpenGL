@@ -37,8 +37,10 @@ unsigned GLContext::createProgram(const char *vertexFilePath,
     GLuint programID = glCreateProgram();
 
     for (GLuint shader: shaders) {
-        glAttachShader(programID, shader);
+        if (shader != 0)
+            glAttachShader(programID, shader);
     }
+
     glLinkProgram(programID);
 
     // Check program
@@ -50,9 +52,11 @@ unsigned GLContext::createProgram(const char *vertexFilePath,
     }
 
     // Cleanup
-    for (GLuint i: shaders) {
-        glDetachShader(programID, shaders[i]);
-        glDeleteShader(shaders[i]);
+    for (GLuint shader: shaders) {
+        if (shader != 0) {
+            glDetachShader(programID, shader);
+            glDeleteShader(shader);
+        }
     }
 
     shaderPrograms.push_back(programID);
@@ -127,7 +131,7 @@ const GLScene *GLContext::getScene() const {
     return scene;
 }
 
-void GLContext::setScene(const GLScene *scene) {
+void GLContext::attachScene(const GLScene *scene) {
     this->scene = scene;
     scene->program = program;
 }

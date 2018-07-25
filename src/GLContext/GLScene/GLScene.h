@@ -27,9 +27,13 @@ public:
 
 private:
     struct Uniforms {
-        const char* matrix_world;
-        const char* matrix_view;
-        const char* matrix_projection;
+        const char *matrix_world;
+        const char *matrix_view;
+        const char *matrix_projection;
+        struct {
+            const char *directional;
+            const char *point;
+        } lights;
     };
 
     /**
@@ -39,13 +43,18 @@ private:
     Element *head = nullptr;
     Element *tail = head;
 public:
+    struct Lights {
+        std::vector<light::Directional> directional;
+        std::vector<light::Point> point;
+//        std::vector<light::Spot> spot;
+    } lights;
 
     glm::vec4 clearColor = glm::vec4(0.0f);
     bool depthTest = true;
     bool blend = true;
     bool cullFace = true;
 
-    Uniforms uni;
+    Uniforms uniforms;
 
     /**
      * Scene matrices class
@@ -92,6 +101,12 @@ public:
     void afterRender() const;
 
     mutable unsigned int program = 0;
+
+    void addLight(const light::Directional &);
+
+    void addLight(const light::Point &);
+
+//    void addLight(const light::Spot& spot);
 };
 
 
