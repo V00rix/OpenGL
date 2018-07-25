@@ -30,8 +30,14 @@ private:
         const char *matrix_world;
         const char *matrix_view;
         const char *matrix_projection;
+        const char *camera_position;
+        const char *texture_sampler;
+        const char *specular_intensity;
+        const char *specular_power;
         struct {
+            const char *directional_count;
             const char *directional;
+            const char *point_count;
             const char *point;
         } lights;
     };

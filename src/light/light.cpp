@@ -3,8 +3,6 @@
 //
 
 #include "light.h"
-#include <iostream>
-#include <cstring>
 
 static light::uni::u_base getBase(GLuint shader, std::string &u_name) {
     return {
@@ -28,16 +26,16 @@ static void setBase(const light::uni::u_base &uniform, const light::Base &light)
     glUniform1f(uniform.diffuse_intensity, light.diffuseIntensity);
 }
 
-void light::SetPointLights(unsigned int count, const light::Point *lights) {
-
+light::uni::u_directional light::uni::getDirectional(GLuint shader, const char *uniform_name) {
+    return light::uni::getDirectional(shader, std::string(uniform_name));
 }
 
-light::uni::u_directional light::uni::getDirectional(GLuint shader, const char *uniform_name) {
-    std::string u_name = std::string(uniform_name);
+light::uni::u_directional light::uni::getDirectional(GLuint shader, std::string uniform_name) {
+    std::cout << uniform_name << "\n";
 
     return {
-            getBase(shader, u_name),
-            glGetUniformLocation(shader, (u_name + ".direction").c_str())
+            getBase(shader, uniform_name),
+            glGetUniformLocation(shader, (uniform_name + ".direction").c_str())
     };
 }
 

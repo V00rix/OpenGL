@@ -58,19 +58,21 @@ int main() {
 
     // Load textures
     std::vector<unsigned> textures = {
-            window.loadTexture("resources/textures/ascensionLogo.dds"),
             window.loadTexture("resources/textures/ascensionLogo.bmp"),
-            window.loadTexture("resources/fonts/font.bmp")
+            window.loadTexture("resources/fonts/font.bmp"),
+            window.loadTexture("resources/textures/ascensionLogo.dds"),
     };
 
     /* Configure scene */
     GLScene scene;
 
     // Add elements
-    elements::Cube myCube({0, 0, 0}, .2f);
-    elements::Cube myCube2({1, 0, 0}, .2f);
+    elements::Cube myCube({.0f, .0f, .0f}, .5f);
+    elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
+    elements::Square mySquare({-2.5f, -5.f, 0.f}, 5.f);
     scene.addElement(myCube);
     scene.addElement(myCube2);
+    scene.addElement(mySquare);
 
     // Add lights
     light::Directional sun({glm::vec3(1.f, .0f, .0f), .1f, .2f}, {-1.f, -.5f, .3f});
@@ -96,9 +98,15 @@ int main() {
             .matrix_world = "world",
             .matrix_view = "view",
             .matrix_projection = "projection",
+            .camera_position = "camera_position",
+            .texture_sampler = "texture_sampler",
+            .specular_intensity = "specular_intensity", // todo: belongs to objects and materials
+            .specular_power = "specular_power", // todo: belongs to objects and materials
             .lights = {
+                    .directional_count = "directional_lights_count",
                     .directional = "directional_lights",
-                    .point = "point_lights"
+                    .point_count = "point_lights_count",
+                    .point = "point_lights",
             }
     };
 
@@ -128,20 +136,13 @@ int main() {
 ////    int u_light_position = glGetUniformLocation(shader, "light_position");
 //
 //    int u_texture_sampler = glGetUniformLocation(shader, "texture_sampler");
-//    auto u_directional_light = light::uniforms::getDirectional(shader, "directional_light");
-//    light::uniforms::u_point u_point_light[2] = {
-//            light::uniforms::getPoint(shader, "point_lights[0]"),
-//            light::uniforms::getPoint(shader, "point_lights[1]")
-//    };
-//    auto u_point_lights_count = glGetUniformLocation(shader, "point_lights_count");
 //
 //    int u_camera_position = glGetUniformLocation(shader, "camera_position");
 //    int u_specular_intensity = glGetUniformLocation(shader, "specular_intensity");
 //    int u_specular_power = glGetUniformLocation(shader, "specular_power");
-//
-//    int u_draw_ui = glGetUniformLocation(shader, "draw_ui");
-//
-//    // region load mesh
+
+
+    // region load mesh
 //    std::vector<util::Vertex> vertices;
 //    util::loadOBJ("resources/meshes/spaceship.obj", vertices);
 //    unsigned vertexCount = vertices.size();
@@ -164,36 +165,8 @@ int main() {
 //
 //    glBindVertexArray(0);
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    //endregion
-//
-//    // load textures
-//    GLuint ascensionTexture = util::loadDDS("resources/textures/ascensionLogo.dds");
-//    if (!ascensionTexture) {
-//        fprintf(stdout, "Couldn't load texture.");
-//        return -1;
-//    }
-//    GLuint ascensionTexture_bmp = util::loadBMP("resources/textures/ascensionLogo.bmp");
-//    if (!ascensionTexture_bmp) {
-//        fprintf(stdout, "Couldn't load texture.");
-//        return -1;
-//    }
-//    GLuint fontTexture = util::loadBMP("resources/fonts/font.bmp");
-//    if (!fontTexture) {
-//        fprintf(stdout, "Couldn't load texture.");
-//        return -1;
-//    }
-//
-//    // Bind our texture in Texture Unit 0
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, ascensionTexture);
-//    glActiveTexture(GL_TEXTURE1);
-//    glBindTexture(GL_TEXTURE_2D, ascensionTexture_bmp);
-//    glActiveTexture(GL_TEXTURE2);
-//    glBindTexture(GL_TEXTURE_2D, fontTexture);
-//
-//    glUniform1i(u_texture_sampler, 0);
-//
-//    {
+    //endregion
+
 //        elements::Cube myCube({.0f, .0f, .0f}, .5f);
 //        elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
 //        elements::Square mySquare({-2.5f, -5.f, 0.f}, 5.f);

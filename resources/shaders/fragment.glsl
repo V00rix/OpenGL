@@ -1,6 +1,7 @@
 #version 400 core
 
 const int MAX_POINT_LIGHTS = 2;
+const int MAX_DIRECTIONAL_LIGHTS = 2;
 
 in vec2 UV;
 in vec3 model_normal;
@@ -35,15 +36,15 @@ struct Point {
 
 uniform int point_lights_count;
 uniform Point[MAX_POINT_LIGHTS] point_lights;
-uniform Directional directional_light;
+
+uniform int directional_lights_count;
+uniform Directional[MAX_DIRECTIONAL_LIGHTS] directional_lights;
 
 uniform sampler2D texture_sampler;
 
 uniform vec3 camera_position;
 uniform float specular_intensity;
 uniform float specular_power;
-
-uniform bool draw_ui;
 
 vec3 calculateDirectionalLight(BaseLight light, vec3 direction, vec3 normal) {
     // calculate ambient property
@@ -84,19 +85,22 @@ vec3 calculatePointLight(Point light, vec3 normal) {
 }
 
 void main(){
-    if (draw_ui) {
-        color = texture2D(texture_sampler, UV.xy);
+    vec3 normal = normalize(model_normal);
 
+    vec3 totalLight = vec3(0);
 
-    } else {
-        vec3 normal = normalize(model_normal);
+    int count;
+    count = min(directional_lights_count, MAX_DIRECTIONAL_LIGHTS);
 
-        vec3 totalLight = calculateDirectionalLight(directional_light.base, directional_light.direction, normal);
-
-        for (int i = 0; i < point_lights_count; i++) {
-            totalLight += calculatePointLight(point_lights[i], normal);
-        }
-
-        color = texture2D(texture_sampler, UV.xy) * vec4(totalLight, 1.f);
+    for (int i = 0; i < count; i++) {
+        totalLight += calculateDirectionalLight(directional_lights[i].base, directional_lights[i].direction, normal);
     }
+
+    count = min(point_lights_count, MAX_POINT_LIGHTS);
+
+    for (int i = 0; i < count; i++) {
+        totalLight += calculatePointLight(point_lights[i], normal);
+    }
+
+    color = texture2D(texture_sampler, UV.xy) * vec4(totalLight, 1.f);
 }

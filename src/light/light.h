@@ -8,6 +8,8 @@
 
 #include <glm/vec3.hpp>
 #include <GL/glew.h>
+#include <iostream>
+#include <cstring>
 
 namespace light {
     struct Base {
@@ -66,7 +68,7 @@ namespace light {
         };
 
         u_directional getDirectional(GLuint, const char *);
-
+        u_directional getDirectional(GLuint, std::string);
         void setDirectional(const u_directional &, const light::Directional &);
 
         u_point getPoint(GLuint, const char *);
@@ -74,6 +76,5 @@ namespace light {
         void setPoint(const u_point &, const light::Point &);
     }
 
-    void SetPointLights(unsigned int count, const Point *lights);
 }
 #endif //OPENGL_LIGHT_H
