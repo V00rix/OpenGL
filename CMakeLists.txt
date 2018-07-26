@@ -47,6 +47,7 @@ add_source(includes
         Shader
         elements/ElementBase
         elements/Square
+        elements/Mesh
         elements/Cube)
 
 set(util

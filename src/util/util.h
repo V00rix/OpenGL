@@ -15,6 +15,8 @@
 #define FOURCC_DXT3 861165636 // 'D' 'X' 'T' '3'
 #define FOURCC_DXT5 894720068 // 'D' 'X' 'T' '5'
 
+typedef unsigned short ust;
+
 namespace util {
     enum FExtension {
         bmp,
@@ -42,6 +44,10 @@ namespace util {
 
         Vertex(const glm::vec3 pos, const glm::vec3 normal, const glm::vec2 tex) : position(pos), normal(normal),
                                                                                    uv(tex) {}
+
+        inline bool operator==(const Vertex &other) const {
+            return memcpy((void *)this, (void *)&other, sizeof(other)) == nullptr;
+        }
     };
 
     unsigned loadDDS(const char *);
@@ -50,6 +56,9 @@ namespace util {
 
     bool loadOBJ(const char *,
                  std::vector<Vertex> &);
+
+    bool loadOBJ(const char *,
+                 std::vector<Vertex> &, std::vector<unsigned> &);
 
     FExtension getFileExtension(const char *path);
 }

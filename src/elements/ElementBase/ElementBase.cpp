@@ -16,6 +16,9 @@ static const glm::vec2 uv_init[] = { // NOLINT
 const glm::vec2 *ElementBase::uv = uv_init;
 
 void ElementBase::initBuffers() {
+    printf("vertex size: %d\n", vertexSize);
+    printf("vertex size: %d\n", sizeof(vertices));
+
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
@@ -40,7 +43,15 @@ void ElementBase::initBuffers() {
 }
 
 ElementBase::~ElementBase() {
+    delete[] vertices;
+    delete[] indices;
+
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &IBO);
     glDeleteVertexArrays(1, &VAO);
+}
+
+void ElementBase::render() const {
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 }

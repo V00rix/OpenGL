@@ -3,6 +3,7 @@
 //
 
 #include <cstring>
+#include <map>
 #include "util.h"
 
 unsigned util::loadDDS(const char *filePath) {
@@ -157,7 +158,6 @@ unsigned util::loadBMP(const char *filePath) {
 }
 
 bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices) {
-//    std::vector<unsigned int> positionIndices, uvIndices, normalIndices;
     std::vector<glm::vec3> temp_positions;
     std::vector<glm::vec2> temp_uvs;
     std::vector<glm::vec3> temp_normals;
@@ -203,6 +203,78 @@ bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices
                                              temp_uvs[uvIndex[1] - 1]));
             out_vertices.emplace_back(Vertex(temp_positions[positionIndex[2] - 1], temp_normals[normalIndex[2] - 1],
                                              temp_uvs[uvIndex[2] - 1]));
+        }
+    }
+
+    fclose(file);
+
+    return true;
+}
+
+bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices, std::vector<unsigned> &out_indices) {
+    std::vector<glm::vec3> temp_positions;
+    std::vector<glm::vec2> temp_uvs;
+    std::vector<glm::vec3> temp_normals;
+
+    FILE *file = fopen(filePath, "r");
+    if (file == nullptr) {
+        printf("Couldn't open '%s'!\n", filePath);
+        return false;
+    }
+
+    while (true) {
+        char lineHeader[128];
+
+        int res = fscanf(file, "%s", lineHeader);
+        if (res == EOF) break;
+
+        if (strcmp(lineHeader, "v") == 0) {
+            glm::vec3 vertex;
+            fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+            temp_positions.push_back(vertex);
+        } else if (strcmp(lineHeader, "vn") == 0) {
+            glm::vec3 normal;
+            fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+            temp_normals.push_back(normal);
+        } else if (strcmp(lineHeader, "vt") == 0) {
+            glm::vec2 uv;
+            fscanf(file, "%f %f", &uv.x, &uv.y);
+            temp_uvs.push_back(uv);
+        } else if (strcmp(lineHeader, "f") == 0) {
+            std::string vertex1, vertex2, vertex3;
+            unsigned int positionIndex[3], uvIndex[3], normalIndex[3];
+            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &positionIndex[0], &uvIndex[0], &normalIndex[0],
+                                 &positionIndex[1], &uvIndex[1], &normalIndex[1], &positionIndex[2], &uvIndex[2],
+                                 &normalIndex[2]);
+            if (matches != 9) {
+                printf("Couldn't parse %s\n", filePath);
+                return false;
+            }
+
+
+            for (ust i = 0; i < 3; i++) {
+
+                Vertex v(temp_positions[positionIndex[i] - 1],
+                         temp_normals[normalIndex[i] - 1],
+                         temp_uvs[uvIndex[i] - 1]);
+
+                bool found = false;
+                unsigned j;
+                for (j = 0; j < out_vertices.size(); j++) {
+                    if (v == out_vertices[j]) {
+                        out_indices.push_back(j);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    out_indices.push_back(j);
+                }
+//
+                out_vertices.emplace_back(Vertex(temp_positions[positionIndex[i] - 1],
+                                                 temp_normals[normalIndex[i] - 1],
+                                                 temp_uvs[uvIndex[i] - 1]));
+            }
         }
     }
 

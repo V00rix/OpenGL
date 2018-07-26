@@ -15,6 +15,7 @@ namespace elements {
         const unsigned *indices;
 
         unsigned vertexSize;
+        unsigned vertexCount;
         unsigned indexSize;
         unsigned indexCount;
 
@@ -24,17 +25,14 @@ namespace elements {
 
         static const glm::vec2 *uv;
 
-        virtual void initVertices()=0;
+        virtual void initVertices() = 0;
 
-        void initBuffers();
+        virtual void initBuffers();
 
     public:
         virtual ~ElementBase();
 
-        inline virtual void render() const {
-            glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
-        };
+        virtual void render() const;
     };
 }
 

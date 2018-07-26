@@ -21,6 +21,7 @@
 #include "GLContext/GLContext.h"
 #include "GLContext/GLScene/GLScene.h"
 #include "GLContext/GLInputHandler/GLInputHandler.h"
+#include "elements/Mesh/Mesh.h"
 
 //region Helpers
 static elements::Square generateText(const char *string, GLuint texture) {
@@ -34,9 +35,6 @@ static elements::Square generateText(const char *string, GLuint texture) {
     return elements::Square(glm::vec3(-.5f, -.5f, .0f), .2f, uv);
 }
 //endregion
-
-
-
 
 int main() {
     /* Create OpenGL window */
@@ -71,9 +69,11 @@ int main() {
     elements::Cube myCube({.0f, .0f, .0f}, .5f);
     elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
     elements::Square mySquare({-2.5f, -5.f, 0.f}, 5.f);
+    elements::Mesh myMesh("resources/meshes/spaceship.obj", {0.f, 0.f, 0.f});
     scene.addElement(myCube);
     scene.addElement(myCube2);
     scene.addElement(mySquare);
+    scene.addElement(myMesh);
 
     // Add lights
     light::Directional sun({glm::vec3(1.f, .0f, .0f), .1f, .2f}, {-1.f, -.5f, .3f});
@@ -135,7 +135,6 @@ int main() {
 
     // region load mesh
 //    std::vector<util::Vertex> vertices;
-//    util::loadOBJ("resources/meshes/spaceship.obj", vertices);
 //    unsigned vertexCount = vertices.size();
 //
 //    GLuint VAO;

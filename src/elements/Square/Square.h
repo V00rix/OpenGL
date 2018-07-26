@@ -10,8 +10,6 @@
 namespace elements {
 
     class Square : public ElementBase {
-
-    private:
         static const unsigned vertexCount = 4 * 6;    // 4 vertices per square
         static const unsigned vertexSize = vertexCount * util::Vertex::size;
         static const unsigned indexCount = 3 * 2 * 6;  // 3 indices per triangle
