@@ -4,12 +4,20 @@
 
 #ifndef OPENGL_ELEMENTBASE_H
 #define OPENGL_ELEMENTBASE_H
+#define TRANSL(x) glm::vec3 translation = this->translation;\
+                  translate(-translation);\
+                  x\
+                  translate(translation);
 
 #include <GL/glew.h>
 #include "../../util/util.h"
 
 namespace elements {
     class ElementBase {
+        glm::vec3 translation;
+
+        void applyVertexTransform() const;
+
     protected:
         util::Vertex *vertices;
         const unsigned *indices;
@@ -33,6 +41,12 @@ namespace elements {
         virtual ~ElementBase();
 
         virtual void render() const;
+
+        void rotate(float, const glm::vec3 &);
+
+        void translate(const glm::vec3 &);
+
+        void scale(const glm::vec3 &);
     };
 }
 

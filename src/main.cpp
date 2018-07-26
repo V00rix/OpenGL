@@ -22,7 +22,8 @@
 #include "GLContext/GLScene/GLScene.h"
 #include "GLContext/GLInputHandler/GLInputHandler.h"
 #include "elements/Mesh/Mesh.h"
-
+static GLWindow context;
+GLScene scene;
 //region Helpers
 static elements::Square generateText(const char *string, GLuint texture) {
     const glm::vec2 uv[4] = {
@@ -37,8 +38,8 @@ static elements::Square generateText(const char *string, GLuint texture) {
 //endregion
 
 int main() {
+    context = GLWindow();
     /* Create OpenGL window */
-    GLWindow context;
     context.debug = true;
     context.window.height = 768;
     context.window.width = 1024;
@@ -63,7 +64,8 @@ int main() {
     };
 
     /* Configure scene */
-    GLScene scene;
+    scene.grid = GLScene::Grid(10.f, 10);
+    scene.renderGrid = true;
 
     // Add elements
     elements::Cube myCube({.0f, .0f, .0f}, .5f);
@@ -85,7 +87,7 @@ int main() {
 
     // Configure matrices
     scene.setView(
-            glm::vec3(4, 3, 3),
+            glm::vec3(4, 3, 3), // position in (4, 3, 3)
             glm::vec3(0, 0, 0), // and looks at the origin
             glm::vec3(0, 1, 0)  // Head is up (set to 0, -1, 0 to look upside-down)
     );
@@ -101,6 +103,7 @@ int main() {
             .matrix_projection = "projection",
             .camera_position = "camera_position",
             .texture_sampler = "texture_sampler",
+            .grid_enabled = "grid_enabled",
             .specular_intensity = "specular_intensity", // todo: belongs to objects and materials
             .specular_power = "specular_power", // todo: belongs to objects and materials
             .lights = {
@@ -124,6 +127,35 @@ int main() {
         printf("P key is pressed\n");
     });
 
+    //region Rotation
+    input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {
+        myMesh.rotate(.1f, {0.0f, 1.0f, 0.0f});
+    });
+
+    input.onKey(GLFW_KEY_Y, GLFW_PRESS, [&]() {
+        myMesh.rotate(-.1f, {0.0f, 1.0f, 0.0f});
+    });
+    //endregion
+
+    //region Translation
+    input.onKey(GLFW_KEY_V, GLFW_PRESS, [&]() {
+        myMesh.translate({0.0f, 0.f, 0.1f});
+    });
+    input.onKey(GLFW_KEY_B, GLFW_PRESS, [&]() {
+        myMesh.translate({0.0f, 0.f, -0.1f});
+    });
+    //endregion
+
+    //region Scale
+    input.onKey(GLFW_KEY_Z, GLFW_PRESS, [&]() {
+        myMesh.scale({1.1f, 1.1f, 1.1f});
+    });
+
+    input.onKey(GLFW_KEY_X, GLFW_PRESS, [&]() {
+        myMesh.scale({0.9f, 0.9f, 0.9f});
+    });
+    //endregion
+
     input.onMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, [&]() {
         printf("Left mouse button is pressed\n");
     });
@@ -132,41 +164,6 @@ int main() {
 
     /* Enter rendering loop */
     window.render();
-
-    // region load mesh
-//    std::vector<util::Vertex> vertices;
-//    unsigned vertexCount = vertices.size();
-//
-//    GLuint VAO;
-//    glGenVertexArrays(1, &VAO);
-//    glBindVertexArray(VAO);
-//
-//    GLuint VBO;
-//    glGenBuffers(1, &VBO);
-//    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(util::Vertex) * vertexCount, &vertices[0], GL_STATIC_DRAW);
-//
-//    glEnableVertexAttribArray(0);
-//    glEnableVertexAttribArray(1);
-//    glEnableVertexAttribArray(2);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
-//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
-//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
-//
-//    glBindVertexArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //endregion
-
-//
-//        auto myText = generateText("Hello, world!", fontTexture);
-//
-//        do {
-
-//            glBindVertexArray(VAO);
-//            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//            glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-//
-//
 
     return 0;
 }

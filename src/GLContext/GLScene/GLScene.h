@@ -32,6 +32,7 @@ private:
         const char *matrix_projection;
         const char *camera_position;
         const char *texture_sampler;
+        const char *grid_enabled;
         const char *specular_intensity;
         const char *specular_power;
         struct {
@@ -55,7 +56,35 @@ public:
 //        std::vector<light::Spot> spot;
     } lights;
 
+    class Grid {
+        mutable unsigned VAO;
+        mutable unsigned VBO;
+
+        mutable unsigned indexCount;
+    public:
+
+        /**
+         * Highest distance between two grid lines
+         */
+        float size;
+
+        /**
+         * Lines count
+         */
+        unsigned precision;
+
+        void render() const;
+
+        void init() const;
+
+        Grid(float size, unsigned precision) : size(size), precision(precision), VAO(0), VBO(0), indexCount(0) {}
+
+        Grid() : size(0), precision(0), VAO(0), VBO(0), indexCount(0) {}
+    } grid;
+
     glm::vec4 clearColor = glm::vec4(0.0f);
+
+    bool renderGrid = false;
     bool depthTest = true;
     bool blend = true;
     bool cullFace = true;
@@ -99,6 +128,7 @@ public:
     void setView(glm::vec3 position, glm::vec3 lookAt, glm::vec3 head);
 
     glm::vec3 viewPosition;
+
 };
 
 

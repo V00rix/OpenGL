@@ -5,7 +5,18 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "GLScene.h"
 
+static void printVertex(const glm::vec3 &vertex) {
+    std::cout << "\tPosition at: {" << vertex.x << ", " << vertex.y << ", " << vertex.z << "}\n";
+}
+
 void GLScene::render() const {
+    int u_grid = glGetUniformLocation(program, uniforms.grid_enabled);
+    if (renderGrid) {
+        glUniform1i(u_grid, true);
+        grid.render();
+    }
+        glUniform1i(u_grid, false);
+
     const Element *el = head;
 
     while (el) {
@@ -47,6 +58,10 @@ void GLScene::beforeRender() const {
 
     if (cullFace) {
         glEnable(GL_CULL_FACE);
+    }
+
+    if (renderGrid) {
+        grid.init();
     }
 
     int u_world = glGetUniformLocation(program, uniforms.matrix_world);
@@ -94,7 +109,6 @@ void GLScene::beforeRender() const {
         s += "]";
         light::uni::setPoint(light::uni::getPoint(program, s.c_str()), lights.point[i]);
     }
-
 }
 
 void GLScene::addLight(const light::Directional &directional) {
@@ -103,10 +117,81 @@ void GLScene::addLight(const light::Directional &directional) {
 
 void GLScene::addLight(const light::Point &point) {
     this->lights.point.push_back(point);
-
 }
 
 void GLScene::setView(glm::vec3 position, glm::vec3 lookAt, glm::vec3 head) {
     view.mat = glm::lookAt(position, lookAt, head);
     viewPosition = position;
+}
+
+void GLScene::Grid::render() const {
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_LINES, 0, indexCount);
+}
+
+void GLScene::Grid::init() const {
+    float delta = size / ((float) precision * 2);
+
+    unsigned linePointsCount = 1 + precision * 2;
+    glm::vec3 vertices[linePointsCount * 4];
+
+    struct {
+        struct {
+            glm::vec3 left, right;
+        } bottom;
+        struct {
+            glm::vec3 left, right;
+        } top;
+
+    } start{
+            {
+                    {-size / 2, 0, -size / 2},
+                    {size / 2, 0, -size / 2}
+            },
+            {
+                    {-size / 2, 0, size / 2},
+                    {size / 2, 0, size / 2}
+            }
+    };
+
+    // vertical
+    indexCount = 0;
+    for (unsigned i = 0; i < linePointsCount; i++) {
+        vertices[indexCount++] = {
+                start.bottom.left.x + delta * i,
+                start.bottom.left.y,
+                start.bottom.left.z
+        };
+        vertices[indexCount++] = {
+                start.top.left.x + delta * i,
+                start.top.left.y,
+                start.top.left.z
+        };
+    }
+
+    // horizontal
+    for (unsigned i = 0; i < linePointsCount; i++) {
+        vertices[indexCount++] = {
+                start.bottom.left.x,
+                start.bottom.left.y,
+                start.bottom.left.z + delta * i
+        };
+        vertices[indexCount++] = {
+                start.bottom.right.x,
+                start.bottom.right.y,
+                start.bottom.right.z + delta * i
+        };
+    }
+
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
+
 }
