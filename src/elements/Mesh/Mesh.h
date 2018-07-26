@@ -18,8 +18,6 @@ namespace elements {
 
     public:
         explicit Mesh(const char *objFilePath, const glm::vec3 &at);
-
-        void render() const override;
     };
 }
 

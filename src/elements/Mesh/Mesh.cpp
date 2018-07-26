@@ -44,13 +44,3 @@ void elements::Mesh::initVertices() {
     printInfo(ElementBase::vertices, ElementBase::indices, vertexCount, indexCount);
 
 }
-
-void elements::Mesh::render() const {
-    printf("indexCount=%d\n", indexCount);
-
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-//    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
-    glBindVertexArray(0);
-
-}
