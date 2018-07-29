@@ -17,15 +17,12 @@ namespace elements {
         void initVertices() override;
 
     public:
-        Mesh(const char *objFilePath, const glm::vec3 &at);
 
-        Mesh(const Mesh &another);
+        Mesh(const char *objFilePath, const glm::vec3 &at);
 
         Mesh() : ElementBase(), objFilePath(nullptr), at(glm::vec3(0.f)) {}
 
-        void copy(Mesh mesh);
-
-        Mesh& operator=(Mesh other);
+        void set(const Mesh &other);
     };
 }
 

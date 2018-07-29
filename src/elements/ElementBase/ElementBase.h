@@ -20,7 +20,7 @@ namespace elements {
 
     protected:
         util::Vertex *vertices;
-        const unsigned *indices;
+        unsigned *indices;
 
         unsigned vertexSize;
         unsigned vertexCount;
@@ -38,10 +38,6 @@ namespace elements {
         virtual void initBuffers();
 
     public:
-        ElementBase();
-
-        ElementBase(const ElementBase&);
-
         virtual ~ElementBase();
 
         virtual void render() const;

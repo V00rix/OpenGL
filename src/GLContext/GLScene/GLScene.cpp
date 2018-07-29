@@ -27,11 +27,11 @@ void GLScene::render() const {
     }
 
     // render light meshes
-//    glUniform1i(u_light_mesh, true);
-//    for (int i = 0; i < lights.point.size(); i++) {
-//        lights.meshes[i].render();
-//    }
-//    glUniform1i(u_light_mesh, false);
+    glUniform1i(u_light_mesh, true);
+    for (int i = 0; i < lights.point.size(); i++) {
+        lights.meshes[i].render();
+    }
+    glUniform1i(u_light_mesh, false);
 
 }
 
@@ -119,7 +119,6 @@ void GLScene::beforeRender() const {
 
     lights.meshes = new elements::Mesh[lights.point.size()];
 
-    // set point lights
     for (auto i = 0; i != lights.point.size(); i++) {
         std::string s = uniforms.lights.point;
         s += "[";
@@ -127,12 +126,8 @@ void GLScene::beforeRender() const {
         s += "]";
         light::uni::setPoint(light::uni::getPoint(program, s.c_str()), lights.point[i]);
 
-//        printf("Lights -------------------\n");
-//        lights.meshes[i] = lights.mesh;
-//        printf("try and get me...\n");
-//        printf("on (%x) x = ", lights.meshes[i].)
-//                .copy(lights.mesh);
-//        lights.meshes[i].setPosition(lights.point[i].position);
+        lights.meshes[i].set(lights.mesh);
+        lights.meshes[i].setPosition(lights.point[i].position);
     }
 }
 

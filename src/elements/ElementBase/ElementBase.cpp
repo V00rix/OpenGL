@@ -17,16 +17,14 @@ static const glm::vec2 uv_init[] = { // NOLINT
 const glm::vec2 *ElementBase::uv = uv_init;
 
 void ElementBase::initBuffers() {
+    printf("init bufers\n");
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
-
-    printf("first: %d\n", VBO);
+    printf("VAO = %d (%x)\n", VAO, this);
 
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertexSize, vertices, GL_DYNAMIC_DRAW);
-
-    printf("second: %d\n", VBO);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -42,11 +40,14 @@ void ElementBase::initBuffers() {
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+
+    printf("VAO = %d, VBO = %d, IBO = %d (%x)\n", VAO, VBO, IBO, this);
 }
 
 ElementBase::~ElementBase() {
-    printf("destructing %x\n", this);
-
+    printf("\tdeleting %x\n", this);
+    printf("\tVAO = %d, VBO = %d, IBO = %d (%x)\n", VAO, VBO, IBO, this);
     delete[] vertices;
     delete[] indices;
 
@@ -87,35 +88,28 @@ void ElementBase::scale(const glm::vec3 &scale) {
 }
 
 void ElementBase::applyVertexTransform() const {
-    printf("TRANSFORM VBO: %d\n", VBO);
-    printf("TRANSFORM vertexSize: %x\n", vertexSize);
-    printf("TRANSFORM vertices: %x\n", &vertices);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertexSize, vertices, GL_DYNAMIC_DRAW);
 }
 
-void ElementBase::setPosition(const glm::vec3 &position) {
-    printf("try and get me...\n");
-    printf("on (%x) x = %f", &vertices[0], vertices[0].position.x);
-    for (int i = 0; i < vertexCount; i++) {
-        vertices[i].position -= translation;
-        vertices[i].position += position;
-    }
-
-    translation = glm::vec3(0.f);
-    applyVertexTransform();
+void printPosition(const glm::vec3 &pos) {
+    printf("%f, %f, %f\n", pos.x, pos.y, pos.z);
 }
 
-ElementBase::ElementBase(const ElementBase &another) : indexCount(another.indexCount),
-                                                       indexSize(another.indexSize),
-                                                       vertexCount(another.vertexCount),
-                                                       vertexSize(another.vertexSize),
-                                                       vertices(another.vertices),
-                                                       indices(another.indices) {}
+void ElementBase::setPosition(const glm::vec3 &position) {
+    printf("\t\tposition = ");
+    printPosition(position);
+    for (int i = 0; i < vertexCount; i++) {
+//        printf("before: ");
+//        printPosition(vertices[i].position);
+        vertices[i].position -= translation;
+        vertices[i].position += position;
+//        printf("after: ");
+//        printPosition(vertices[i].position);
+    }
 
-ElementBase::ElementBase() : indexCount(0),
-                             indexSize(0),
-                             vertexCount(0),
-                             vertexSize(0),
-                             vertices(nullptr),
-                             indices(nullptr) {}
+    translation = position;
+    applyVertexTransform();
+
+//    exit(0);
+}

@@ -87,7 +87,10 @@ vec3 calculatePointLight(Point light, vec3 normal) {
 }
 
 void main(){
-    if (grid_enabled || light_mesh) {
+    if (grid_enabled) {
+        color = vec4(.3f);
+
+    } else if (light_mesh) {
         color = vec4(1);
     } else {
         vec3 normal = normalize(model_normal);

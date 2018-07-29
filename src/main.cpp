@@ -22,8 +22,6 @@
 #include "GLContext/GLScene/GLScene.h"
 #include "GLContext/GLInputHandler/GLInputHandler.h"
 #include "elements/Mesh/Mesh.h"
-static GLWindow context;
-GLScene scene;
 //region Helpers
 static elements::Square generateText(const char *string, GLuint texture) {
     const glm::vec2 uv[4] = {
@@ -37,7 +35,16 @@ static elements::Square generateText(const char *string, GLuint texture) {
 }
 //endregion
 
+static void printArray(int * arr, int count) {
+    for (int i = 0; i < count; i++) {
+        printf("%d: %d\n", i, arr[i]);
+    }
+}
+
 int main() {
+    GLWindow context;
+    GLScene scene;
+
     context = GLWindow();
     /* Create OpenGL window */
     context.debug = true;
@@ -73,11 +80,10 @@ int main() {
     elements::Square mySquare({-2.5f, -5.f, 0.f}, 5.f);
     elements::Mesh myMesh("resources/meshes/spaceship.obj", {0.f, 0.f, 0.f});
     elements::Mesh myLightMesh("resources/meshes/sphere.obj", {0.f, 0.f, 0.f});
-    myLightMesh.scale({.5f, .5f, .5f});
+    myLightMesh.scale({.25f, .25f, .25f});
     scene.addElement(myCube);
     scene.addElement(myCube2);
     scene.addElement(mySquare);
-    scene.addElement(myMesh);
     scene.addElement(myMesh);
 
     // Add lights
@@ -85,7 +91,7 @@ int main() {
 
     light::Directional sun({glm::vec3(1.f, .0f, .0f), .1f, .2f}, {-1.f, -.5f, .3f});
     light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(1.5f, -.5f, 1.0f), {1.f, .01f, .015f});
-    light::Point p2({glm::vec3(.3f, 1.f, .4f), .1f, 2.f}, glm::vec3(-1.f, 3.f, .0f), {1.f, .01f, .015f});
+    light::Point p2({glm::vec3(.3f, 1.f, .4f), .1f, 2.f}, glm::vec3(-1.5f, -.5f, 1.0f), {1.f, .01f, .015f});
     scene.addLight(sun);
     scene.addLight(p1);
     scene.addLight(p2);
@@ -134,32 +140,32 @@ int main() {
     });
 
     //region Rotation
-//    input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {
-//        myMesh.rotate(.1f, {0.0f, 1.0f, 0.0f});
-//    });
-//
-//    input.onKey(GLFW_KEY_Y, GLFW_PRESS, [&]() {
-//        myMesh.rotate(-.1f, {0.0f, 1.0f, 0.0f});
-//    });
-//    //endregion
-//
-//    //region Translation
-//    input.onKey(GLFW_KEY_V, GLFW_PRESS, [&]() {
-//        myMesh.translate({0.0f, 0.f, 0.1f});
-//    });
-//    input.onKey(GLFW_KEY_B, GLFW_PRESS, [&]() {
-//        myMesh.translate({0.0f, 0.f, -0.1f});
-//    });
-//    //endregion
-//
-//    //region Scale
-//    input.onKey(GLFW_KEY_Z, GLFW_PRESS, [&]() {
-//        myMesh.scale({1.1f, 1.1f, 1.1f});
-//    });
-//
-//    input.onKey(GLFW_KEY_X, GLFW_PRESS, [&]() {
-//        myMesh.scale({0.9f, 0.9f, 0.9f});
-//    });
+    input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {
+        myMesh.rotate(.1f, {0.0f, 1.0f, 0.0f});
+    });
+
+    input.onKey(GLFW_KEY_Y, GLFW_PRESS, [&]() {
+        myMesh.rotate(-.1f, {0.0f, 1.0f, 0.0f});
+    });
+    //endregion
+
+    //region Translation
+    input.onKey(GLFW_KEY_V, GLFW_PRESS, [&]() {
+        myMesh.translate({0.0f, 0.f, 0.1f});
+    });
+    input.onKey(GLFW_KEY_B, GLFW_PRESS, [&]() {
+        myMesh.translate({0.0f, 0.f, -0.1f});
+    });
+    //endregion
+
+    //region Scale
+    input.onKey(GLFW_KEY_Z, GLFW_PRESS, [&]() {
+        myMesh.scale({1.1f, 1.1f, 1.1f});
+    });
+
+    input.onKey(GLFW_KEY_X, GLFW_PRESS, [&]() {
+        myMesh.scale({0.9f, 0.9f, 0.9f});
+    });
     //endregion
 
     input.onMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, [&]() {

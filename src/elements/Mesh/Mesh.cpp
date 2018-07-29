@@ -23,28 +23,22 @@ void elements::Mesh::initVertices() {
     ElementBase::indices = new unsigned[indexCount];
 
     memcpy(ElementBase::vertices, &vertices[0], vertexSize);
-    memcpy((void *)ElementBase::indices, &indices[0], indexSize);
+    memcpy((void *) ElementBase::indices, &indices[0], indexSize);
 }
 
-elements::Mesh::Mesh(const elements::Mesh &another) : ElementBase(another), objFilePath(another.objFilePath),
-                                                      at(another.at) {
-    initBuffers();
-}
-
-void elements::Mesh::copy(elements::Mesh mesh) {
-
-}
-
-elements::Mesh &elements::Mesh::operator=(elements::Mesh other) {
-    printf("copy assignment other(%x) to this(%x)\n", &other, this);
-
-//    this->vertices = new
-
-//    VBO = other.VBO;
-
-
+void elements::Mesh::set(const elements::Mesh &other) {
+    vertexCount = other.vertexCount;
     vertexSize = other.vertexSize;
-    vertices = other.vertices;
-    printf("vertices other(%x) vs this(%x)\n", this->vertices, other.vertices);
-    return *this;
+
+    indexCount = other.indexCount;
+    indexSize = other.indexSize;
+
+
+    vertices = new util::Vertex[vertexCount];
+    indices = new unsigned[indexCount];
+
+    memcpy(vertices, other.vertices, vertexSize);
+    memcpy(indices, other.indices, indexSize);
+
+    initBuffers();
 }
