@@ -72,14 +72,19 @@ int main() {
     elements::Cube myCube2({.0f, .0f, -1.0f}, .75f);
     elements::Square mySquare({-2.5f, -5.f, 0.f}, 5.f);
     elements::Mesh myMesh("resources/meshes/spaceship.obj", {0.f, 0.f, 0.f});
+    elements::Mesh myLightMesh("resources/meshes/sphere.obj", {0.f, 0.f, 0.f});
+    myLightMesh.scale({.5f, .5f, .5f});
     scene.addElement(myCube);
     scene.addElement(myCube2);
     scene.addElement(mySquare);
     scene.addElement(myMesh);
+    scene.addElement(myMesh);
 
     // Add lights
+    scene.setLightMesh(myLightMesh);
+
     light::Directional sun({glm::vec3(1.f, .0f, .0f), .1f, .2f}, {-1.f, -.5f, .3f});
-    light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(1.5f, -.5f, .0f), {1.f, .01f, .015f});
+    light::Point p1({glm::vec3(1.f), .01f, 1.f}, glm::vec3(1.5f, -.5f, 1.0f), {1.f, .01f, .015f});
     light::Point p2({glm::vec3(.3f, 1.f, .4f), .1f, 2.f}, glm::vec3(-1.f, 3.f, .0f), {1.f, .01f, .015f});
     scene.addLight(sun);
     scene.addLight(p1);
@@ -94,7 +99,7 @@ int main() {
     scene.projection.mat = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
 
     // Set clear color
-//    scene.clearColor = glm::vec4(.4f, .3f, .2f, .0f);
+    scene.clearColor = glm::vec4(.15f, .16f, .18f, .0f);
 
     // Set uniform locations
     scene.uniforms = {
@@ -104,6 +109,7 @@ int main() {
             .camera_position = "camera_position",
             .texture_sampler = "texture_sampler",
             .grid_enabled = "grid_enabled",
+            .light_mesh = "light_mesh",
             .specular_intensity = "specular_intensity", // todo: belongs to objects and materials
             .specular_power = "specular_power", // todo: belongs to objects and materials
             .lights = {
@@ -128,32 +134,32 @@ int main() {
     });
 
     //region Rotation
-    input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {
-        myMesh.rotate(.1f, {0.0f, 1.0f, 0.0f});
-    });
-
-    input.onKey(GLFW_KEY_Y, GLFW_PRESS, [&]() {
-        myMesh.rotate(-.1f, {0.0f, 1.0f, 0.0f});
-    });
-    //endregion
-
-    //region Translation
-    input.onKey(GLFW_KEY_V, GLFW_PRESS, [&]() {
-        myMesh.translate({0.0f, 0.f, 0.1f});
-    });
-    input.onKey(GLFW_KEY_B, GLFW_PRESS, [&]() {
-        myMesh.translate({0.0f, 0.f, -0.1f});
-    });
-    //endregion
-
-    //region Scale
-    input.onKey(GLFW_KEY_Z, GLFW_PRESS, [&]() {
-        myMesh.scale({1.1f, 1.1f, 1.1f});
-    });
-
-    input.onKey(GLFW_KEY_X, GLFW_PRESS, [&]() {
-        myMesh.scale({0.9f, 0.9f, 0.9f});
-    });
+//    input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {
+//        myMesh.rotate(.1f, {0.0f, 1.0f, 0.0f});
+//    });
+//
+//    input.onKey(GLFW_KEY_Y, GLFW_PRESS, [&]() {
+//        myMesh.rotate(-.1f, {0.0f, 1.0f, 0.0f});
+//    });
+//    //endregion
+//
+//    //region Translation
+//    input.onKey(GLFW_KEY_V, GLFW_PRESS, [&]() {
+//        myMesh.translate({0.0f, 0.f, 0.1f});
+//    });
+//    input.onKey(GLFW_KEY_B, GLFW_PRESS, [&]() {
+//        myMesh.translate({0.0f, 0.f, -0.1f});
+//    });
+//    //endregion
+//
+//    //region Scale
+//    input.onKey(GLFW_KEY_Z, GLFW_PRESS, [&]() {
+//        myMesh.scale({1.1f, 1.1f, 1.1f});
+//    });
+//
+//    input.onKey(GLFW_KEY_X, GLFW_PRESS, [&]() {
+//        myMesh.scale({0.9f, 0.9f, 0.9f});
+//    });
     //endregion
 
     input.onMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, [&]() {

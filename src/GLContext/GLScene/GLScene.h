@@ -8,6 +8,7 @@
 
 #include <glm/mat4x4.hpp>
 #include "../../elements/ElementBase/ElementBase.h"
+#include "../../elements/Mesh/Mesh.h"
 
 class GLScene {
 public:
@@ -33,6 +34,7 @@ private:
         const char *camera_position;
         const char *texture_sampler;
         const char *grid_enabled;
+        const char *light_mesh;
         const char *specular_intensity;
         const char *specular_power;
         struct {
@@ -54,6 +56,8 @@ public:
         std::vector<light::Directional> directional;
         std::vector<light::Point> point;
 //        std::vector<light::Spot> spot;
+        elements::Mesh mesh;
+        mutable elements::Mesh *meshes;
     } lights;
 
     class Grid {
@@ -129,6 +133,7 @@ public:
 
     glm::vec3 viewPosition;
 
+    void setLightMesh(const elements::Mesh &mesh);
 };
 
 

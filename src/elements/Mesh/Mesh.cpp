@@ -10,16 +10,41 @@ elements::Mesh::Mesh(const char *objFilePath, const glm::vec3 &at) : objFilePath
 }
 
 void elements::Mesh::initVertices() {
-    auto vertices = new std::vector<util::Vertex>;
-    auto ind = new std::vector<unsigned>;
-    util::loadOBJ(objFilePath, *vertices, *ind);
+    std::vector<util::Vertex> vertices;
+    std::vector<unsigned> indices;
+    util::loadOBJ(objFilePath, vertices, indices);
 
-    indexCount = ind->size();
+    indexCount = indices.size();
     indexSize = indexCount * sizeof(unsigned);
-    vertexCount = vertices->size();
+    vertexCount = vertices.size();
     vertexSize = vertexCount * util::Vertex::size;
 
-    ElementBase::vertices = &(*vertices)[0];
-    ElementBase::indices = &(*ind)[0];
+    ElementBase::vertices = new util::Vertex[vertexCount];
+    ElementBase::indices = new unsigned[indexCount];
 
+    memcpy(ElementBase::vertices, &vertices[0], vertexSize);
+    memcpy((void *)ElementBase::indices, &indices[0], indexSize);
+}
+
+elements::Mesh::Mesh(const elements::Mesh &another) : ElementBase(another), objFilePath(another.objFilePath),
+                                                      at(another.at) {
+    initBuffers();
+}
+
+void elements::Mesh::copy(elements::Mesh mesh) {
+
+}
+
+elements::Mesh &elements::Mesh::operator=(elements::Mesh other) {
+    printf("copy assignment other(%x) to this(%x)\n", &other, this);
+
+//    this->vertices = new
+
+//    VBO = other.VBO;
+
+
+    vertexSize = other.vertexSize;
+    vertices = other.vertices;
+    printf("vertices other(%x) vs this(%x)\n", this->vertices, other.vertices);
+    return *this;
 }

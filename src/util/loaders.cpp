@@ -222,6 +222,8 @@ bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices
         return false;
     }
 
+    bool textureCoordinates = false;
+
     while (true) {
         char lineHeader[128];
 
@@ -240,23 +242,35 @@ bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices
             glm::vec2 uv;
             fscanf(file, "%f %f", &uv.x, &uv.y);
             temp_uvs.push_back(uv);
+            textureCoordinates = true;
         } else if (strcmp(lineHeader, "f") == 0) {
             std::string vertex1, vertex2, vertex3;
-            unsigned int positionIndex[3], uvIndex[3], normalIndex[3];
-            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &positionIndex[0], &uvIndex[0], &normalIndex[0],
+            unsigned positionIndex[3], uvIndex[3], normalIndex[3];
+            int matches;
+
+            if (textureCoordinates) {
+                matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &positionIndex[0], &uvIndex[0], &normalIndex[0],
                                  &positionIndex[1], &uvIndex[1], &normalIndex[1], &positionIndex[2], &uvIndex[2],
                                  &normalIndex[2]);
-            if (matches != 9) {
-                printf("Couldn't parse %s\n", filePath);
-                return false;
+                if (matches != 9) {
+                    printf("Couldn't parse %s\n", filePath);
+                    return false;
+                }
+            } else {
+                matches = fscanf(file, "%d//%d %d//%d %d//%d\n", &positionIndex[0], &normalIndex[0],
+                                 &positionIndex[1], &normalIndex[1], &positionIndex[2], &normalIndex[2]);
+                if (matches != 6) {
+                    printf("Couldn't parse %s\n", filePath);
+                    return false;
+                }
+
+                uvIndex[0] = uvIndex[1] = uvIndex[2] = 0;
             }
 
-
             for (ust i = 0; i < 3; i++) {
-
                 Vertex v(temp_positions[positionIndex[i] - 1],
                          temp_normals[normalIndex[i] - 1],
-                         temp_uvs[uvIndex[i] - 1]);
+                         (uvIndex[i] == 0 ? glm::vec2(0.f) : temp_uvs[uvIndex[i] - 1]));
 
                 bool found = false;
                 unsigned j;
@@ -270,10 +284,10 @@ bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices
                 if (!found) {
                     out_indices.push_back(j);
                 }
-//
+
                 out_vertices.emplace_back(Vertex(temp_positions[positionIndex[i] - 1],
                                                  temp_normals[normalIndex[i] - 1],
-                                                 temp_uvs[uvIndex[i] - 1]));
+                                                 (uvIndex[i] == 0 ? glm::vec2(0.f) : temp_uvs[uvIndex[i] - 1])));
             }
         }
     }

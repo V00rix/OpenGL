@@ -38,6 +38,10 @@ namespace elements {
         virtual void initBuffers();
 
     public:
+        ElementBase();
+
+        ElementBase(const ElementBase&);
+
         virtual ~ElementBase();
 
         virtual void render() const;
@@ -47,6 +51,8 @@ namespace elements {
         void translate(const glm::vec3 &);
 
         void scale(const glm::vec3 &);
+
+        void setPosition(const glm::vec3&);
     };
 }
 

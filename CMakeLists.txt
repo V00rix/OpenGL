@@ -57,7 +57,7 @@ set(util
         src/util/Vertex.cpp)
 
 add_executable(OpenGL src/main.cpp
-        "${includes}" ${util})
+        "${includes}" ${util} src/GLContext/GLScene/grid.cpp)
 
 target_link_libraries(OpenGL
         ${OPENGL_LIBRARY}

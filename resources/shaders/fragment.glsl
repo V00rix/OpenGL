@@ -46,6 +46,7 @@ uniform vec3 camera_position;
 uniform float specular_intensity;
 uniform float specular_power;
 uniform bool grid_enabled;
+uniform bool light_mesh;
 
 vec3 calculateDirectionalLight(BaseLight light, vec3 direction, vec3 normal) {
     // calculate ambient property
@@ -86,7 +87,7 @@ vec3 calculatePointLight(Point light, vec3 normal) {
 }
 
 void main(){
-    if (grid_enabled) {
+    if (grid_enabled || light_mesh) {
         color = vec4(1);
     } else {
         vec3 normal = normalize(model_normal);

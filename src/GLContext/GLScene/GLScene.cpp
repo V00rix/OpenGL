@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "GLScene.h"
 
+static int u_light_mesh;
+
 static void printVertex(const glm::vec3 &vertex) {
     std::cout << "\tPosition at: {" << vertex.x << ", " << vertex.y << ", " << vertex.z << "}\n";
 }
@@ -15,7 +17,7 @@ void GLScene::render() const {
         glUniform1i(u_grid, true);
         grid.render();
     }
-        glUniform1i(u_grid, false);
+    glUniform1i(u_grid, false);
 
     const Element *el = head;
 
@@ -23,6 +25,14 @@ void GLScene::render() const {
         el->element.render();
         el = el->next;
     }
+
+    // render light meshes
+//    glUniform1i(u_light_mesh, true);
+//    for (int i = 0; i < lights.point.size(); i++) {
+//        lights.meshes[i].render();
+//    }
+//    glUniform1i(u_light_mesh, false);
+
 }
 
 void GLScene::addElement(const elements::ElementBase &element) {
@@ -37,6 +47,7 @@ void GLScene::addElement(const elements::ElementBase &element) {
 
 GLScene::~GLScene() {
     delete head;
+    delete[] lights.meshes;
 }
 
 void GLScene::afterRender() const {
@@ -94,6 +105,10 @@ void GLScene::beforeRender() const {
     int u_camera_position = glGetUniformLocation(program, uniforms.camera_position);
     glUniform3f(u_camera_position, viewPosition.x, viewPosition.y, viewPosition.z);
 
+
+    u_light_mesh = glGetUniformLocation(program, uniforms.light_mesh);
+
+    // set directional lights
     for (auto i = 0; i != lights.directional.size(); i++) {
         std::string s = uniforms.lights.directional;
         s += "[";
@@ -102,12 +117,22 @@ void GLScene::beforeRender() const {
         light::uni::setDirectional(light::uni::getDirectional(program, s.c_str()), lights.directional[i]);
     }
 
+    lights.meshes = new elements::Mesh[lights.point.size()];
+
+    // set point lights
     for (auto i = 0; i != lights.point.size(); i++) {
         std::string s = uniforms.lights.point;
         s += "[";
         s += std::to_string(i);
         s += "]";
         light::uni::setPoint(light::uni::getPoint(program, s.c_str()), lights.point[i]);
+
+//        printf("Lights -------------------\n");
+//        lights.meshes[i] = lights.mesh;
+//        printf("try and get me...\n");
+//        printf("on (%x) x = ", lights.meshes[i].)
+//                .copy(lights.mesh);
+//        lights.meshes[i].setPosition(lights.point[i].position);
     }
 }
 
@@ -124,74 +149,6 @@ void GLScene::setView(glm::vec3 position, glm::vec3 lookAt, glm::vec3 head) {
     viewPosition = position;
 }
 
-void GLScene::Grid::render() const {
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_LINES, 0, indexCount);
-}
-
-void GLScene::Grid::init() const {
-    float delta = size / ((float) precision * 2);
-
-    unsigned linePointsCount = 1 + precision * 2;
-    glm::vec3 vertices[linePointsCount * 4];
-
-    struct {
-        struct {
-            glm::vec3 left, right;
-        } bottom;
-        struct {
-            glm::vec3 left, right;
-        } top;
-
-    } start{
-            {
-                    {-size / 2, 0, -size / 2},
-                    {size / 2, 0, -size / 2}
-            },
-            {
-                    {-size / 2, 0, size / 2},
-                    {size / 2, 0, size / 2}
-            }
-    };
-
-    // vertical
-    indexCount = 0;
-    for (unsigned i = 0; i < linePointsCount; i++) {
-        vertices[indexCount++] = {
-                start.bottom.left.x + delta * i,
-                start.bottom.left.y,
-                start.bottom.left.z
-        };
-        vertices[indexCount++] = {
-                start.top.left.x + delta * i,
-                start.top.left.y,
-                start.top.left.z
-        };
-    }
-
-    // horizontal
-    for (unsigned i = 0; i < linePointsCount; i++) {
-        vertices[indexCount++] = {
-                start.bottom.left.x,
-                start.bottom.left.y,
-                start.bottom.left.z + delta * i
-        };
-        vertices[indexCount++] = {
-                start.bottom.right.x,
-                start.bottom.right.y,
-                start.bottom.right.z + delta * i
-        };
-    }
-
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
-
+void GLScene::setLightMesh(const elements::Mesh &mesh) {
+    lights.mesh = mesh;
 }
