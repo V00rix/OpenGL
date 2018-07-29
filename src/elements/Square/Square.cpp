@@ -6,10 +6,10 @@
 
 void elements::Square::initVertices() {
     glm::vec3 positions[4] = {
-            (glm::vec3(at.x, at.y, at.z)),                                              // 0
-            (glm::vec3(at.x + edge_length, at.y, at.z)),                                // 1
-            (glm::vec3(at.x + edge_length, at.y + edge_length, at.z)),                  // 2
-            (glm::vec3(at.x, at.y + edge_length, at.z)),                                // 3
+            (glm::vec3(0.f, 0.f, 0.f)),                                              // 0
+            (glm::vec3(edge_length, 0.f, 0.f)),                                // 1
+            (glm::vec3(edge_length, edge_length, 0.f)),                  // 2
+            (glm::vec3(0.f, edge_length, 0.f)),                                // 3
     };
 
 
@@ -28,17 +28,18 @@ void elements::Square::initVertices() {
     ElementBase::indexCount = Square::indexCount;
     ElementBase::indexSize = Square::indexSize;
     ElementBase::vertexSize = Square::vertexSize;
+    ElementBase::vertexCount = vertexCount;
 }
 
-elements::Square::Square(const glm::vec3 &at, float edge_length) : at(at), edge_length(edge_length),
-                                                                   uv(ElementBase::uv) {
+elements::Square::Square(float edge_length) : edge_length(edge_length),
+                                              uv(ElementBase::uv) {
     initVertices();
     initBuffers();
 }
 
-elements::Square::Square(const glm::vec3 &at, float edge_length, const glm::vec2 *uv) : at(at),
-                                                                                        edge_length(edge_length),
-                                                                                        uv(uv) {
+elements::Square::Square(float edge_length, const glm::vec2 *uv) :
+        edge_length(edge_length),
+        uv(uv) {
     initVertices();
     initBuffers();
 }

@@ -5,7 +5,7 @@
 #include "Cube.h"
 #include <iostream>
 
-elements::Cube::Cube(const glm::vec3 &at, float edge_length) : at(at), edge_length(edge_length) {
+elements::Cube::Cube(float edge_length) : edge_length(edge_length) {
     initVertices();
     initBuffers();
 }
@@ -13,16 +13,16 @@ elements::Cube::Cube(const glm::vec3 &at, float edge_length) : at(at), edge_leng
 void elements::Cube::initVertices() {
     glm::vec3 positions[8] = {
             // bottom square
-            (glm::vec3(at.x, at.y, at.z)),                                              // 0
-            (glm::vec3(at.x + edge_length, at.y, at.z)),                                // 1
-            (glm::vec3(at.x + edge_length, at.y, at.z + edge_length)),                  // 2
-            (glm::vec3(at.x, at.y, at.z + edge_length)),                                // 3
+            (glm::vec3(0.f, 0.f, 0.f)),                                              // 0
+            (glm::vec3(edge_length, 0.f, 0.f)),                                // 1
+            (glm::vec3(edge_length, 0.f, edge_length)),                  // 2
+            (glm::vec3(0.f, 0.f, edge_length)),                                // 3
 
             // top square
-            (glm::vec3(at.x, at.y + edge_length, at.z)),                                // 4
-            (glm::vec3(at.x + edge_length, at.y + edge_length, at.z)),                  // 5
-            (glm::vec3(at.x + edge_length, at.y + edge_length, at.z + edge_length)),    // 6
-            (glm::vec3(at.x, at.y + edge_length, at.z + edge_length)),                  // 7
+            (glm::vec3(0.f, edge_length, 0.f)),                                // 4
+            (glm::vec3(edge_length, edge_length, 0.f)),                  // 5
+            (glm::vec3(edge_length, edge_length, edge_length)),    // 6
+            (glm::vec3(0.f, edge_length, edge_length)),                  // 7
     };
 
     glm::vec3 normals[6]{

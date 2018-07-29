@@ -4,7 +4,7 @@
 
 #include "Mesh.h"
 
-elements::Mesh::Mesh(const char *objFilePath, const glm::vec3 &at) : objFilePath(objFilePath), at(at) {
+elements::Mesh::Mesh(const char *objFilePath) : objFilePath(objFilePath) {
     initVertices();
     initBuffers();
 }

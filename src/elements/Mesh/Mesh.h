@@ -12,15 +12,13 @@ namespace elements {
     class Mesh : public ElementBase {
         const char *objFilePath;
 
-        glm::vec3 at;
-
         void initVertices() override;
 
     public:
 
-        Mesh(const char *objFilePath, const glm::vec3 &at);
+        explicit Mesh(const char *objFilePath);
 
-        Mesh() : ElementBase(), objFilePath(nullptr), at(glm::vec3(0.f)) {}
+        Mesh() : ElementBase(), objFilePath(nullptr) {}
 
         void set(const Mesh &other);
     };

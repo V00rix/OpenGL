@@ -15,13 +15,14 @@ namespace elements {
         static const unsigned indexCount = 3 * 2 * 6;  // 3 indices per triangle
         static const unsigned indexSize = indexCount * sizeof(unsigned);
 
-        const glm::vec3 at;
         const float edge_length;
 
         void initVertices() override;
 
     public:
-        Cube(const glm::vec3 &at, float edge_length);
+        explicit Cube(float edge_length);
+
+        Cube() : ElementBase(), edge_length(0) {}
     };
 }
 

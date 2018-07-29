@@ -17,15 +17,14 @@ namespace elements {
 
         const glm::vec2 *uv;
 
-        const glm::vec3 at;
         const float edge_length;
 
         void initVertices() override;
 
     public:
-        Square(const glm::vec3 &, float);
+        explicit Square(float);
 
-        Square(const glm::vec3 &, float, const glm::vec2*);
+        Square(float, const glm::vec2*);
     };
 
 }

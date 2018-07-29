@@ -64,6 +64,7 @@ void ElementBase::render() const {
 void ElementBase::rotate(float angle, const glm::vec3 &direction) {
     TRANSL(for (int i = 0; i < vertexCount; i++) {
         vertices[i].position = glm::rotate(vertices[i].position, angle, direction);
+        vertices[i].normal = glm::rotate(vertices[i].normal, angle, direction);
     })
 
     applyVertexTransform();
@@ -72,7 +73,7 @@ void ElementBase::rotate(float angle, const glm::vec3 &direction) {
 void ElementBase::translate(const glm::vec3 &to) {
     translation += to;
 
-    for (int i = 0; i < vertexCount; i++) {
+    for (unsigned i = 0; i < vertexCount; i++) {
         vertices[i].position += to;
     }
 
@@ -97,15 +98,10 @@ void printPosition(const glm::vec3 &pos) {
 }
 
 void ElementBase::setPosition(const glm::vec3 &position) {
-    printf("\t\tposition = ");
     printPosition(position);
     for (int i = 0; i < vertexCount; i++) {
-//        printf("before: ");
-//        printPosition(vertices[i].position);
         vertices[i].position -= translation;
         vertices[i].position += position;
-//        printf("after: ");
-//        printPosition(vertices[i].position);
     }
 
     translation = position;
