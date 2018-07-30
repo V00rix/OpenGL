@@ -4,20 +4,31 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include "GLScene.h"
+#include <glfw3.h>
 
 static int u_light_mesh;
+static int u_grid;
+static int u_world;
+static int u_view;
+static int u_projection;
+static int u_point_index;
+static int u_directional_index;
 
 static void printVertex(const glm::vec3 &vertex) {
     std::cout << "\tPosition at: {" << vertex.x << ", " << vertex.y << ", " << vertex.z << "}\n";
 }
 
 void GLScene::render() const {
-    int u_grid = glGetUniformLocation(program, uniforms.grid_enabled);
+    renderFunc();
+    glUniformMatrix4fv(u_world, 1, GL_FALSE, &world.mat[0][0]);
+    glUniformMatrix4fv(u_view, 1, GL_FALSE, &view.mat[0][0]);
+    glUniformMatrix4fv(u_projection, 1, GL_FALSE, &projection.mat[0][0]);
+
     if (renderGrid) {
         glUniform1i(u_grid, true);
         grid.render();
+        glUniform1i(u_grid, false);
     }
-    glUniform1i(u_grid, false);
 
     const Element *el = head;
 
@@ -29,6 +40,7 @@ void GLScene::render() const {
     // render light meshes
     glUniform1i(u_light_mesh, true);
     for (int i = 0; i < lights.point.size(); i++) {
+        glUniform1i(u_point_index, i);
         lights.meshes[i].render();
     }
     glUniform1i(u_light_mesh, false);
@@ -75,13 +87,16 @@ void GLScene::beforeRender() const {
         grid.init();
     }
 
-    int u_world = glGetUniformLocation(program, uniforms.matrix_world);
+
+    u_grid = glGetUniformLocation(program, uniforms.grid_enabled);
+
+    u_world = glGetUniformLocation(program, uniforms.matrix_world);
     glUniformMatrix4fv(u_world, 1, GL_FALSE, &world.mat[0][0]);
 
-    int u_view = glGetUniformLocation(program, uniforms.matrix_view);
+    u_view = glGetUniformLocation(program, uniforms.matrix_view);
     glUniformMatrix4fv(u_view, 1, GL_FALSE, &view.mat[0][0]);
 
-    int u_projection = glGetUniformLocation(program, uniforms.matrix_projection);
+    u_projection = glGetUniformLocation(program, uniforms.matrix_projection);
     glUniformMatrix4fv(u_projection, 1, GL_FALSE, &projection.mat[0][0]);
 
     int u_directional_count = glGetUniformLocation(program, uniforms.lights.directional_count);
@@ -107,6 +122,8 @@ void GLScene::beforeRender() const {
 
 
     u_light_mesh = glGetUniformLocation(program, uniforms.light_mesh);
+    u_point_index = glGetUniformLocation(program, uniforms.lights.point_index);
+    u_directional_index = glGetUniformLocation(program, uniforms.lights.directional_index);
 
     // set directional lights
     for (auto i = 0; i != lights.directional.size(); i++) {

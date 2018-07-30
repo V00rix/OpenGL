@@ -25,7 +25,7 @@ class GLWindow {
     bool initGLEW();
 
 public:
-
+    bool limitCursor = false;
     /**
      * OpenGL profile to create the context for
      */

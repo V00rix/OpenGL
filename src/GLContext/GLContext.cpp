@@ -139,7 +139,6 @@ void GLContext::attachScene(const GLScene *scene) {
 void GLContext::render() {
     scene->beforeRender();
 
-
     double lastTime = glfwGetTime();
     int frames = 0;
 

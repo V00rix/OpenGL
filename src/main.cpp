@@ -44,33 +44,34 @@ static void printArray(int *arr, int count) {
 }
 
 int main() {
-    GLWindow context;
+    GLWindow window;
     GLScene scene;
 
-    context = GLWindow();
     /* Create OpenGL window */
-    context.debug = true;
-    context.window.height = 768;
-    context.window.width = 1024;
-    context.window.title = "OpenGL";
-    context.init();
+    window = GLWindow();
+    window.debug = true;
+    window.limitCursor = true;
+    window.window.height = 1468;
+    window.window.width = 2024;
+    window.window.title = "OpenGL";
+    window.init();
 
     /* Create rendering context */
-    GLContext window(&context);
-    window.printFps = true;
+    GLContext context(&window);
+    context.printFps = true;
 
     // Set shaders
-    unsigned program = window.createProgram("resources/shaders/vertex.glsl",
-                                            nullptr,
-                                            "resources/shaders/fragment.glsl");
-    window.useProgram(program);
+    unsigned program = context.createProgram("resources/shaders/vertex.glsl",
+                                             nullptr,
+                                             "resources/shaders/fragment.glsl");
+    context.useProgram(program);
 
     // Load textures
     std::vector<unsigned> textures = {
-            window.loadTexture("resources/textures/ascensionLogo.bmp"),
-            window.loadTexture("resources/fonts/font.bmp"),
-            window.loadTexture("resources/textures/ascensionLogo.dds"),
-            window.loadTexture("resources/textures/sampleTexture.dds"),
+            context.loadTexture("resources/textures/ascensionLogo.bmp"),
+            context.loadTexture("resources/fonts/font.bmp"),
+            context.loadTexture("resources/textures/ascensionLogo.dds"),
+            context.loadTexture("resources/textures/sampleTexture.dds"),
     };
 
     /* Configure scene */
@@ -131,21 +132,97 @@ int main() {
                     .directional = "directional_lights",
                     .point_count = "point_lights_count",
                     .point = "point_lights",
+                    .point_index = "point_index",
+                    .directional_index = "directional_index",
             }
     };
 
+    float cameraSpeed = 0.05f;
+    float deltaTime, lastTime = deltaTime = 0.f;
+    scene.onRender([&]() {
+        auto currentTime = (float) glfwGetTime();
+        deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+        cameraSpeed = 2.5f * deltaTime;
+    });
+
     // Complete scene configuration
-    window.attachScene(&scene);
+    context.attachScene(&scene);
 
     /* Configure input */
-    GLInputHandler input(context.window.ref);
+    GLInputHandler input(window.window.ref);
     input.onKey(GLFW_KEY_ESCAPE, GLFW_PRESS, [&]() {
-        window.breakLoop();
+        context.breakLoop();
     });
 
-    input.onKey(GLFW_KEY_P, GLFW_PRESS, [&]() {
-        printf("P key is pressed\n");
+
+    glm::vec3 cameraPos(1.f, 3.f, 5.5f);
+    glm::vec3 cameraFront(0.f, 0.f, -1.f);
+    glm::vec3 cameraUp(0.f, 1.f, 0.f);
+    scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
+    // Camera movement
+    input.onKey(GLFW_KEY_W, GLFW_PRESS, [&]() {
+        cameraPos += cameraSpeed * (cameraFront);
+        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
     });
+    input.onKey(GLFW_KEY_S, GLFW_PRESS, [&]() {
+        cameraPos -= cameraSpeed * (cameraFront);
+        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
+    });
+    input.onKey(GLFW_KEY_A, GLFW_PRESS, [&]() {
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
+    });
+    input.onKey(GLFW_KEY_D, GLFW_PRESS, [&]() {
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
+    });
+
+
+    float sensitivity = 0.05f;
+
+
+    float lastX = window.window.width / 2.f;
+    float lastY = window.window.height / 2.f;
+    float yaw = -105.f, pitch = -25.0f;
+
+    bool firstMouse = true;
+    input.onCursor([&](int xPos, int yPos) {
+        if (firstMouse) {
+            lastX = xPos;
+            lastY = yPos;
+            firstMouse = false;
+        }
+
+        float xOffset = xPos - lastX;
+        float yOffset = lastY - yPos;
+        lastX = xPos;
+        lastY = yPos;
+
+        xOffset *= sensitivity;
+        yOffset *= sensitivity;
+
+        yaw += xOffset;
+        pitch += yOffset;
+
+        if (pitch > 89.0f)
+            pitch = 89.0f;
+        if (pitch < -89.0f)
+            pitch = -89.0f;
+
+        glm::vec3 front;
+        front.x = (float) (cos(glm::radians(yaw)) * cos(glm::radians(pitch)));
+        front.y = (float) sin(glm::radians(pitch));
+        front.z = (float) (sin(glm::radians(yaw)) * cos(glm::radians(pitch)));
+        cameraFront = glm::normalize(front);
+
+        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
+    });
+
+    input.onMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, [&]() {
+        printf("Left mouse button is pressed\n");
+    });
+
 
     //region Rotation
     input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {
@@ -183,14 +260,11 @@ int main() {
     });
     //endregion
 
-    input.onMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, [&]() {
-        printf("Left mouse button is pressed\n");
-    });
 
-    window.setInputHandler(&input);
+    context.setInputHandler(&input);
 
     /* Enter rendering loop */
-    window.render();
+    context.render();
 
     return 0;
 }

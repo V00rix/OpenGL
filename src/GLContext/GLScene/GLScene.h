@@ -7,6 +7,7 @@
 
 
 #include <glm/mat4x4.hpp>
+#include <functional>
 #include "../../elements/ElementBase/ElementBase.h"
 #include "../../elements/Mesh/Mesh.h"
 
@@ -42,6 +43,8 @@ private:
             const char *directional;
             const char *point_count;
             const char *point;
+            const char *point_index;
+            const char *directional_index;
         } lights;
     };
 
@@ -51,6 +54,7 @@ private:
 
     Element *head = nullptr;
     Element *tail = head;
+    std::function<void()> renderFunc;
 public:
     struct Lights {
         std::vector<light::Directional> directional;
@@ -134,6 +138,8 @@ public:
     glm::vec3 viewPosition;
 
     void setLightMesh(const elements::Mesh &mesh);
+
+    inline void onRender(const std::function<void()> &renderFunc) { this->renderFunc = renderFunc; }
 };
 
 

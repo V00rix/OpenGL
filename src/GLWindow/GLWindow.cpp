@@ -42,6 +42,11 @@ GLWindow *GLWindow::init() {
         return nullptr;
     }
 
+
+    if (limitCursor) {
+        glfwSetInputMode(window.ref, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
     if (debug) {
         std::cout << "Debug output enabled" << std::endl;
         glEnable(GL_DEBUG_OUTPUT);
