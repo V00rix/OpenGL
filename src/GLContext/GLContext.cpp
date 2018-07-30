@@ -124,6 +124,10 @@ unsigned GLContext::loadTexture(const char *filePath) {
 void GLContext::useProgram(unsigned int program) {
     this->program = program;
     glUseProgram(program);
+    if (scene) {
+        scene->program = program;
+        scene->beforeRender();
+    }
 }
 
 const GLScene *GLContext::getScene() const {
@@ -152,7 +156,7 @@ void GLContext::render() {
             }
         }
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         (*inputHandler).processInput();
         (*scene).render();
         glfwSwapBuffers((*context).window.ref);

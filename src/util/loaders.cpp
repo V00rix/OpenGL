@@ -95,50 +95,57 @@ unsigned util::loadDDS(const char *filePath) {
     return textureID;
 }
 
-unsigned util::loadBMP(const char *filePath) {
+
+static bool loadBMPData(const char *filePath, unsigned char **data, unsigned int *width, unsigned int *height) {
     // Data read from the header of the BMP file
     unsigned char header[54]; // Each BMP file begins by a 54-bytes header
     unsigned int dataPos;     // Position in the file where the actual data begins
-    unsigned int width, height;
     unsigned int imageSize;   // = width*height*3
-    // Actual RGB data
-    unsigned char *data;
 
     // Open the file
     FILE *file = fopen(filePath, "rb");
     if (!file) {
         printf("Image could not be opened\n");
-        return 0;
+        return false;
     }
 
     if (fread(header, 1, 54, file) != 54) { // If not 54 bytes read : problem
         printf("Not a correct BMP file\n");
-        return 0;
+        return false;
     }
 
     if (header[0] != 'B' || header[1] != 'M') {
         printf("Not a correct BMP file\n");
-        return 0;
+        return false;
     }
 
     // Read ints from the byte array
     dataPos = *(unsigned *) &(header[0x0A]);
     imageSize = *(unsigned *) &(header[0x22]);
-    width = *(unsigned *) &(header[0x12]);
-    height = *(unsigned *) &(header[0x16]);
+    *width = *(unsigned *) &(header[0x12]);
+    *height = *(unsigned *) &(header[0x16]);
 
     // Some BMP files are misformatted, guess missing information
-    if (imageSize == 0) imageSize = width * height * 3; // 3 : one byte for each Red, Green and Blue component
+    if (imageSize == 0) imageSize = *width * *height * 3; // 3 : one byte for each Red, Green and Blue component
     if (dataPos == 0) dataPos = 54; // The BMP header is done that way
 
     // Create a buffer
-    data = new unsigned char[imageSize];
+    *data = new unsigned char[imageSize];
 
     // Read the actual data from the file into the buffer
-    fread(data, 1, imageSize, file);
+    fread(*data, 1, imageSize, file);
 
     //Everything is in memory now, the file can be closed
     fclose(file);
+
+    return true;
+}
+
+unsigned util::loadBMP(const char *filePath) {
+
+    unsigned int width, height;
+    unsigned char *data;
+    loadBMPData(filePath, &data, &width, &height);
 
     // Create one OpenGL texture
     GLuint textureID;
@@ -154,8 +161,11 @@ unsigned util::loadBMP(const char *filePath) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+    delete[] data;
+
     return textureID;
 }
+
 
 bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices) {
     std::vector<glm::vec3> temp_positions;
@@ -295,4 +305,33 @@ bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices
     fclose(file);
 
     return true;
+}
+
+
+unsigned util::loadSkyBoxBMP(const char *filePath) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+    const char *const faces[6] = {
+            "right", "left", "up", "down", "back", "front"
+    };
+
+    auto path = std::string(filePath);
+    unsigned width, height;
+    unsigned char *data;
+    for (ust i = 0; i < 6; i++) {
+        printf("%s\n", path + faces[i]);
+        loadBMPData(((path + faces[i]) + ".bmp").c_str(), &data, &width, &height);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        delete[] data;
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return textureID;
 }

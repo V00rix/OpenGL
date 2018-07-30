@@ -53,6 +53,7 @@ namespace util {
     unsigned loadDDS(const char *);
 
     unsigned loadBMP(const char *);
+    unsigned loadSkyBoxBMP(const char *);
 
     bool loadOBJ(const char *,
                  std::vector<Vertex> &);

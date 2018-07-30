@@ -58,7 +58,7 @@ private:
     Element *head = nullptr;
     Element *tail = head;
     std::function<void()> renderFunc;
-    unsigned currentTextureIndex  = 0;
+    unsigned currentTextureIndex = 0;
 public:
     struct Lights {
         std::vector<light::Directional> directional;
@@ -101,6 +101,7 @@ public:
     bool blend = true;
     bool cullFace = true;
     bool spotlight = false;
+    bool stencilTest = false;
 
     Uniforms uniforms;
 
@@ -117,6 +118,7 @@ public:
 
         void rotate();
     } world, view, projection;
+
 
     inline Element *getElements() const { return head; }
 
@@ -149,6 +151,7 @@ public:
     inline void onRender(const std::function<void()> &renderFunc) { this->renderFunc = renderFunc; }
 
     void addSpotlight(light::Spot spot);
+
 };
 
 

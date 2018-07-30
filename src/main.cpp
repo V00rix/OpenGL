@@ -59,12 +59,17 @@ int main() {
     /* Create rendering context */
     GLContext context(&window);
     context.printFps = true;
-
     // Set shaders
-    unsigned program = context.createProgram("resources/shaders/vertex.glsl",
-                                             nullptr,
-                                             "resources/shaders/fragment.glsl");
-    context.useProgram(program);
+    unsigned programs[] {
+            context.createProgram("resources/shaders/vertex.glsl",
+                                  nullptr,
+                                  "resources/shaders/fragment.glsl"),
+            context.createProgram("resources/shaders/vertex.glsl",
+                                  nullptr,
+                                  "resources/shaders/stencil.glsl")
+    };
+
+    context.useProgram(programs[0]);
 
     // Load textures
     std::vector<unsigned> textures = {
@@ -78,6 +83,7 @@ int main() {
     /* Configure scene */
     scene.grid = GLScene::Grid(10.f, 10);
     scene.renderGrid = true;
+    scene.stencilTest = true;
 
     // Add elements
     elements::Cube myCube(.5f);
@@ -92,10 +98,12 @@ int main() {
     myMesh.translate({0.f, .5f, .0f});
     elements::Mesh myLightMesh("resources/meshes/sphere.obj");
     myLightMesh.scale({.25f, .25f, .25f});
-    scene.addElement(myCube);
+//    scene.addElement(myCube);
 //    scene.addElement(myCube2);
     scene.addElement(mySquare);
     scene.addElement(myMesh);
+
+    unsigned skybox = util::loadSkyBoxBMP("resources/textures/skyboxes/mp_jasper/");
 
     // Add lights
     scene.setLightMesh(myLightMesh);
@@ -259,6 +267,22 @@ int main() {
             shouldChange = false;
         }
     });
+    //endregion
+
+    unsigned prg = 0;
+    //region Program change
+    bool changeProgram = true;
+    input.onKey(GLFW_KEY_P, GLFW_PRESS, [&]() {
+        if (changeProgram) {
+            context.useProgram(programs[++prg % 2]);
+            changeProgram = false;
+        }
+    });
+    input.onKey(GLFW_KEY_P, GLFW_RELEASE, [&]() {
+        changeProgram = true;
+    });
+
+
     //endregion
 
     //region Rotation

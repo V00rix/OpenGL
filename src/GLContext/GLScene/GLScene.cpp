@@ -79,6 +79,12 @@ void GLScene::beforeRender() const {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
+    if (stencilTest) {
+//        glEnable(GL_STENCIL_TEST);
+//        glStencilMask(0xFF); // each bit is written to the stencil buffer as is
+//        glStencilMask(0x00);
+//        glStencilFunc(GL_EQUAL, 1, 0xFF);
+    }
 
     if (cullFace) {
         glEnable(GL_CULL_FACE);
