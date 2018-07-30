@@ -39,12 +39,15 @@ private:
         const char *specular_intensity;
         const char *specular_power;
         struct {
-            const char *directional_count;
             const char *directional;
-            const char *point_count;
-            const char *point;
-            const char *point_index;
+            const char *directional_count;
             const char *directional_index;
+            const char *point;
+            const char *point_count;
+            const char *point_index;
+            const char *spot;
+            const char *spot_count;
+            const char *spot_index;
         } lights;
     };
 
@@ -60,7 +63,7 @@ public:
     struct Lights {
         std::vector<light::Directional> directional;
         std::vector<light::Point> point;
-//        std::vector<light::Spot> spot;
+        std::vector<light::Spot> spot;
         elements::Mesh mesh;
         mutable elements::Mesh *meshes;
     } lights;
@@ -97,6 +100,7 @@ public:
     bool depthTest = true;
     bool blend = true;
     bool cullFace = true;
+    bool spotlight = false;
 
     Uniforms uniforms;
 
@@ -144,7 +148,7 @@ public:
 
     inline void onRender(const std::function<void()> &renderFunc) { this->renderFunc = renderFunc; }
 
-
+    void addSpotlight(light::Spot spot);
 };
 
 

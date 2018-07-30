@@ -102,9 +102,15 @@ int main() {
     light::Directional sun({glm::vec3(1.f, .0f, .0f), .1f, .2f}, {-1.f, -.5f, .3f});
     light::Point p1({glm::vec3(2.f), .01f, 1.f}, glm::vec3(1.5f, 2.f, 0.0f), {1.f, .01f, .015f});
     light::Point p2({glm::vec3(.3f, 1.f, .4f), .1f, 2.f}, glm::vec3(-1.5f, 1.f, 0.0f), {1.f, .01f, .015f});
+    light::Spot spotLight(light::Point({glm::vec3(1.f, 0.f, .4f), .1f, 1.f},
+                                       glm::vec3(2.f, 0.5f, 0.0f),
+                                       {1.f, .01f, .015f}),
+                          {-1.f, -1.f, 0.f},
+                          0.8f);
 //    scene.addLight(sun);
     scene.addLight(p1);
     scene.addLight(p2);
+    scene.addSpotlight(spotLight);
 
     // Configure matrices
     scene.setView(
@@ -129,12 +135,15 @@ int main() {
             .specular_intensity = "specular_intensity", // todo: belongs to objects and materials
             .specular_power = "specular_power", // todo: belongs to objects and materials
             .lights = {
-                    .directional_count = "directional_lights_count",
                     .directional = "directional_lights",
-                    .point_count = "point_lights_count",
-                    .point = "point_lights",
-                    .point_index = "point_index",
+                    .directional_count = "directional_lights_count",
                     .directional_index = "directional_index",
+                    .point = "point_lights",
+                    .point_count = "point_lights_count",
+                    .point_index = "point_index",
+                    .spot = "spot_lights",
+                    .spot_count = "spot_lights_count",
+                    .spot_index = "spot_index",
             }
     };
 
@@ -152,16 +161,32 @@ int main() {
 
     /* Configure input */
     GLInputHandler input(window.window.ref);
+
+    //region Exit button
     input.onKey(GLFW_KEY_ESCAPE, GLFW_PRESS, [&]() {
         context.breakLoop();
     });
+    //endregion
 
+    //region Spotlight
+    bool changeSpotlight = true;
+    input.onKey(GLFW_KEY_L, GLFW_PRESS, [&]() {
+        if (changeSpotlight) {
+            scene.spotlight = !scene.spotlight;
+            changeSpotlight = false;
+        }
+    });
+    input.onKey(GLFW_KEY_L, GLFW_RELEASE, [&]() {
+        changeSpotlight = true;
+    });
+    //endregion
+
+    //region Camera movement
     glm::vec3 cameraPos(1.f, 3.f, 5.5f);
     glm::vec3 cameraFront(0.f, 0.f, -1.f);
     glm::vec3 cameraUp(0.f, 1.f, 0.f);
-
     scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
-    // Camera movement
+
     input.onKey(GLFW_KEY_W, GLFW_PRESS, [&]() {
         cameraPos += cameraSpeed * (cameraFront);
         scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
@@ -219,12 +244,9 @@ int main() {
 
         scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
     });
+    //endregion
 
-    input.onMouse(GLFW_MOUSE_BUTTON_LEFT, GLFW_PRESS, [&]() {
-        printf("Left mouse button is pressed\n");
-    });
-
-
+    //region Texture change
     int texture = 0;
     bool shouldChange = true;
     input.onKey(GLFW_KEY_T, GLFW_RELEASE, [&]() {
@@ -236,6 +258,8 @@ int main() {
             shouldChange = false;
         }
     });
+    //endregion
+
     //region Rotation
     input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {
         mySquare.rotate(.1f, {1.0f, 0.0f, 0.0f});
@@ -271,7 +295,6 @@ int main() {
         myMesh.scale({0.9f, 0.9f, 0.9f});
     });
     //endregion
-
 
     context.setInputHandler(&input);
 

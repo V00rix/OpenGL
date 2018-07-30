@@ -61,3 +61,19 @@ void light::uni::setPoint(const light::uni::u_point &uniform, const light::Point
     glUniform1f(uniform.attenuation.linear, light.attenuation.linear);
     glUniform1f(uniform.attenuation.exponential, light.attenuation.exponential);
 }
+
+light::uni::u_spot light::uni::getSpot(GLuint shader, const char *uniform_name) {
+    std::string u_name = std::string(uniform_name);
+
+    return {
+            getPoint(shader,  (u_name + ".point").c_str()),
+            glGetUniformLocation(shader, (u_name + ".direction").c_str()),
+            glGetUniformLocation(shader, (u_name + ".cutoff").c_str())
+    };
+}
+
+void light::uni::setSpot(const light::uni::u_spot &uniform, const light::Spot &light) {
+    setPoint(uniform, light);
+    glUniform3f(uniform.direction, light.direction.x, light.direction.y, light.direction.z);
+    glUniform1f(uniform.cutoff, light.cutoff);
+}

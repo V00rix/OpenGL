@@ -2,6 +2,7 @@
 
 const int MAX_POINT_LIGHTS = 2;
 const int MAX_DIRECTIONAL_LIGHTS = 2;
+const int MAX_SPOT_LIGHTS = 2;
 
 in vec2 UV;
 in vec3 model_normal;
@@ -33,20 +34,35 @@ struct Point {
     vec3 position;
 };
 
+struct Spot {
+    Point point;
+    vec3 direction;
+    float cutoff;
+};
+
 uniform int point_lights_count;
 uniform Point[MAX_POINT_LIGHTS] point_lights;
+uniform int point_index;
 
 uniform int directional_lights_count;
 uniform Directional[MAX_DIRECTIONAL_LIGHTS] directional_lights;
+uniform int directional_index;
+
+
+uniform int spot_lights_count;
+uniform Spot[MAX_SPOT_LIGHTS] spot_lights;
+uniform int spot_index;
 
 uniform sampler2D texture_sampler;
 
 uniform vec3 camera_position;
-uniform int point_index;
-uniform int directional_index;
+
+
 uniform float specular_intensity;
 uniform float specular_power;
+
 uniform bool grid_enabled;
+
 uniform bool light_mesh;
 
 vec3 calculateDirectionalLight(BaseLight light, vec3 direction, vec3 normal) {
@@ -87,6 +103,17 @@ vec3 calculatePointLight(Point light, vec3 normal) {
     return calculateDirectionalLight(light.base, direction, normal) / attenuation;
 }
 
+vec3 calculateSpotLight(Spot light, vec3 normal) {
+    vec3 lightToPixel = normalize(model_position - light.point.position);
+    float spotFactor = dot(lightToPixel, light.direction);
+
+    if (spotFactor > light.cutoff) {
+        return calculatePointLight(light.point, normal)* (1.0 - (1.0 - spotFactor) * 1.0/(1.0 - light.cutoff));
+    }
+
+    return vec3(0);
+}
+
 void main(){
     if (grid_enabled) {
         color = vec4(.3f);
@@ -109,6 +136,12 @@ void main(){
 
         for (int i = 0; i < count; i++) {
             totalLight += calculatePointLight(point_lights[i], normal);
+        }
+
+        count = min(spot_lights_count, MAX_SPOT_LIGHTS);
+
+        for (int i = 0; i < count; i++) {
+            totalLight += calculateSpotLight(spot_lights[i], normal);
         }
 
         color = texture2D(texture_sampler, UV.xy) * vec4(totalLight, 1.f);

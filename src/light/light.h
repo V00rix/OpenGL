@@ -38,8 +38,17 @@ namespace light {
                                                                                              attenuation(attenuation) {}
     };
 
-    struct Spot : Base {
+    struct Spot : Point {
+        glm::vec3 direction;
+        float cutoff;
 
+        Spot(const Point &point, const glm::vec3 direction, float cutoff) : Point({point.color,
+                                                                                   point.ambientIntensity,
+                                                                                   point.diffuseIntensity},
+                                                                                  point.position,
+                                                                                  point.attenuation),
+                                                                            direction(direction),
+                                                                            cutoff(cutoff) {}
     };
 
     namespace uni {
@@ -67,13 +76,27 @@ namespace light {
             int position;
         };
 
+        struct u_spot : u_point {
+            int direction;
+            int cutoff;
+
+            u_spot(const u_point& p, int dir, int cutoff) : u_point(p), direction(dir), cutoff(cutoff) {}
+        };
+
         u_directional getDirectional(GLuint, const char *);
+
         u_directional getDirectional(GLuint, std::string);
+
         void setDirectional(const u_directional &, const light::Directional &);
 
         u_point getPoint(GLuint, const char *);
 
         void setPoint(const u_point &, const light::Point &);
+
+        light::uni::u_spot getSpot(GLuint, const char*);
+
+        void setSpot(const u_spot &, const light::Spot &);
+
     }
 
 }

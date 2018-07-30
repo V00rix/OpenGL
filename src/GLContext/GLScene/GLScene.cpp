@@ -106,6 +106,9 @@ void GLScene::beforeRender() const {
     int u_point_count = glGetUniformLocation(program, uniforms.lights.point_count);
     glUniform1i(u_point_count, lights.point.size());
 
+    int u_spot_count = glGetUniformLocation(program, uniforms.lights.spot_count);
+    glUniform1i(u_spot_count, lights.spot.size());
+
     u_texture_sampler = glGetUniformLocation(program, uniforms.texture_sampler);
     glUniform1i(u_texture_sampler, currentTextureIndex);
 
@@ -120,7 +123,6 @@ void GLScene::beforeRender() const {
     int u_camera_position = glGetUniformLocation(program, uniforms.camera_position);
     glUniform3f(u_camera_position, viewPosition.x, viewPosition.y, viewPosition.z);
 
-
     u_light_mesh = glGetUniformLocation(program, uniforms.light_mesh);
     u_point_index = glGetUniformLocation(program, uniforms.lights.point_index);
     u_directional_index = glGetUniformLocation(program, uniforms.lights.directional_index);
@@ -134,8 +136,8 @@ void GLScene::beforeRender() const {
         light::uni::setDirectional(light::uni::getDirectional(program, s.c_str()), lights.directional[i]);
     }
 
+    // set point lights
     lights.meshes = new elements::Mesh[lights.point.size()];
-
     for (auto i = 0; i != lights.point.size(); i++) {
         std::string s = uniforms.lights.point;
         s += "[";
@@ -145,6 +147,18 @@ void GLScene::beforeRender() const {
 
         lights.meshes[i].set(lights.mesh);
         lights.meshes[i].setPosition(lights.point[i].position);
+    }
+
+    // set spot lights
+    for (auto i = 0; i != lights.spot.size(); i++) {
+        std::string s = uniforms.lights.spot;
+        s += "[";
+        s += std::to_string(i);
+        s += "]";
+        light::uni::setSpot(light::uni::getSpot(program, s.c_str()), lights.spot[i]);
+        // todo spotlight meshes
+//        lights.meshes[i].set(lights.mesh);
+//        lights.meshes[i].setPosition(lights.point[i].position);
     }
 }
 
@@ -167,5 +181,9 @@ void GLScene::setLightMesh(const elements::Mesh &mesh) {
 
 void GLScene::useTexture(unsigned index) {
     glUniform1i(u_texture_sampler, currentTextureIndex = index);
+}
+
+void GLScene::addSpotlight(light::Spot spot) {
+    this->lights.spot.push_back(spot);
 }
 
