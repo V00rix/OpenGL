@@ -82,8 +82,8 @@ void elements::Cube::initVertices() {
             20, 22, 23,
 
             // left
-            16, 17, 18,
-            16, 18, 19,
+            16, 18, 17,
+            16, 19, 18,
 
             // back
             8, 10, 9,
@@ -94,7 +94,8 @@ void elements::Cube::initVertices() {
             12, 14, 15,
     };
 
-    ElementBase::indexCount = Cube::indexCount;
-    ElementBase::indexSize = Cube::indexSize;
-    ElementBase::vertexSize = Cube::vertexSize;
+    ElementBase::indexCount = indexCount;
+    ElementBase::indexSize = indexSize;
+    ElementBase::vertexSize = vertexSize;
+    ElementBase::vertexCount = vertexCount;
 }

@@ -103,7 +103,6 @@ GLuint GLContext::createShader(GLContext::Shaders type, const char *filePath) {
 }
 
 unsigned GLContext::loadTexture(const char *filePath) {
-
     util::FExtension ext = util::getFileExtension(filePath);
 
     GLuint texture;

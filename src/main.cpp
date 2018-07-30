@@ -86,12 +86,13 @@ int main() {
 //    mySquare.rotate(45.f, {1.f, .0f, .0f});
     mySquare.rotate(-glm::half_pi<float>(), {1.0f, 0.0f, 0.0f});
     mySquare.translate({-2.5f, -1.f, 2.5f});
+    myCube.translate({1.f, 0.f, 0.f});
 //    mySquare.translate({-2.5f, -5.f, 0.f});
     elements::Mesh myMesh("resources/meshes/spaceship.obj");
     myMesh.translate({0.f, .5f, .0f});
     elements::Mesh myLightMesh("resources/meshes/sphere.obj");
     myLightMesh.scale({.25f, .25f, .25f});
-//    scene.addElement(myCube);
+    scene.addElement(myCube);
 //    scene.addElement(myCube2);
     scene.addElement(mySquare);
     scene.addElement(myMesh);
@@ -100,9 +101,9 @@ int main() {
     scene.setLightMesh(myLightMesh);
 
     light::Directional sun({glm::vec3(1.f, .0f, .0f), .1f, .2f}, {-1.f, -.5f, .3f});
-    light::Point p1({glm::vec3(2.f), .01f, 1.f}, glm::vec3(1.5f, 2.f, 0.0f), {1.f, .01f, .015f});
-    light::Point p2({glm::vec3(.3f, 1.f, .4f), .1f, 2.f}, glm::vec3(-1.5f, 1.f, 0.0f), {1.f, .01f, .015f});
-    light::Spot spotLight(light::Point({glm::vec3(1.f, 0.f, .4f), .1f, 1.f},
+    light::Point p1({glm::vec3(2.f), .01f, .3f}, glm::vec3(1.5f, 2.f, 0.0f), {1.f, .01f, .015f});
+    light::Point p2({glm::vec3(.3f, 1.f, .4f), .3f, 1.f}, glm::vec3(-1.5f, 1.f, 0.0f), {1.f, .01f, .015f});
+    light::Spot spotLight(light::Point({glm::vec3(1.f, 0.f, .4f), .05f, 1.3f},
                                        glm::vec3(2.f, 0.5f, 0.0f),
                                        {1.f, .01f, .015f}),
                           {-1.f, -1.f, 0.f},
