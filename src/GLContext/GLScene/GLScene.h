@@ -55,6 +55,7 @@ private:
     Element *head = nullptr;
     Element *tail = head;
     std::function<void()> renderFunc;
+    unsigned currentTextureIndex  = 0;
 public:
     struct Lights {
         std::vector<light::Directional> directional;
@@ -139,7 +140,11 @@ public:
 
     void setLightMesh(const elements::Mesh &mesh);
 
+    void useTexture(unsigned index);
+
     inline void onRender(const std::function<void()> &renderFunc) { this->renderFunc = renderFunc; }
+
+
 };
 
 

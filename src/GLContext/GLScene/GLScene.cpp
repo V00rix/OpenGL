@@ -13,6 +13,7 @@ static int u_view;
 static int u_projection;
 static int u_point_index;
 static int u_directional_index;
+static int u_texture_sampler;
 
 static void printVertex(const glm::vec3 &vertex) {
     std::cout << "\tPosition at: {" << vertex.x << ", " << vertex.y << ", " << vertex.z << "}\n";
@@ -105,9 +106,8 @@ void GLScene::beforeRender() const {
     int u_point_count = glGetUniformLocation(program, uniforms.lights.point_count);
     glUniform1i(u_point_count, lights.point.size());
 
-    // todo: figure out what texture sampler is
-    int u_texture_sampler = glGetUniformLocation(program, uniforms.texture_sampler);
-    glUniform1i(u_texture_sampler, 0);
+    u_texture_sampler = glGetUniformLocation(program, uniforms.texture_sampler);
+    glUniform1i(u_texture_sampler, currentTextureIndex);
 
     // todo: from material
     int u_specular_intensity = glGetUniformLocation(program, uniforms.specular_intensity);
@@ -164,3 +164,8 @@ void GLScene::setView(glm::vec3 position, glm::vec3 lookAt, glm::vec3 head) {
 void GLScene::setLightMesh(const elements::Mesh &mesh) {
     lights.mesh = mesh;
 }
+
+void GLScene::useTexture(unsigned index) {
+    glUniform1i(u_texture_sampler, currentTextureIndex = index);
+}
+

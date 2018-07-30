@@ -71,6 +71,7 @@ int main() {
             context.loadTexture("resources/textures/ascensionLogo.bmp"),
             context.loadTexture("resources/fonts/font.bmp"),
             context.loadTexture("resources/textures/ascensionLogo.dds"),
+            context.loadTexture("resources/textures/simple.bmp"),
             context.loadTexture("resources/textures/sampleTexture.dds"),
     };
 
@@ -155,10 +156,10 @@ int main() {
         context.breakLoop();
     });
 
-
     glm::vec3 cameraPos(1.f, 3.f, 5.5f);
     glm::vec3 cameraFront(0.f, 0.f, -1.f);
     glm::vec3 cameraUp(0.f, 1.f, 0.f);
+
     scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
     // Camera movement
     input.onKey(GLFW_KEY_W, GLFW_PRESS, [&]() {
@@ -224,6 +225,17 @@ int main() {
     });
 
 
+    int texture = 0;
+    bool shouldChange = true;
+    input.onKey(GLFW_KEY_T, GLFW_RELEASE, [&]() {
+        shouldChange = true;
+    });
+    input.onKey(GLFW_KEY_T, GLFW_PRESS, [&]() {
+        if (shouldChange) {
+            glBindTexture(GL_TEXTURE_2D, texture++ % textures.size() + 1);
+            shouldChange = false;
+        }
+    });
     //region Rotation
     input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {
         mySquare.rotate(.1f, {1.0f, 0.0f, 0.0f});
