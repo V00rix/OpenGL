@@ -31,7 +31,6 @@ struct Point {
     BaseLight base;
     Attenuation attenuation;
     vec3 position;
-
 };
 
 uniform int point_lights_count;
@@ -43,6 +42,8 @@ uniform Directional[MAX_DIRECTIONAL_LIGHTS] directional_lights;
 uniform sampler2D texture_sampler;
 
 uniform vec3 camera_position;
+uniform int point_index;
+uniform int directional_index;
 uniform float specular_intensity;
 uniform float specular_power;
 uniform bool grid_enabled;
@@ -91,7 +92,7 @@ void main(){
         color = vec4(.3f);
 
     } else if (light_mesh) {
-        color = vec4(1);
+       color = vec4(point_lights[point_index].base.color, 1.f);
     } else {
         vec3 normal = normalize(model_normal);
 
