@@ -6,25 +6,26 @@
 #include "GLScene.h"
 #include <glfw3.h>
 
+static unsigned uboMatrices;
+
 static void printVertex(const glm::vec3 &vertex) {
     std::cout << "\tPosition at: {" << vertex.x << ", " << vertex.y << ", " << vertex.z << "}\n";
 }
 
 void GLScene::render() const {
-
-
     glStencilMask(0x00); // make sure we don't update the stencil buffer while drawing the floor
     useProgram(&stencilProgram);
 
+    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &projection.mat[0][0]);
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4),sizeof(glm::mat4), &view.mat[0][0]);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     (*activeProgram).setMat4(uniforms.matrix_world, world.mat);
-    (*activeProgram).setMat4(uniforms.matrix_view, view.mat);
-    (*activeProgram).setMat4(uniforms.matrix_projection, projection.mat);
 
     useProgram(&program);
 
     (*activeProgram).setMat4(uniforms.matrix_world, world.mat);
-    (*activeProgram).setMat4(uniforms.matrix_view, view.mat);
-    (*activeProgram).setMat4(uniforms.matrix_projection, projection.mat);
 
     glStencilMask(0x00);
 
@@ -45,9 +46,6 @@ void GLScene::render() const {
     (*activeProgram).setBool(uniforms.light_mesh, false);
 
     // render skybox
-//    glDepthMask(GL_FALSE);
-//    glDepthMask(GL_TRUE);
-
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
 
@@ -72,7 +70,10 @@ void GLScene::render() const {
     }
     glDepthFunc(GL_LEQUAL);
     useProgram(&skyboxProgram);
-    (*activeProgram).setMat4(uniforms.matrix_view, glm::mat4(glm::mat3(view.mat)));
+
+    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4),sizeof(glm::mat4), &glm::mat4(glm::mat3(view.mat))[0][0]);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
     (*activeProgram).setMat4(uniforms.matrix_projection, projection.mat);
     (*skybox).render();
     glDepthFunc(GL_LESS);
@@ -128,6 +129,20 @@ void GLScene::beforeRender() const {
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+    unsigned stencilBlockIndex = glGetUniformBlockIndex((GLuint)stencilProgram, "Matrices");
+    unsigned programBlockIndex = glGetUniformBlockIndex((GLuint)program, "Matrices");
+
+    glUniformBlockBinding((GLuint)stencilProgram, stencilBlockIndex, 0);
+    glUniformBlockBinding((GLuint)program, programBlockIndex, 0);
+
+    glGenBuffers(1, &uboMatrices);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
+    glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboMatrices, 0, 2 * sizeof(glm::mat4));
 
     (*activeProgram).use();
 
