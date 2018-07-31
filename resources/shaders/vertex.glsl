@@ -6,13 +6,16 @@ layout(location = 2) in vec2 vertexUV;
 
 out VS_OUT {
     vec2 UV;
-    vec3 model_normal; // normal relative to world transformations
-    vec3 model_position; // position relative to world transformations
+    vec3 model_normal;
+    vec3 model_position;
 } vs_out;
 
+layout (std140) uniform Matrices {
+    uniform mat4 projection;
+    uniform mat4 view;
+};
+
 uniform mat4 world;
-uniform mat4 view;
-uniform mat4 projection;
 uniform bool draw_ui;
 
 void main() {

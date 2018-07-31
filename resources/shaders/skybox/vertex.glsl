@@ -4,8 +4,10 @@ layout(location = 0) in vec3 position;
 
 out vec3 textureCoords;
 
-uniform mat4 view;
-uniform mat4 projection;
+layout (std140) uniform Matrices {
+    uniform mat4 projection;
+    uniform mat4 view;
+};
 
 void main() {
     textureCoords = position;
