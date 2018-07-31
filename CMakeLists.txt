@@ -48,6 +48,7 @@ add_source(includes
         Texture
         elements/ElementBase
         elements/Square
+        elements/Skybox
         elements/Mesh
         elements/Cube)
 

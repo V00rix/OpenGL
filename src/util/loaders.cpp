@@ -318,6 +318,7 @@ unsigned util::loadSkyBoxBMP(const char *const filePath[6]) {
     unsigned char *data;
     for (ust i = 0; i < 6; i++) {
         loadBMPData(filePath[i], &data, &width, &height);
+        printf("%s\n", filePath[i]);
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         delete[] data;
     }

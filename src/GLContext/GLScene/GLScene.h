@@ -11,6 +11,9 @@
 #include "../../elements/ElementBase/ElementBase.h"
 #include "../../elements/Mesh/Mesh.h"
 #include "../../Program/Program.h"
+#include "../../elements/Cube/Cube.h"
+#include "../../Texture/Texture.h"
+#include "../../elements/Skybox/Skybox.h"
 
 class GLScene {
 public:
@@ -135,7 +138,10 @@ public:
 
     mutable Program program;
     mutable Program stencilProgram;
+    mutable Program skyboxProgram;
     mutable Program* activeProgram;
+
+    elements::Skybox * skybox;
 
     void addLight(const light::Directional &);
 
@@ -156,6 +162,7 @@ public:
     void addSpotlight(light::Spot spot);
 
     void useProgram(Program *program) const;
+
 };
 
 

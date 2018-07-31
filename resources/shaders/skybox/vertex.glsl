@@ -2,7 +2,7 @@
 
 layout(location = 0) in vec3 position;
 
-out  vec3 textureCoords;
+out vec3 textureCoords;
 
 uniform mat4 view;
 uniform mat4 projection;

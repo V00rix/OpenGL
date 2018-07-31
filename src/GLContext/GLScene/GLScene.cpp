@@ -11,9 +11,18 @@ static void printVertex(const glm::vec3 &vertex) {
 }
 
 void GLScene::render() const {
+    glDepthMask(GL_FALSE);
+
+//    glDisable(GL_CULL_FACE);
+    useProgram(&skyboxProgram);
+    (*activeProgram).setMat4(uniforms.matrix_view, glm::mat4(glm::mat3(view.mat)));
+    (*activeProgram).setMat4(uniforms.matrix_projection, projection.mat);
+    (*skybox).render();
+
+//    glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE);
+
     glStencilMask(0x00); // make sure we don't update the stencil buffer while drawing the floor
-//    stencilProgram.use();
-//    activeProgram = &stencilProgram;
     useProgram(&stencilProgram);
 
     (*activeProgram).setMat4(uniforms.matrix_world, world.mat);
@@ -56,8 +65,6 @@ void GLScene::render() const {
 
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilMask(0x00);
-//    glDisable(GL_DEPTH_TEST);
-
     useProgram(&stencilProgram);
 
     el = head;
@@ -70,7 +77,6 @@ void GLScene::render() const {
     }
 
     glStencilMask(0xFF);
-//    glEnable(GL_DEPTH_TEST);
 }
 
 void GLScene::addElement(elements::ElementBase &element) {

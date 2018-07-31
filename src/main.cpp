@@ -25,6 +25,7 @@
 #include "glm/gtc/constants.hpp"
 #include "Program/Program.h"
 #include "Texture/Texture.h"
+#include "elements/Skybox/Skybox.h"
 
 //region Helpers
 static elements::Square generateText(const char *string, GLuint texture) {
@@ -64,9 +65,11 @@ int main() {
 
     // Set shaders
     scene.program.set("resources/shaders/vertex.glsl",
-                     "resources/shaders/fragment.glsl");
+                      "resources/shaders/fragment.glsl");
     scene.stencilProgram.set("resources/shaders/vertex.glsl",
-                            "resources/shaders/stencil.glsl");
+                             "resources/shaders/stencil.glsl");
+    scene.skyboxProgram.set("resources/shaders/skybox/vertex.glsl",
+                            "resources/shaders/skybox/fragment.glsl");
 
     scene.useProgram(&scene.program);
 
@@ -83,11 +86,18 @@ int main() {
     scene.grid = GLScene::Grid(10.f, 10);
     scene.renderGrid = true;
     scene.stencilTest = true;
-
     // Add elements
     elements::Cube myCube(.5f);
     elements::Cube myCube2(.75f);
     elements::Square mySquare(5.f);
+    elements::Skybox mySkybox((const char *const[6]) {
+            "resources/textures/skyboxes/mp_jasper/front.bmp",
+            "resources/textures/skyboxes/mp_jasper/back.bmp",
+            "resources/textures/skyboxes/mp_jasper/down.bmp",
+            "resources/textures/skyboxes/mp_jasper/up.bmp",
+            "resources/textures/skyboxes/mp_jasper/right.bmp",
+            "resources/textures/skyboxes/mp_jasper/left.bmp"
+    });
 //    mySquare.rotate(45.f, {1.f, .0f, .0f});
     mySquare.rotate(-glm::half_pi<float>(), {1.0f, 0.0f, 0.0f});
     mySquare.translate({-2.5f, -1.f, 2.5f});
@@ -97,14 +107,14 @@ int main() {
     myMesh.translate({0.f, .5f, .0f});
     elements::Mesh myLightMesh("resources/meshes/sphere.obj");
     myLightMesh.scale({.25f, .25f, .25f});
-//    scene.addElement(myCube);
+    scene.addElement(myCube);
 //    scene.addElement(myCube2);
     scene.addElement(mySquare);
     scene.addElement(myMesh);
 
-    Texture skybox("resources/textures/skyboxes/mp_jasper/");
+    scene.skybox = &mySkybox;
 
-    // Add lights
+            // Add lights
     scene.setLightMesh(myLightMesh);
 
     light::Directional sun({glm::vec3(1.f, .0f, .0f), .1f, .2f}, {-1.f, -.5f, .3f});
