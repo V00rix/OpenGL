@@ -65,9 +65,10 @@ int main() {
 
     // Set shaders
     scene.program.set("resources/shaders/vertex.glsl",
-                      "resources/shaders/fragment.glsl");
+                      "resources/shaders/fragment.glsl",
+                      "resources/shaders/geometry.glsl");
     scene.stencilProgram.set("resources/shaders/vertex.glsl",
-                             "resources/shaders/stencil.glsl");
+                             "resources/shaders/stencil/fragment.glsl");
     scene.skyboxProgram.set("resources/shaders/skybox/vertex.glsl",
                             "resources/shaders/skybox/fragment.glsl");
 
@@ -84,7 +85,7 @@ int main() {
 
     /* Configure scene */
     scene.grid = GLScene::Grid(10.f, 10);
-    scene.renderGrid = true;
+//    scene.renderGrid = true;
     scene.stencilTest = true;
     // Add elements
     elements::Cube myCube(.5f);
