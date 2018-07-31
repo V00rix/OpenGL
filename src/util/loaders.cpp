@@ -95,7 +95,6 @@ unsigned util::loadDDS(const char *filePath) {
     return textureID;
 }
 
-
 static bool loadBMPData(const char *filePath, unsigned char **data, unsigned int *width, unsigned int *height) {
     // Data read from the header of the BMP file
     unsigned char header[54]; // Each BMP file begins by a 54-bytes header
@@ -165,7 +164,6 @@ unsigned util::loadBMP(const char *filePath) {
 
     return textureID;
 }
-
 
 bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices) {
     std::vector<glm::vec3> temp_positions;
@@ -306,7 +304,6 @@ bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices
 
     return true;
 }
-
 
 unsigned util::loadSkyBoxBMP(const char *filePath) {
     unsigned int textureID;

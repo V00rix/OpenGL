@@ -10,6 +10,7 @@
 #include <functional>
 #include "../../elements/ElementBase/ElementBase.h"
 #include "../../elements/Mesh/Mesh.h"
+#include "../../Program/Program.h"
 
 class GLScene {
 public:
@@ -132,7 +133,9 @@ public:
 
     void afterRender() const;
 
-    mutable unsigned int program = 0;
+    Program program;
+    Program stencilProgram;
+    Program* activeProgram;
 
     void addLight(const light::Directional &);
 
@@ -152,6 +155,7 @@ public:
 
     void addSpotlight(light::Spot spot);
 
+    void useProgram(Program *program);
 };
 
 

@@ -23,6 +23,7 @@
 #include "GLContext/GLInputHandler/GLInputHandler.h"
 #include "elements/Mesh/Mesh.h"
 #include "glm/gtc/constants.hpp"
+#include "Program/Program.h"
 
 //region Helpers
 static elements::Square generateText(const char *string, GLuint texture) {
@@ -59,17 +60,13 @@ int main() {
     /* Create rendering context */
     GLContext context(&window);
     context.printFps = true;
-    // Set shaders
-    unsigned programs[] {
-            context.createProgram("resources/shaders/vertex.glsl",
-                                  nullptr,
-                                  "resources/shaders/fragment.glsl"),
-            context.createProgram("resources/shaders/vertex.glsl",
-                                  nullptr,
-                                  "resources/shaders/stencil.glsl")
-    };
 
-    context.useProgram(programs[0]);
+    // Set shaders
+    scene.program.set("resources/shaders/vertex.glsl",
+                     "resources/shaders/fragment.glsl");
+    scene.stencilProgram.set("resources/shaders/vertex.glsl",
+                            "resources/shaders/stencil.glsl");
+    scene.useProgram(&scene.program);
 
     // Load textures
     std::vector<unsigned> textures = {
@@ -268,22 +265,17 @@ int main() {
         }
     });
     //endregion
-
-    unsigned prg = 0;
-    //region Program change
-    bool changeProgram = true;
+    int prog = 0;
+    bool progChange = true;
+    input.onKey(GLFW_KEY_P, GLFW_RELEASE, [&]() {
+        progChange = true;
+    });
     input.onKey(GLFW_KEY_P, GLFW_PRESS, [&]() {
-        if (changeProgram) {
-            context.useProgram(programs[++prg % 2]);
-            changeProgram = false;
+        if (progChange) {
+            scene.useProgram(prog++ % 2 == 0 ? &scene.stencilProgram : &scene.program);
+            progChange = false;
         }
     });
-    input.onKey(GLFW_KEY_P, GLFW_RELEASE, [&]() {
-        changeProgram = true;
-    });
-
-
-    //endregion
 
     //region Rotation
     input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {

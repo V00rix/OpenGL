@@ -44,7 +44,8 @@ add_source(includes
         GLContext/GLScene
         GLContext/GLInputHandler
         light
-        Shader
+        Program
+        Texture
         elements/ElementBase
         elements/Square
         elements/Mesh
