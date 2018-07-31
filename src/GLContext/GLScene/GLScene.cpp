@@ -11,12 +11,24 @@ static void printVertex(const glm::vec3 &vertex) {
 }
 
 void GLScene::render() const {
-
-    renderFunc();
+    glStencilMask(0x00); // make sure we don't update the stencil buffer while drawing the floor
+//    stencilProgram.use();
+//    activeProgram = &stencilProgram;
+    useProgram(&stencilProgram);
 
     (*activeProgram).setMat4(uniforms.matrix_world, world.mat);
     (*activeProgram).setMat4(uniforms.matrix_view, view.mat);
     (*activeProgram).setMat4(uniforms.matrix_projection, projection.mat);
+
+    useProgram(&program);
+
+    (*activeProgram).setMat4(uniforms.matrix_world, world.mat);
+    (*activeProgram).setMat4(uniforms.matrix_view, view.mat);
+    (*activeProgram).setMat4(uniforms.matrix_projection, projection.mat);
+
+    glStencilMask(0x00);
+
+    renderFunc();
 
     if (renderGrid) {
         (*activeProgram).setInt(uniforms.grid_enabled, true);
@@ -24,23 +36,44 @@ void GLScene::render() const {
         (*activeProgram).setInt(uniforms.grid_enabled, false);
     }
 
-    const Element *el = head;
+    // render light meshes
+    (*activeProgram).setBool(uniforms.light_mesh, true);
+    for (int i = 0; i < lights.point.size(); i++) {
+        (*activeProgram).setInt(uniforms.lights.point_index, i);
+        lights.meshes[i].render();
+    }
+    (*activeProgram).setBool(uniforms.light_mesh, false);
+
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+
+    Element *el = head;
 
     while (el) {
         el->element.render();
         el = el->next;
     }
 
-    // render light meshes
-    (*activeProgram).setBool(uniforms.light_mesh, true);
-    for (int i = 0; i < lights.point.size(); i++) {
-        (*activeProgram).setBool(uniforms.lights.point_index, i);
-        lights.meshes[i].render();
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+//    glDisable(GL_DEPTH_TEST);
+
+    useProgram(&stencilProgram);
+
+    el = head;
+
+    while (el) {
+        el->element.scale(glm::vec3(1.01f));
+        el->element.render();
+        el->element.scale(glm::vec3(1/1.01f));
+        el = el->next;
     }
-    (*activeProgram).setBool(uniforms.light_mesh, false);
+
+    glStencilMask(0xFF);
+//    glEnable(GL_DEPTH_TEST);
 }
 
-void GLScene::addElement(const elements::ElementBase &element) {
+void GLScene::addElement(elements::ElementBase &element) {
     if (!head) {
         head = new Element(element);
         tail = head;
@@ -73,12 +106,6 @@ void GLScene::beforeRender() const {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
-    if (stencilTest) {
-//        glEnable(GL_STENCIL_TEST);
-//        glStencilMask(0xFF); // each bit is written to the stencil buffer as is
-//        glStencilMask(0x00);
-//        glStencilFunc(GL_EQUAL, 1, 0xFF);
-    }
 
     if (cullFace) {
         glEnable(GL_CULL_FACE);
@@ -87,6 +114,10 @@ void GLScene::beforeRender() const {
     if (renderGrid) {
         grid.init();
     }
+
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     (*activeProgram).use();
 
@@ -113,7 +144,8 @@ void GLScene::beforeRender() const {
         s += "[";
         s += std::to_string(i);
         s += "]";
-        light::uni::setDirectional(light::uni::getDirectional((GLuint) (*activeProgram), s.c_str()), lights.directional[i]);
+        light::uni::setDirectional(light::uni::getDirectional((GLuint) (*activeProgram), s.c_str()),
+                                   lights.directional[i]);
     }
 
     // set point lights
@@ -167,7 +199,7 @@ void GLScene::addSpotlight(light::Spot spot) {
     this->lights.spot.push_back(spot);
 }
 
-void GLScene::useProgram(Program* program) {
+void GLScene::useProgram(Program *program) const {
     this->activeProgram = program;
     (*program).use();
 }

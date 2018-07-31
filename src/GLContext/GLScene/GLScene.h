@@ -15,10 +15,10 @@
 class GLScene {
 public:
     struct Element {
-        const elements::ElementBase &element;
+        elements::ElementBase &element;
         Element *next;
 
-        explicit Element(const elements::ElementBase &element) : element(element), next(nullptr) {
+        explicit Element(elements::ElementBase &element) : element(element), next(nullptr) {
             printf("constructing\n");
         }
 
@@ -123,7 +123,7 @@ public:
 
     inline Element *getElements() const { return head; }
 
-    void addElement(const elements::ElementBase &);
+    void addElement(elements::ElementBase &);
 
     virtual ~GLScene();
 
@@ -133,9 +133,9 @@ public:
 
     void afterRender() const;
 
-    Program program;
-    Program stencilProgram;
-    Program* activeProgram;
+    mutable Program program;
+    mutable Program stencilProgram;
+    mutable Program* activeProgram;
 
     void addLight(const light::Directional &);
 
@@ -155,7 +155,7 @@ public:
 
     void addSpotlight(light::Spot spot);
 
-    void useProgram(Program *program);
+    void useProgram(Program *program) const;
 };
 
 
