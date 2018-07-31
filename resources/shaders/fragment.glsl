@@ -4,9 +4,11 @@ const int MAX_POINT_LIGHTS = 2;
 const int MAX_DIRECTIONAL_LIGHTS = 2;
 const int MAX_SPOT_LIGHTS = 2;
 
-in vec2 UV;
-in vec3 model_normal;
-in vec3 model_position;
+in VS_OUT {
+    vec2 UV;
+    vec3 model_normal; // normal relative to world transformations
+    vec3 model_position; // position relative to world transformations
+} fs_in;
 
 out vec4 color;
 
@@ -78,7 +80,7 @@ vec3 calculateDirectionalLight(BaseLight light, vec3 direction, vec3 normal) {
         diffuseColor = light.color * light.diffuse_intensity * diffuseFactor;
 
         // calculate specular
-        vec3 vertextToEye = normalize(camera_position - model_position);
+        vec3 vertextToEye = normalize(camera_position - fs_in.model_position);
         vec3 lightReflect = normalize(reflect(direction, normal));
         float specularFactor = dot(vertextToEye, lightReflect);
 
@@ -92,7 +94,7 @@ vec3 calculateDirectionalLight(BaseLight light, vec3 direction, vec3 normal) {
 }
 
 vec3 calculatePointLight(Point light, vec3 normal) {
-    vec3 direction = model_position - light.position;
+    vec3 direction = fs_in.model_position - light.position;
     float distance = length(direction);
 
     direction = normalize(direction);
@@ -104,7 +106,7 @@ vec3 calculatePointLight(Point light, vec3 normal) {
 }
 
 vec3 calculateSpotLight(Spot light, vec3 normal) {
-    vec3 lightToPixel = normalize(model_position - light.point.position);
+    vec3 lightToPixel = normalize(fs_in.model_position - light.point.position);
     float spotFactor = dot(lightToPixel, light.direction);
 
     if (spotFactor > light.cutoff) {
@@ -114,6 +116,10 @@ vec3 calculateSpotLight(Spot light, vec3 normal) {
     return vec3(0);
 }
 
+vec4 invert(vec4 c) {
+    return vec4(1.f - c.r, 1.f - c.g, 1.f - c.b, c.a);
+}
+
 void main(){
     if (grid_enabled) {
         color = vec4(.3f);
@@ -121,7 +127,7 @@ void main(){
     } else if (light_mesh) {
        color = vec4(point_lights[point_index].base.color, 1.f);
     } else {
-        vec3 normal = normalize(model_normal);
+        vec3 normal = normalize(fs_in.model_normal);
 
         vec3 totalLight = vec3(0);
 
@@ -144,13 +150,17 @@ void main(){
             totalLight += calculateSpotLight(spot_lights[i], normal);
         }
 
-        color = texture2D(texture_sampler, UV.xy) * vec4(totalLight, 1.f);
+        color = texture2D(texture_sampler, fs_in.UV.xy) * vec4(totalLight, 1.f);
     }
 
-        if (gl_FragCoord.x > 674) {
-            color = invert(color);
-            if (gl_FragCoord.x > 1350) {
-                color = vec4(1.f, 0.f, 0.f, .4f);
-            }
-        }
+//    if (gl_FragCoord.x > 674) {
+//        color = invert(color);
+//        if (gl_FragCoord.x > 1350) {
+//            color = vec4(1.f, 0.f, 0.f, .4f);
+//        }
+//    }
+
+//    if (!gl_FrontFacing) {
+//        color = vec4(1.f, 0.f, 0.f, .4f);
+//    }
 }
