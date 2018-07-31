@@ -58,7 +58,7 @@ ElementBase::~ElementBase() {
 
 void ElementBase::render() const {
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+    glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr, 4);
 }
 
 void ElementBase::rotate(float angle, const glm::vec3 &direction) {

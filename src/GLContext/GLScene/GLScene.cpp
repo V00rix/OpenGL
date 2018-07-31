@@ -15,7 +15,7 @@ static void printVertex(const glm::vec3 &vertex) {
 float increment = 0;
 
 void GLScene::render() const {
-    float time = std::sin(increment += 0.1f);
+    float time = std::sin((increment += 0.1f) * 2.f);
 
     glStencilMask(0x00); // make sure we don't update the stencil buffer while drawing the floor
     useProgram(&stencilProgram);
