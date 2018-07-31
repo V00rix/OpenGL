@@ -4,7 +4,7 @@ const int MAX_POINT_LIGHTS = 2;
 const int MAX_DIRECTIONAL_LIGHTS = 2;
 const int MAX_SPOT_LIGHTS = 2;
 
-in VS_OUT {
+in GS_OUT {
     vec2 UV;
     vec3 model_normal; // normal relative to world transformations
     vec3 model_position; // position relative to world transformations
@@ -58,7 +58,6 @@ uniform int spot_index;
 uniform sampler2D texture_sampler;
 
 uniform vec3 camera_position;
-
 
 uniform float specular_intensity;
 uniform float specular_power;
@@ -116,10 +115,6 @@ vec3 calculateSpotLight(Spot light, vec3 normal) {
     return vec3(0);
 }
 
-vec4 invert(vec4 c) {
-    return vec4(1.f - c.r, 1.f - c.g, 1.f - c.b, c.a);
-}
-
 void main(){
     if (grid_enabled) {
         color = vec4(.3f);
@@ -152,15 +147,4 @@ void main(){
 
         color = texture2D(texture_sampler, fs_in.UV.xy) * vec4(totalLight, 1.f);
     }
-
-//    if (gl_FragCoord.x > 674) {
-//        color = invert(color);
-//        if (gl_FragCoord.x > 1350) {
-//            color = vec4(1.f, 0.f, 0.f, .4f);
-//        }
-//    }
-
-//    if (!gl_FrontFacing) {
-//        color = vec4(1.f, 0.f, 0.f, .4f);
-//    }
 }

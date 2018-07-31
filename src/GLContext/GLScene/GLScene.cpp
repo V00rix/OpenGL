@@ -12,7 +12,11 @@ static void printVertex(const glm::vec3 &vertex) {
     std::cout << "\tPosition at: {" << vertex.x << ", " << vertex.y << ", " << vertex.z << "}\n";
 }
 
+float increment = 0;
+
 void GLScene::render() const {
+    float time = std::sin(increment += 0.1f);
+
     glStencilMask(0x00); // make sure we don't update the stencil buffer while drawing the floor
     useProgram(&stencilProgram);
 
@@ -25,7 +29,11 @@ void GLScene::render() const {
 
     useProgram(&program);
 
+
+    (*activeProgram).setFloat("time", time);
     (*activeProgram).setMat4(uniforms.matrix_world, world.mat);
+
+    (*activeProgram).setVec3(uniforms.camera_position, viewPosition);
 
     glStencilMask(0x00);
 
@@ -157,7 +165,7 @@ void GLScene::beforeRender() const {
     (*activeProgram).setInt(uniforms.texture_sampler, currentTextureIndex);
 
     // todo: from material
-    (*activeProgram).setFloat(uniforms.specular_intensity, 5.0f);
+    (*activeProgram).setFloat(uniforms.specular_intensity, 3.0f);
     // todo: from material
     (*activeProgram).setFloat(uniforms.specular_power, 32);
 
