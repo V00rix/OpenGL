@@ -123,6 +123,8 @@ void GLScene::beforeRender() const {
         grid.init();
     }
 
+//    glEnable(GL_PROGRAM_POINT_SIZE);
+
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
