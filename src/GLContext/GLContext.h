@@ -17,22 +17,11 @@ class GLContext {
     const GLWindow *context;
     const GLScene *scene;
     const GLInputHandler *inputHandler;
-public:
-    const GLInputHandler *getInputHandler() const;
-
-private:
     std::vector<GLuint> textures;
 
     bool shouldBreak = false;
 public:
     bool printFps = false;
-
-    /**
-     * Loads texture into memory
-     * @param filePath Path to the texture file
-     * @return Texture index
-     */
-    unsigned loadTexture(const char *filePath);
 
     /**
      * Create new rendering context
@@ -45,12 +34,6 @@ public:
      * @param scene Scene
      */
     void attachScene(const GLScene *scene);
-
-    /**
-     * Get scene
-     * @return
-     */
-    const GLScene *getScene() const;
 
     void render();
 

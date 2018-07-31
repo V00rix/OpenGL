@@ -14,25 +14,6 @@ GLContext::GLContext(const GLWindow *context) : context(context), scene(nullptr)
     glfwSetInputMode((*context).window.ref, GLFW_STICKY_KEYS, GL_TRUE);
 }
 
-unsigned GLContext::loadTexture(const char *filePath) {
-    util::FExtension ext = util::getFileExtension(filePath);
-
-    GLuint texture;
-    switch (ext) {
-        case util::bmp:
-            texture = util::loadBMP(filePath);
-            textures.push_back(texture);
-            return texture;
-        case util::dds:
-            texture = util::loadDDS(filePath);
-            textures.push_back(texture);
-            return texture;
-        default:
-            printf("Unsupported texture format %s", filePath);
-            return 0;
-    }
-}
-
 void GLContext::attachScene(const GLScene *scene) {
     this->scene = scene;
 }
@@ -70,8 +51,4 @@ void GLContext::breakLoop() {
 
 void GLContext::setInputHandler(const GLInputHandler *handler) {
     inputHandler = handler;
-}
-
-const GLInputHandler *GLContext::getInputHandler() const {
-    return inputHandler;
 }

@@ -24,6 +24,7 @@
 #include "elements/Mesh/Mesh.h"
 #include "glm/gtc/constants.hpp"
 #include "Program/Program.h"
+#include "Texture/Texture.h"
 
 //region Helpers
 static elements::Square generateText(const char *string, GLuint texture) {
@@ -66,15 +67,16 @@ int main() {
                      "resources/shaders/fragment.glsl");
     scene.stencilProgram.set("resources/shaders/vertex.glsl",
                             "resources/shaders/stencil.glsl");
+
     scene.useProgram(&scene.program);
 
     // Load textures
-    std::vector<unsigned> textures = {
-            context.loadTexture("resources/textures/ascensionLogo.bmp"),
-            context.loadTexture("resources/fonts/font.bmp"),
-            context.loadTexture("resources/textures/ascensionLogo.dds"),
-            context.loadTexture("resources/textures/simple.bmp"),
-            context.loadTexture("resources/textures/sampleTexture.dds"),
+    std::vector<Texture> textures = {
+            Texture("resources/textures/ascensionLogo.bmp"),
+            Texture("resources/fonts/font.bmp"),
+            Texture("resources/textures/ascensionLogo.dds"),
+            Texture("resources/textures/simple.bmp"),
+            Texture("resources/textures/sampleTexture.dds"),
     };
 
     /* Configure scene */
@@ -100,7 +102,7 @@ int main() {
     scene.addElement(mySquare);
     scene.addElement(myMesh);
 
-    unsigned skybox = util::loadSkyBoxBMP("resources/textures/skyboxes/mp_jasper/");
+    Texture skybox("resources/textures/skyboxes/mp_jasper/");
 
     // Add lights
     scene.setLightMesh(myLightMesh);
@@ -260,11 +262,13 @@ int main() {
     });
     input.onKey(GLFW_KEY_T, GLFW_PRESS, [&]() {
         if (shouldChange) {
-            glBindTexture(GL_TEXTURE_2D, texture++ % textures.size() + 1);
+            textures[++texture % textures.size()].use();
             shouldChange = false;
         }
     });
     //endregion
+
+    //region Program change
     int prog = 0;
     bool progChange = true;
     input.onKey(GLFW_KEY_P, GLFW_RELEASE, [&]() {
@@ -276,6 +280,7 @@ int main() {
             progChange = false;
         }
     });
+    //endregion
 
     //region Rotation
     input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {

@@ -305,7 +305,7 @@ bool util::loadOBJ(const char *filePath, std::vector<util::Vertex> &out_vertices
     return true;
 }
 
-unsigned util::loadSkyBoxBMP(const char *filePath) {
+unsigned util::loadSkyBoxBMP(const char *const filePath[6]) {
     unsigned int textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
@@ -314,12 +314,10 @@ unsigned util::loadSkyBoxBMP(const char *filePath) {
             "right", "left", "up", "down", "back", "front"
     };
 
-    auto path = std::string(filePath);
     unsigned width, height;
     unsigned char *data;
     for (ust i = 0; i < 6; i++) {
-        printf("%s\n", path + faces[i]);
-        loadBMPData(((path + faces[i]) + ".bmp").c_str(), &data, &width, &height);
+        loadBMPData(filePath[i], &data, &width, &height);
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         delete[] data;
     }
