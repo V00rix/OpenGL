@@ -146,4 +146,11 @@ void main(){
 
         color = texture2D(texture_sampler, UV.xy) * vec4(totalLight, 1.f);
     }
+
+        if (gl_FragCoord.x > 674) {
+            color = invert(color);
+            if (gl_FragCoord.x > 1350) {
+                color = vec4(1.f, 0.f, 0.f, .4f);
+            }
+        }
 }
