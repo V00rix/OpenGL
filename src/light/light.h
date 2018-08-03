@@ -10,6 +10,7 @@
 #include <GL/glew.h>
 #include <iostream>
 #include <cstring>
+#include <vector>
 
 namespace light {
     struct Base {
@@ -97,6 +98,9 @@ namespace light {
 
         void setSpot(const u_spot &, const light::Spot &);
 
+        void setMultipleDirection(const std::vector<Directional>& lights);
+        void setMultiplePoint(const std::vector<Point>& lights);
+        void setMultipleSpot(const std::vector<Spot>& lights);
     }
 
 }

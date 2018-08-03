@@ -18,8 +18,14 @@ class GLModel : GLObject {
     Texture texture; // Textures, light, parallax, normal maps etc.
 
     void printData() const override;
+
 public:
     explicit GLModel(const Mesh &mesh) { setMesh(mesh); }
+
+    explicit GLModel(const Mesh &mesh, const Texture &texture) {
+        setMesh(mesh);
+        setTexture(texture);
+    }
 
     virtual void render() const;
 

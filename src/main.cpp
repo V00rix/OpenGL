@@ -29,16 +29,19 @@ static void processCamera(Camera *, double, double, double);
 
 static void updateTime(double *delta);
 
-static double lastFrame{0.f};
+static void glSettings();
 
-static const int width {2024};
-static const int height {1468};
+static const int height{1468};
+static double lastFrame{0.f};
+static const int width{2024};
 
 int main() {
     GLWindow w(width, height, true, true);
     window = w.window;
 
-    // Compile and load programs
+    glSettings();
+
+    //region Compile and load programs
     Program program{"resources/shaders/vertex.glsl",
                     "resources/shaders/fragment.glsl",
                     "resources/shaders/geometry.glsl"},
@@ -46,29 +49,43 @@ int main() {
                     "resources/shaders/stencil/fragment.glsl"},
             skybox{"resources/shaders/skybox/vertex.glsl",
                    "resources/shaders/skybox/fragment.glsl"};
+    //endregion
 
+    //region Block uniforms
     UniBlock matrices{UNI_BLOCK_MATRICES, 3 * sizeof(glm::mat4), 1, program};
+    //endregion
 
-//    // Load textures
-//    std::vector<Texture> textures = {
-//            Texture("resources/fonts/font.bmp"),
-//            Texture("resources/textures/simple.bmp"),
-//            Texture("resources/textures/sampleTexture.dds"),
-//            Texture("resources/textures/ascensionLogo.bmp"),
-//            Texture("resources/textures/ascensionLogo.dds"),
-//    };
+    //region Load textures
+    Texture textures[] {
+            Texture("resources/fonts/font.bmp"),
+            Texture("resources/textures/simple.bmp"),
+            Texture("resources/textures/sampleTexture.dds"),
+            Texture("resources/textures/ascensionLogo.bmp"),
+            Texture("resources/textures/ascensionLogo.dds"),
+    };
+    //endregion
 
-    // set up models
+    //region set up models
     Grid grid(10.f, 10);
     Cube cube(.5f);
     cube.transform(glm::translate(glm::vec3{-.25f}));
-    GLModel cubeModel(cube);
+    GLModel cubeModel(cube, textures[4]);
+    //endregion
 
-    Camera camera{{2.f, 2.f, -1.f}, {0.f, 0.f, 0.f}};
+    //region set up camera
+    Camera camera{{2.f, 2.f, -1.f},
+                  {0.f, 0.f, 0.f}};
     camera.lastX = width / 2.f;
     camera.lastY = height / 2.f;
+    // endregion
+
+    //region Lights
+    light::Directional sun({glm::vec3(1.f, 1.0f, 1.0f), .01f, .2f}, {0.f, -1.0f, 0.f});
+    //endregion
 
     double x{0}, y{0}, deltaTime{0};
+
+    //region main loop
     while (!glfwWindowShouldClose(window)) {
         // Widow closing
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -99,9 +116,10 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+    //endregion
 
     // cleanup
-
+    cubeModel.cleanGL();
 
 //    /* Configure scene */
 //    scene.grid = GLScene::Grid(10.f, 10);
@@ -151,209 +169,6 @@ int main() {
 //    scene.addLight(p2);
 //    scene.addSpotlight(spotLight);
 //
-//    // Configure matrices
-//    scene.setView(
-//            glm::vec3(4, 3, 3), // position in (4, 3, 3)
-//            glm::vec3(0, 0, 0), // and looks at the origin
-//            glm::vec3(0, 1, 0)  // Head is up (set to 0, -1, 0 to look upside-down)
-//    );
-//    scene.projection.mat = glm::projection(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-//
-//    // Set clear color
-//    scene.clearColor = glm::vec4(.15f, .16f, .18f, .0f);
-//
-//    // Set uniform locations
-//    scene.uniforms = {
-//            .matrix_world = "world",
-//            .matrix_view = "view",
-//            .matrix_projection = "projection",
-//            .camera_position = "camera_position",
-//            .texture_sampler = "texture_sampler",
-//            .grid_enabled = "grid_enabled",
-//            .light_mesh = "light_mesh",
-//            .specular_intensity = "specular_intensity", // todo: belongs to objects and materials
-//            .specular_power = "specular_power", // todo: belongs to objects and materials
-//            .lights = {
-//                    .directional = "directional_lights",
-//                    .directional_count = "directional_lights_count",
-//                    .directional_index = "directional_index",
-//                    .point = "point_lights",
-//                    .point_count = "point_lights_count",
-//                    .point_index = "point_index",
-//                    .spot = "spot_lights",
-//                    .spot_count = "spot_lights_count",
-//                    .spot_index = "spot_index",
-//            }
-//    };
-//
-//    float cameraSpeed = 0.05f;
-//    float deltaTime, lastTime = deltaTime = 0.f;
-//    scene.onRender([&]() {
-//        auto currentTime = (float) glfwGetTime();
-//        deltaTime = currentTime - lastTime;
-//        lastTime = currentTime;
-//        cameraSpeed = 2.5f * deltaTime;
-//    });
-//
-//    // Complete scene configuration
-//    context.attachScene(&scene);
-//
-//    /* Configure input */
-//    GLInputHandler input(window.window.ref);
-//
-//    //region Exit button
-//    input.onKey(GLFW_KEY_ESCAPE, GLFW_PRESS, [&]() {
-//        context.breakLoop();
-//    });
-//    //endregion
-//
-//    //region Spotlight
-//    bool changeSpotlight = true;
-//    input.onKey(GLFW_KEY_L, GLFW_PRESS, [&]() {
-//        if (changeSpotlight) {
-//            scene.spotlight = !scene.spotlight;
-//            changeSpotlight = false;
-//        }
-//    });
-//    input.onKey(GLFW_KEY_L, GLFW_RELEASE, [&]() {
-//        changeSpotlight = true;
-//    });
-//    //endregion
-//
-//    //region Camera movement
-//    glm::vec3 cameraPos(1.f, 3.f, 5.5f);
-//    glm::vec3 cameraFront(0.f, 0.f, -1.f);
-//    glm::vec3 cameraUp(0.f, 1.f, 0.f);
-//    scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
-//
-//    input.onKey(GLFW_KEY_W, GLFW_PRESS, [&]() {
-//        cameraPos += cameraSpeed * (cameraFront);
-//        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
-//    });
-//    input.onKey(GLFW_KEY_S, GLFW_PRESS, [&]() {
-//        cameraPos -= cameraSpeed * (cameraFront);
-//        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
-//    });
-//    input.onKey(GLFW_KEY_A, GLFW_PRESS, [&]() {
-//        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-//        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
-//    });
-//    input.onKey(GLFW_KEY_D, GLFW_PRESS, [&]() {
-//        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-//        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
-//    });
-//
-//
-//    float sensitivity = 0.05f;
-//
-//
-//    float lastX = window.window.width / 2.f;
-//    float lastY = window.window.height / 2.f;
-//    float yaw = -105.f, pitch = -25.0f;
-//
-//    bool firstMouse = true;
-//    input.onCursor([&](int xPos, int yPos) {
-//        if (firstMouse) {
-//            lastX = xPos;
-//            lastY = yPos;
-//            firstMouse = false;
-//        }
-//
-//        float xOffset = xPos - lastX;
-//        float yOffset = lastY - yPos;
-//        lastX = xPos;
-//        lastY = yPos;
-//
-//        xOffset *= sensitivity;
-//        yOffset *= sensitivity;
-//
-//        yaw += xOffset;
-//        pitch += yOffset;
-//
-//        if (pitch > 89.0f)
-//            pitch = 89.0f;
-//        if (pitch < -89.0f)
-//            pitch = -89.0f;
-//
-//        glm::vec3 front;
-//        front.x = (float) (cos(glm::radians(yaw)) * cos(glm::radians(pitch)));
-//        front.y = (float) sin(glm::radians(pitch));
-//        front.z = (float) (sin(glm::radians(yaw)) * cos(glm::radians(pitch)));
-//        cameraFront = glm::normalize(front);
-//
-//        scene.setView(cameraPos, cameraPos + cameraFront, cameraUp);
-//    });
-//    //endregion
-//
-//    //region Texture change
-//    int texture = 0;
-//    bool shouldChange = true;
-//    input.onKey(GLFW_KEY_T, GLFW_RELEASE, [&]() {
-//        shouldChange = true;
-//    });
-//    input.onKey(GLFW_KEY_T, GLFW_PRESS, [&]() {
-//        if (shouldChange) {
-//            textures[++texture % textures.size()].use();
-//            shouldChange = false;
-//        }
-//    });
-//    //endregion
-//
-//    //region Program change
-//    int prog = 0;
-//    bool progChange = true;
-//    input.onKey(GLFW_KEY_P, GLFW_RELEASE, [&]() {
-//        progChange = true;
-//    });
-//    input.onKey(GLFW_KEY_P, GLFW_PRESS, [&]() {
-//        if (progChange) {
-//            scene.useProgram(prog++ % 2 == 0 ? &scene.stencilProgram : &scene.program);
-//            progChange = false;
-//        }
-//    });
-//    //endregion
-//
-//    //region Rotation
-//    input.onKey(GLFW_KEY_U, GLFW_PRESS, [&]() {
-//        mySquare.rotate(.1f, {1.0f, 0.0f, 0.0f});
-//    });
-//
-//    input.onKey(GLFW_KEY_Y, GLFW_PRESS, [&]() {
-//        mySquare.rotate(-.1f, {1.0f, 0.0f, 0.0f});
-//    });
-//    //endregion
-//
-//    //region Translation
-//    input.onKey(GLFW_KEY_V, GLFW_PRESS, [&]() {
-//        mySquare.translate({0.0f, 0.f, 0.1f});
-//    });
-//    input.onKey(GLFW_KEY_B, GLFW_PRESS, [&]() {
-//        mySquare.translate({0.0f, 0.f, -0.1f});
-//    });
-//
-//    input.onKey(GLFW_KEY_Q, GLFW_PRESS, [&]() {
-//        mySquare.translate({0.1f, 0.f, 0.f});
-//    });
-//    input.onKey(GLFW_KEY_E, GLFW_PRESS, [&]() {
-//        mySquare.translate({-0.1f, 0.f, 0.f});
-//    });
-//    //endregion
-//
-//    //region Scale
-//    input.onKey(GLFW_KEY_Z, GLFW_PRESS, [&]() {
-////        myMesh.scale({1.1f, 1.1f, 1.1f});
-//    });
-//
-//    input.onKey(GLFW_KEY_X, GLFW_PRESS, [&]() {
-////        myMesh.scale({0.9f, 0.9f, 0.9f});
-//    });
-//    //endregion
-//
-//    context.setInputHandler(&input);
-//
-//    /* Enter rendering loop */
-//    context.render();
-//
     return 0;
 }
 
@@ -379,4 +194,24 @@ void updateTime(double *delta) {
     double currentFrame = glfwGetTime();
     *delta = currentFrame - lastFrame;
     lastFrame = currentFrame;
+}
+
+void glSettings() {
+    // cursor
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    // depth test
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
+    // blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // face culling
+    glEnable(GL_CULL_FACE);
+
+    // MSAA
+    glfwWindowHint(GLFW_SAMPLES, 4);
+    glEnable(GL_MULTISAMPLE);
 }

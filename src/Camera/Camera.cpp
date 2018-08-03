@@ -90,7 +90,7 @@ Camera::Camera(const glm::vec3 &position, const glm::vec3 &lookAt, float _zoom) 
         position{position}, front{glm::normalize(lookAt - position)}, projection{calculatePerspective(_zoom)},
         view{glm::lookAt(position, lookAt, UP)} {
     pitch = (float) asin(front.y);
-    yaw = (float) glm::degrees(acos(front.x / (float) cos(pitch)));
+    yaw = glm::degrees(std::acos(front.x / std::cos(pitch)));
     pitch = glm::degrees(pitch);
 }
 

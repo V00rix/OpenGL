@@ -108,9 +108,5 @@ void GLWindow::init() {
         glDebugMessageCallback(openglCallbackFunction, nullptr);
     }
 
-    if (limitCursor) {
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
-
     glfwSetFramebufferSizeCallback(window, resizeCallback);
 }
