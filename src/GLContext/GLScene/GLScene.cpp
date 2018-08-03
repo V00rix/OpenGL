@@ -49,7 +49,7 @@ void GLScene::render() const {
     (*activeProgram).setBool(uniforms.light_mesh, true);
     for (int i = 0; i < lights.point.size(); i++) {
         (*activeProgram).setInt(uniforms.lights.point_index, i);
-        lights.meshes[i].render();
+//        lights.meshes[i].render();
     }
     (*activeProgram).setBool(uniforms.light_mesh, false);
 
@@ -102,7 +102,7 @@ void GLScene::addElement(elements::ElementBase &element) {
 
 GLScene::~GLScene() {
     delete head;
-    delete[] lights.meshes;
+//    delete[] lights.meshes;
 }
 
 void GLScene::afterRender() const {
@@ -165,9 +165,9 @@ void GLScene::beforeRender() const {
     (*activeProgram).setInt(uniforms.texture_sampler, currentTextureIndex);
 
     // todo: from material
-    (*activeProgram).setFloat(uniforms.specular_intensity, 3.0f);
+    (*activeProgram).setFloat(uniforms.specular_intensity, .4f);
     // todo: from material
-    (*activeProgram).setFloat(uniforms.specular_power, 32);
+    (*activeProgram).setFloat(uniforms.specular_power, 16);
 
     (*activeProgram).setVec3(uniforms.camera_position, viewPosition);
 
@@ -182,7 +182,7 @@ void GLScene::beforeRender() const {
     }
 
     // set point lights
-    lights.meshes = new elements::Mesh[lights.point.size()];
+//    lights.meshes = new objects::MeshOld[lights.point.size()];
     for (auto i = 0; i != lights.point.size(); i++) {
         std::string s = uniforms.lights.point;
         s += "[";
@@ -190,8 +190,8 @@ void GLScene::beforeRender() const {
         s += "]";
         light::uni::setPoint(light::uni::getPoint((GLuint) (*activeProgram), s.c_str()), lights.point[i]);
 
-        lights.meshes[i].set(lights.mesh);
-        lights.meshes[i].setPosition(lights.point[i].position);
+//        lights.meshes[i].set(lights.mesh);
+//        lights.meshes[i].setPosition(lights.point[i].position);
     }
 
     // set spot lights
@@ -220,9 +220,9 @@ void GLScene::setView(glm::vec3 position, glm::vec3 lookAt, glm::vec3 head) {
     viewPosition = position;
 }
 
-void GLScene::setLightMesh(const elements::Mesh &mesh) {
-    lights.mesh = mesh;
-}
+//void GLScene::setLightMesh(const objects::MeshOld &mesh) {
+//    lights.mesh = mesh;
+//}
 
 void GLScene::useTexture(unsigned index) {
     (*activeProgram).setInt(uniforms.texture_sampler, currentTextureIndex = index);

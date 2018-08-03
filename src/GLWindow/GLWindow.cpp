@@ -10,90 +10,107 @@
 /**
  * OpenGL error handler
  */
-static void APIENTRY openglCallbackFunction(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-                                            const GLchar *message, const void *userParam) {
+static void APIENTRY openglCallbackFunction(GLenum, GLenum, GLuint, GLenum severity, GLsizei,
+                                            const GLchar *message, const void *) {
     printf("%s\n", message);
     if (severity == GL_DEBUG_SEVERITY_HIGH) {
-        printf("Aborting...\n");
-        exit(3001);
+        exit(GL_CRASH_CODE);
     }
+}
+
+static void resizeCallback(GLFWwindow *, int width, int height) {
+    glViewport(0, 0, width, height);
 }
 
 GLWindow *GLWindow::initialized = nullptr;
 
+GLWindow::GLWindow() {
+    init();
+}
+
+GLWindow::GLWindow(bool debug) : debug{debug} {
+    init();
+}
+
+GLWindow::GLWindow(unsigned width, unsigned height, bool debug) : width{width}, height{height}, debug{debug} {
+    init();
+}
+
+GLWindow::GLWindow(unsigned width, unsigned height, bool limitCursor, bool debug) : width{width}, height{height},
+                                                                                    limitCursor{limitCursor},
+                                                                                    debug{debug} {
+    init();
+}
+
+GLWindow::GLWindow(unsigned width, unsigned height, const char *title, bool debug) : width{width}, height{height},
+                                                                                     title{title}, debug{debug} {
+    init();
+}
+
 GLWindow::~GLWindow() {
     if (GLWindow::initialized == this) {
-        close();
+        cleanGL();
     }
 }
 
-GLWindow *GLWindow::init() {
+void GLWindow::printData() const {
+    printf("Printing data for GLWindow (%x):\n", this);
+    printf("--- todo ---\n");
+}
+
+void GLWindow::cleanGL() const {
+    glfwTerminate();
+    GLWindow::initialized = nullptr;
+}
+
+void GLWindow::initGLFW() const {
+    if (!glfwInit()) {
+        crashGL("Failed to initialize GLFW");
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, version.major);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, version.minor);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, forwardCompatibility);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
+}
+
+void GLWindow::createWindow() {
+    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    if (window == nullptr) {
+        crashGL("Failed to create GLFW window");
+    }
+
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(vsync.swapInterval);
+}
+
+void GLWindow::initGLEW() const {
+    glewExperimental = (GLboolean) experimental;
+    if (glewInit() != GLEW_OK) {
+        crashGL("Failed to initialize GLEW");
+    }
+}
+
+void GLWindow::init() {
     if (GLWindow::initialized != nullptr) {
-        (*GLWindow::initialized).close();
+        (*GLWindow::initialized).cleanGL();
     }
     GLWindow::initialized = this;
 
-
-    if (!initGLFW())
-        return nullptr;
-
-    if (!createWindow() || !initGLEW()) {
-        close();
-        return nullptr;
-    }
-
-
-    if (limitCursor) {
-        glfwSetInputMode(window.ref, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
+    initGLFW();
+    createWindow();
+    initGLEW();
 
     if (debug) {
-        std::cout << "Debug output enabled" << std::endl;
+        printf("Debug output enabled\n");
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(openglCallbackFunction, nullptr);
     }
 
-    return this;
-}
-
-void GLWindow::close() {
-    glfwTerminate();
-    GLWindow::initialized = nullptr;
-}
-
-bool GLWindow::initGLFW() {
-    if (!glfwInit()) {
-        printf("Failed to initialize GLFW\n");
-        return false;
+    if (limitCursor) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
-    glfwWindowHint(GLFW_SAMPLES, antiAliasing);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, version.major);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, version.minor);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, forwardCompatibility);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, profile);
-
-    return true;
-}
-
-bool GLWindow::createWindow() {
-    window.ref = glfwCreateWindow(window.width, window.height, window.title, nullptr, nullptr);
-    if (window.ref == nullptr) {
-        printf("Failed to create GLFW window.\n");
-        return false;
-    }
-
-    glfwMakeContextCurrent(window.ref);
-    glfwSwapInterval(vsync);
-    return true;
-}
-
-bool GLWindow::initGLEW() {
-    glewExperimental = (GLboolean) experimental;
-    if (glewInit() != GLEW_OK) {
-        printf("Failed to initialize GLEW\n");
-        return false;
-    }
-    return true;
+    glfwSetFramebufferSizeCallback(window, resizeCallback);
 }

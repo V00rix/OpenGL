@@ -7,25 +7,40 @@
 
 
 #include <glfw3.h>
+#include "../GLObject/GLObject.h"
 
 /**
  * GLContext abstraction class
  */
-class GLWindow {
+class GLWindow : GLObject {
     /**
      *  Pointer to the current OpenGL initialized context
      *  Only one context can be initialized at runtime
      */
     static GLWindow *initialized;
 
-    bool initGLFW();
+    void initGLFW() const;
 
-    bool createWindow();
+    void initGLEW() const;
 
-    bool initGLEW();
+    void createWindow();
 
+    void printData() const override;
+
+    void init();
 public:
-    bool limitCursor = false;
+    GLWindow();
+    explicit GLWindow(bool debug = false);
+    GLWindow(unsigned width, unsigned height, bool debug = false);
+    GLWindow(unsigned width, unsigned height, bool limitCursor = false, bool debug = false);
+    GLWindow(unsigned width, unsigned height, const char * title, bool debug = false);
+
+    virtual ~GLWindow();
+
+    void cleanGL() const override;
+
+    bool limitCursor{false};
+
     /**
      * OpenGL profile to create the context for
      */
@@ -33,37 +48,31 @@ public:
         any = GLFW_OPENGL_ANY_PROFILE,
         core = GLFW_OPENGL_CORE_PROFILE,
         compatibility = GLFW_OPENGL_COMPAT_PROFILE
-    } profile = any;
-
-
-    /**
-     *  Anti-aliasing
-     */
-    unsigned antiAliasing = 4;
+    } profile{any};
 
     /**
      * OpenGL version
      */
-    struct Version {
-        unsigned major = 4;
-        unsigned minor = 4;
+    const struct Version {
+        unsigned major{4};
+        unsigned minor{0};
     } version;
 
     /**
      *  Forward compatibility hint
      */
-    bool forwardCompatibility = true;
+    const bool forwardCompatibility{true};
 
     /**
      *  Enable glew experimental
      *  @note needed for core profile
      */
-    bool experimental = true;
+    const bool experimental{true};
 
     /**
      *  Enable debug mode
      */
-    bool debug = false;
+    const bool debug{false};
 
     /**
      *  Swap interval for the current OpenGL or OpenGL ES context,
@@ -72,64 +81,44 @@ public:
      *
      *
      */
-    union {
+    const union {
         /**
          * The minimum number of monitor refreshes between buffers swap
          */
-        unsigned swapInterval = 1;
-
-        /**
-         * The minimum number of monitor refreshes between buffers swap
-         */
-        unsigned vsync;
+        unsigned swapInterval;
 
         /**
          * Enable vertical synchronization and set swapInterval to 1
          * @see vsync
          */
-        bool vsyncEnabled;
-    };
+        bool enabled;
+    } vsync{1};
 
     /**
      *  Window data
      */
-    struct Window {
-        /**
-         *  Window width
-         */
-        unsigned width = 200;
-        /**
-         * Window height
-         */
-        unsigned height = 100;
-        /**
-         * Window title
-         */
-        const char *title = "OpenGL";
-
-        GLFWwindow *ref = nullptr;
-    } window;
-
-    virtual ~GLWindow();
+    GLFWwindow *window{nullptr};
 
     /**
-     * Close current OpenGL context
+     *  Window width
      */
-    void close();
+    unsigned width{200};
 
     /**
-     * Initialize OpenGL context
-     * @return Pointer to a context
+     * Window height
      */
-    GLWindow *init();
+    unsigned height{100};
+
+    /**
+     * Window title
+     */
+    const char *const title{"OpenGL"};
 
     /**
      * Get currently initialized OpenGL context
      * @return Pointer to a context
      */
-    inline GLWindow *getInitContext() {
-        return GLWindow::initialized;
-    }
+    inline GLWindow *getInitContext() const { return GLWindow::initialized; }
 };
 
 

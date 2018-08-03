@@ -2,14 +2,14 @@
 // Created by vlado on 26-Jul-18.
 //
 
-#include "Mesh.h"
+#include "MeshOld.h"
 
-elements::Mesh::Mesh(const char *objFilePath) : objFilePath(objFilePath) {
+elements::MeshOld::MeshOld(const char *objFilePath) : objFilePath(objFilePath) {
     initVertices();
     initBuffers();
 }
 
-void elements::Mesh::initVertices() {
+void elements::MeshOld::initVertices() {
     std::vector<util::Vertex> vertices;
     std::vector<unsigned> indices;
     util::loadOBJ(objFilePath, vertices, indices);
@@ -26,7 +26,7 @@ void elements::Mesh::initVertices() {
     memcpy((void *) ElementBase::indices, &indices[0], indexSize);
 }
 
-void elements::Mesh::set(const elements::Mesh &other) {
+void elements::MeshOld::set(const elements::MeshOld &other) {
     vertexCount = other.vertexCount;
     vertexSize = other.vertexSize;
 

@@ -27,16 +27,15 @@ namespace elements {
         unsigned indexSize;
         unsigned indexCount;
 
-        mutable unsigned VAO;
-        mutable unsigned VBO;
-        mutable unsigned IBO;
+        unsigned VAO;
+        unsigned VBO;
+        unsigned EBO;
 
         static const glm::vec2 *uv;
 
         virtual void initVertices() = 0;
 
         virtual void initBuffers();
-
     public:
         virtual ~ElementBase();
 

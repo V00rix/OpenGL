@@ -5,24 +5,26 @@
 #include "Cube.h"
 #include <iostream>
 
-elements::Cube::Cube(float edge_length) : edge_length(edge_length) {
-    initVertices();
-    initBuffers();
-}
+static const glm::vec2 uv[]{
+        {0.f, 0.f},
+        {1.f, 0.f},
+        {1.f, 1.f},
+        {0.f, 1.f},
+};
 
-void elements::Cube::initVertices() {
+Cube::Cube(float edge_length) : edge_length(edge_length), Mesh(4 * 6, 3 * 2 * 6) {
     glm::vec3 positions[8] = {
             // bottom square
-            (glm::vec3(0.f, 0.f, 0.f)),                                              // 0
-            (glm::vec3(edge_length, 0.f, 0.f)),                                // 1
-            (glm::vec3(edge_length, 0.f, edge_length)),                  // 2
-            (glm::vec3(0.f, 0.f, edge_length)),                                // 3
+            (glm::vec3(0.f, 0.f, 0.f)),                             // 0
+            (glm::vec3(edge_length, 0.f, 0.f)),                     // 1
+            (glm::vec3(edge_length, 0.f, edge_length)),             // 2
+            (glm::vec3(0.f, 0.f, edge_length)),                     // 3
 
             // top square
-            (glm::vec3(0.f, edge_length, 0.f)),                                // 4
-            (glm::vec3(edge_length, edge_length, 0.f)),                  // 5
-            (glm::vec3(edge_length, edge_length, edge_length)),    // 6
-            (glm::vec3(0.f, edge_length, edge_length)),                  // 7
+            (glm::vec3(0.f, edge_length, 0.f)),                     // 4
+            (glm::vec3(edge_length, edge_length, 0.f)),             // 5
+            (glm::vec3(edge_length, edge_length, edge_length)),     // 6
+            (glm::vec3(0.f, edge_length, edge_length)),             // 7
     };
 
     glm::vec3 normals[6]{
@@ -32,10 +34,9 @@ void elements::Cube::initVertices() {
             glm::vec3(0.f, 0.f, -1.f),  // back
             glm::vec3(-1.f, 0.f, 0.f),  // left
             glm::vec3(1.f, 0.f, 0.f),   // right
-
     };
 
-    vertices = new util::Vertex[vertexCount]{
+    vertices = new util::Vertex[verticesCount]{
             // bottom square
             util::Vertex(positions[0], normals[0], uv[3]),     // 0
             util::Vertex(positions[1], normals[0], uv[2]),     // 1
@@ -68,7 +69,7 @@ void elements::Cube::initVertices() {
             util::Vertex(positions[2], normals[5], uv[1]),     // 23
     };
 
-    indices = new unsigned[indexCount]{
+    indices = new unsigned[indicesCount]{
             // bottom
             0, 1, 2,
             0, 2, 3,
@@ -94,8 +95,5 @@ void elements::Cube::initVertices() {
             12, 14, 15,
     };
 
-    ElementBase::indexCount = indexCount;
-    ElementBase::indexSize = indexSize;
-    ElementBase::vertexSize = vertexSize;
-    ElementBase::vertexCount = vertexCount;
+    init();
 }

@@ -17,42 +17,36 @@ static const glm::vec2 uv_init[] = { // NOLINT
 const glm::vec2 *ElementBase::uv = uv_init;
 
 void ElementBase::initBuffers() {
-    printf("init bufers\n");
     glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    printf("VAO = %d (%x)\n", VAO, this);
-
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertexSize, vertices, GL_DYNAMIC_DRAW);
 
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
-
-    glGenBuffers(1, &IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexSize, indices, GL_DYNAMIC_DRAW);
 
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, nullptr);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::color_offset);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, util::Vertex::size, (void *) util::Vertex::uv_offset);
+
     glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-    printf("VAO = %d, VBO = %d, IBO = %d (%x)\n", VAO, VBO, IBO, this);
 }
 
 ElementBase::~ElementBase() {
     printf("\tdeleting %x\n", this);
-    printf("\tVAO = %d, VBO = %d, IBO = %d (%x)\n", VAO, VBO, IBO, this);
+    printf("\tVAO = %d, VBO = %d, EBO = %d (%x)\n", VAO, VBO, EBO, this);
     delete[] vertices;
     delete[] indices;
 
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &IBO);
+    glDeleteBuffers(1, &EBO);
     glDeleteVertexArrays(1, &VAO);
 }
 

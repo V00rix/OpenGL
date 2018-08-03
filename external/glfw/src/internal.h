@@ -63,7 +63,7 @@
 #include "../include/GLFW/glfw3.h"
 
 #if defined(_GLFW_USE_OPENGL)
- // This path may need to be changed if you build GLFW using your own setup
+ // This path may need to be changed if you build GLFW using your own init
  // GLFW comes with its own copy of glext.h since it uses fairly new extensions
  // and not all development environments come with an up-to-date version
  #include "../deps/GL/glext.h"

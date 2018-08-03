@@ -32,3 +32,7 @@ unsigned Texture::loadTexture(const char *filePath) {
             return 0;
     }
 }
+
+void Texture::printData() const {
+
+}

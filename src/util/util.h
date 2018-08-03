@@ -51,7 +51,6 @@ namespace util {
     };
 
     unsigned loadDDS(const char *);
-
     unsigned loadBMP(const char *);
     unsigned loadSkyBoxBMP(const char * const filePath[6]);
 

@@ -9,18 +9,18 @@
 
 namespace elements {
 
-    class Mesh : public ElementBase {
+    class MeshOld : public ElementBase {
         const char *objFilePath;
 
         void initVertices() override;
 
     public:
 
-        explicit Mesh(const char *objFilePath);
+        explicit MeshOld(const char *objFilePath);
 
-        Mesh() : ElementBase(), objFilePath(nullptr) {}
+        MeshOld() : ElementBase(), objFilePath(nullptr) {}
 
-        void set(const Mesh &other);
+        void set(const MeshOld &other);
     };
 }
 

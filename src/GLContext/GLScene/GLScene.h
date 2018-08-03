@@ -8,29 +8,11 @@
 
 #include <glm/mat4x4.hpp>
 #include <functional>
-#include "../../elements/ElementBase/ElementBase.h"
-#include "../../elements/Mesh/Mesh.h"
 #include "../../Program/Program.h"
-#include "../../elements/Cube/Cube.h"
 #include "../../Texture/Texture.h"
-#include "../../elements/Skybox/Skybox.h"
 
 class GLScene {
 public:
-    struct Element {
-        elements::ElementBase &element;
-        Element *next;
-
-        explicit Element(elements::ElementBase &element) : element(element), next(nullptr) {
-            printf("constructing\n");
-        }
-
-        virtual ~Element() {
-            printf("destructing\n");
-            delete next;
-        }
-    };
-
 private:
     struct Uniforms {
         const char *matrix_world;
@@ -59,8 +41,8 @@ private:
      * Scene elements to render
      */
 
-    Element *head = nullptr;
-    Element *tail = head;
+//    Element *head = nullptr;
+//    Element *tail = head;
     std::function<void()> renderFunc;
     unsigned currentTextureIndex = 0;
 public:
@@ -68,8 +50,8 @@ public:
         std::vector<light::Directional> directional;
         std::vector<light::Point> point;
         std::vector<light::Spot> spot;
-        elements::Mesh mesh;
-        mutable elements::Mesh *meshes;
+//        objects::MeshOld mesh;
+//        mutable objects::MeshOld *meshes;
     } lights;
 
     class Grid {
@@ -78,6 +60,12 @@ public:
 
         mutable unsigned indexCount;
     public:
+
+
+        /**
+         *  Anti-aliasing
+         */
+        unsigned antiAliasing = 4;
 
         /**
          * Highest distance between two grid lines
@@ -124,9 +112,9 @@ public:
     } world, view, projection;
 
 
-    inline Element *getElements() const { return head; }
+//    inline Element *getElements() const { return head; }
 
-    void addElement(elements::ElementBase &);
+//    void addElement(elements::ElementBase &);
 
     virtual ~GLScene();
 
@@ -141,7 +129,7 @@ public:
     mutable Program skyboxProgram;
     mutable Program* activeProgram;
 
-    elements::Skybox * skybox;
+//    elements::Skybox * skybox;
 
     void addLight(const light::Directional &);
 
@@ -153,7 +141,7 @@ public:
 
     glm::vec3 viewPosition;
 
-    void setLightMesh(const elements::Mesh &mesh);
+//    void setLightMesh(const objects::MeshOld &mesh);
 
     void useTexture(unsigned index);
 

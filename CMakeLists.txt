@@ -39,27 +39,31 @@ function(add_source)
 endfunction()
 
 add_source(includes
-        GLContext
+#        GLContext
         GLWindow
-        GLContext/GLScene
+#        GLContext/GLScene
         GLContext/GLInputHandler
+        GLObject
+        GLModel
+        GLModel/Mesh
+        GLModel/Material
         light
         Program
+        UniBlock
+        Camera
         Texture
-        elements/ElementBase
-        elements/Square
-        elements/Skybox
-        elements/Mesh
-        elements/Cube)
+        meshes/Grid
+        meshes/Cube
+        )
 
 set(util
         src/util/util.h
         src/util/util.cpp
         src/util/loaders.cpp
-        src/util/Vertex.cpp)
+        src/util/uniforms.h)
 
 add_executable(OpenGL src/main.cpp
-        "${includes}" ${util} src/GLContext/GLScene/grid.cpp)
+        "${includes}" ${util})
 
 target_link_libraries(OpenGL
         ${OPENGL_LIBRARY}
