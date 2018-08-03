@@ -28,9 +28,17 @@ void UniBlock::set(int count, ...) const {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-UniBlock::UniBlock(const Program &program, const char *name, unsigned size) {
-    unsigned id = glGetUniformBlockIndex((unsigned) program, name);
-    glUniformBlockBinding((unsigned) program, id, 0);
+UniBlock::UniBlock(const char *name, unsigned size, int count, ...) {
+
+    va_list args;
+    va_start(args, count);
+
+    for (int i = 0; i < count; i++) {
+        auto program{(unsigned) va_arg(args, Program)};
+
+        unsigned id = glGetUniformBlockIndex(program, name);
+        glUniformBlockBinding(program, id, 0);
+    }
 
     ubo;
     glGenBuffers(1, &ubo);

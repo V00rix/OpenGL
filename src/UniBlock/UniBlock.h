@@ -18,7 +18,7 @@ class UniBlock {
 
     unsigned ubo{0};
 public:
-    UniBlock(const Program &, const char *, unsigned);
+    UniBlock(const char *, unsigned, int, ...);
 
     void set(int count...) const;
 };

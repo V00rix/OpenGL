@@ -41,7 +41,7 @@ int main() {
             skybox{"resources/shaders/skybox/vertex.glsl",
                    "resources/shaders/skybox/fragment.glsl"};
 
-    UniBlock matrices {program, UNI_BLOCK_MATRICES, 3 * sizeof(glm::mat4)};
+    UniBlock matrices {UNI_BLOCK_MATRICES, 3 * sizeof(glm::mat4), 1, program};
 
 //    // Load textures
 //    std::vector<Texture> textures = {
