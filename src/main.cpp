@@ -25,11 +25,17 @@
 
 static GLFWwindow *window;
 
-static void processInput();
+static void processCamera(Camera *, double, double, double);
 
+static void updateTime(double *delta);
+
+static double lastFrame{0.f};
+
+static const int width {2024};
+static const int height {1468};
 
 int main() {
-    GLWindow w(2024, 1468, false, true);
+    GLWindow w(width, height, true, true);
     window = w.window;
 
     // Compile and load programs
@@ -41,7 +47,7 @@ int main() {
             skybox{"resources/shaders/skybox/vertex.glsl",
                    "resources/shaders/skybox/fragment.glsl"};
 
-    UniBlock matrices {UNI_BLOCK_MATRICES, 3 * sizeof(glm::mat4), 1, program};
+    UniBlock matrices{UNI_BLOCK_MATRICES, 3 * sizeof(glm::mat4), 1, program};
 
 //    // Load textures
 //    std::vector<Texture> textures = {
@@ -55,20 +61,25 @@ int main() {
     // set up models
     Grid grid(10.f, 10);
     Cube cube(.5f);
-    cube.transform(glm::translate(glm::vec3 {0.f, 0.f, -.5f}));
+    cube.transform(glm::translate(glm::vec3{-.25f}));
     GLModel cubeModel(cube);
 
-    Camera camera{};
+    Camera camera{{2.f, 2.f, -1.f}, {0.f, 0.f, 0.f}};
+    camera.lastX = width / 2.f;
+    camera.lastY = height / 2.f;
 
+    double x{0}, y{0}, deltaTime{0};
     while (!glfwWindowShouldClose(window)) {
-        // update cursor position
+        // Widow closing
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            glfwSetWindowShouldClose(window, true);
+        }
 
+        // update cursor position
+        glfwGetCursorPos(window, &x, &y);
 
         // update time variables
-
-
-        // process input
-        processInput();
+        updateTime(&deltaTime);
 
         // clear
         glClearColor(.3f, .3f, .3f, 1.f);
@@ -78,6 +89,7 @@ int main() {
         program.use();
 
         // set camera
+        processCamera(&camera, x, y, deltaTime);
         camera.set(matrices);
 
         // render
@@ -345,8 +357,26 @@ int main() {
     return 0;
 }
 
-void processInput() {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
+void processCamera(Camera *camera, double x, double y, double delta) {
+    // Move camera
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        camera->move(CameraMovement::FORWARD, (float) delta);
     }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        camera->move(CameraMovement::BACKWARD, (float) delta);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        camera->move(CameraMovement::LEFT, (float) delta);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        camera->move(CameraMovement::RIGHT, (float) delta);
+    }
+    // Rotate camera
+    camera->rotate((float) x, (float) y);
+}
+
+void updateTime(double *delta) {
+    double currentFrame = glfwGetTime();
+    *delta = currentFrame - lastFrame;
+    lastFrame = currentFrame;
 }

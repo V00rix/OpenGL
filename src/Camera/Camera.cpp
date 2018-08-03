@@ -34,20 +34,66 @@ void Camera::lookAt(const glm::vec3 &lookAt) {
 
 }
 
-void Camera::move(CameraMovement direction, float deltaTime) const {
+void Camera::move(CameraMovement direction, float deltaTime) {
+    glm::vec3 right{glm::normalize(glm::cross(front, up))};
 
+    float velocity = speed;
+    if (direction == FORWARD)
+        position += front * velocity;
+    if (direction == BACKWARD)
+        position -= front * velocity;
+    if (direction == LEFT)
+        position -= right * velocity;
+    if (direction == RIGHT)
+        position += right * velocity;
+
+    updateView();
 }
 
-void Camera::rotate(float x, float y) const {
+void Camera::rotate(float x, float y) {
+    if (firstMouse) {
+        lastX = x;
+        lastY = y;
+        firstMouse = false;
+    }
 
+    float xOffset = x - lastX;
+    float yOffset = lastY - y;
+    lastX = x;
+    lastY = y;
+
+    xOffset *= sensitivity;
+    yOffset *= sensitivity;
+
+    yaw += xOffset;
+    pitch += yOffset;
+
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = (float) (cos(glm::radians(yaw)) * cos(glm::radians(pitch)));
+    front.y = (float) sin(glm::radians(pitch));
+    front.z = (float) (sin(glm::radians(yaw)) * cos(glm::radians(pitch)));
+    this->front = glm::normalize(front);
+
+    updateView();
 }
 
 glm::mat4 Camera::calculatePerspective(float zoom) const {
     return glm::perspective(glm::radians(zoom), 4.0f / 3.0f, 0.1f, 100.0f);
 }
 
-Camera::Camera(const glm::vec3 &position, const glm::vec3 &front, float _zoom) :
-        position{position}, front{front}, projection{calculatePerspective(_zoom)},
-        view{glm::lookAt(position, front, HEAD)} {
+Camera::Camera(const glm::vec3 &position, const glm::vec3 &lookAt, float _zoom) :
+        position{position}, front{glm::normalize(lookAt - position)}, projection{calculatePerspective(_zoom)},
+        view{glm::lookAt(position, lookAt, UP)} {
+    pitch = (float) asin(front.y);
+    yaw = (float) glm::degrees(acos(front.x / (float) cos(pitch)));
+    pitch = glm::degrees(pitch);
+}
 
+void Camera::updateView() {
+    view = glm::lookAt(position, position + front, up);
 }
